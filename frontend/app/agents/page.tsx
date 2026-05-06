@@ -3,7 +3,7 @@ import AgentsClient from "./AgentsClient"
 
 async function getAgents() {
   const res = await fetch(
-    'https://valorant-api.com/v1/agents?isPlayableCharacter=true',
+    'https://valorant-api.com/v1/agents?isPlayableCharacter=true&language=th-TH',
     { next: { revalidate: 3600 } }
   )
   const data = await res.json()
