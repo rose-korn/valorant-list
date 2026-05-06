@@ -17,9 +17,19 @@ export default function Navbar() {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0f1923]/95 border-b border-[#ff4654]/30 backdrop-blur-sm">
-                <div className="flex items-center justify-between px-5 md:px-10 h-14">
+            {/* Overlay — กดข้างนอกเพื่อปิด */}
+            {menuOpen && (
+                <div
+                    className="fixed inset-0 z-40 md:hidden"
+                    onClick={() => setMenuOpen(false)}
+                />
+            )}
 
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0f1923]/95 border-b border-[#ff4654]/30 backdrop-blur-sm">
+                <div
+                    className="flex items-center justify-between h-14"
+                    style={{ paddingLeft: '32px', paddingRight: '24px' }}
+                >
                     {/* Logo */}
                     <Link
                         href="/"
@@ -53,36 +63,32 @@ export default function Navbar() {
                             Play Free
                         </a>
 
-                        {/* Hamburger — mobile */}
+                        {/* Hamburger / X — mobile */}
                         <button
                             onClick={() => setMenuOpen(!menuOpen)}
-                            className="md:hidden flex flex-col gap-1.5 p-2"
+                            className="md:hidden w-8 h-8 flex items-center justify-center"
                         >
-                            <span
-                                className="block w-5 h-0.5 bg-white transition-all duration-200"
-                                style={{ transform: menuOpen ? 'rotate(45deg) translateY(8px)' : 'none' }}
-                            />
-                            <span
-                                className="block w-5 h-0.5 bg-white transition-all duration-200"
-                                style={{ opacity: menuOpen ? 0 : 1 }}
-                            />
-                            <span
-                                className="block w-5 h-0.5 bg-white transition-all duration-200"
-                                style={{ transform: menuOpen ? 'rotate(-45deg) translateY(-8px)' : 'none' }}
-                            />
+                            {menuOpen ? (
+                                <span className="text-white text-lg leading-none">✕</span>
+                            ) : (
+                                <div className="flex flex-col gap-1.5">
+                                    <span className="block w-5 h-0.5 bg-white" />
+                                    <span className="block w-5 h-0.5 bg-white" />
+                                    <span className="block w-5 h-0.5 bg-white" />
+                                </div>
+                            )}
                         </button>
                     </div>
-
                 </div>
 
-                {/* Mobile menu — dropdown */}
+                {/* Mobile menu */}
                 <div
                     className="md:hidden overflow-hidden transition-all duration-300"
                     style={{ maxHeight: menuOpen ? '300px' : '0px' }}
                 >
                     <div
                         className="border-t border-white/10 bg-[#0f1923] py-4 flex flex-col gap-4"
-                        style={{ paddingLeft: '32px', paddingRight: '20px' }}
+                        style={{ paddingLeft: '32px', paddingRight: '32px' }}
                     >
                         {NAV_LINKS.map((link) => (
                             <Link
@@ -98,7 +104,7 @@ export default function Navbar() {
                         <a
                             href="https://playvalorant.com"
                             target="_blank"
-                            className="bg-[#ff4654] text-white text-xs tracking-widest uppercase py-2 rounded-sm hover:bg-[#e03545] transition-colors text-center mt-2"
+                            className="bg-[#ff4654] text-white text-xs tracking-widest uppercase py-2 rounded-sm hover:bg-[#e03545] transition-colors text-center"
                             style={{ marginLeft: '16px' }}
                         >
                             Play Free
