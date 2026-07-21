@@ -1,7 +1,7 @@
-import AgentsClient from "./AgentsClient"
+import AgentsClient, { type Agent } from "./AgentsClient"
 
 
-async function getAgents() {
+async function getAgents(): Promise<Agent[]> {
   const res = await fetch(
     'https://valorant-api.com/v1/agents?isPlayableCharacter=true&language=th-TH',
     { next: { revalidate: 3600 } }

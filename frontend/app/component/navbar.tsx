@@ -2,18 +2,15 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { useDeviceSize } from '@/hooks/useDeviceSize'
 
 const NAV_LINKS = [
     { href: '/agents', label: 'Agents' },
     { href: '/maps', label: 'Maps' },
     { href: '/weapons', label: 'Weapons' },
-    { href: '/news', label: 'News' },
 ]
 
 export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false)
-    const { isMobile } = useDeviceSize()
 
     return (
         <>

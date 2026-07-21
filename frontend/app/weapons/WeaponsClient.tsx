@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useDeviceSize } from '@/hooks/useDeviceSize'
 
 interface DamageRange {
   rangeStartMeters: number
@@ -21,7 +20,7 @@ interface WeaponStats {
   damageRanges: DamageRange[]
 }
 
-interface Weapon {
+export interface Weapon {
   uuid: string
   displayName: string
   category: string
@@ -63,7 +62,6 @@ const WALL_PEN: Record<string, string> = {
 export default function WeaponsClient({ weapons }: { weapons: Weapon[] }) {
   const [selected, setSelected] = useState<Weapon | null>(null)
   const [filterCat, setFilterCat] = useState('ALL')
-  const { isMobile } = useDeviceSize()
 
   const categories = [
     'ALL',
@@ -116,7 +114,7 @@ export default function WeaponsClient({ weapons }: { weapons: Weapon[] }) {
             <div className="flex items-end justify-between mb-4">
               <div>
                 <p className="font-barlow text-[#ff4654] text-[10px] tracking-[4px] uppercase mb-1">
-                  // {CATEGORY_LABEL[selected.category] ?? selected.category}
+                  {`// ${CATEGORY_LABEL[selected.category] ?? selected.category}`}
                 </p>
                 <h1 className="font-rajdhani font-bold text-5xl md:text-6xl uppercase text-white leading-none">
                   {selected.displayName}
@@ -138,7 +136,7 @@ export default function WeaponsClient({ weapons }: { weapons: Weapon[] }) {
             {stats ? (
               <>
                 <p className="font-barlow text-white/30 text-[10px] tracking-[4px] uppercase mb-3">
-                  // Stats
+                  {'// Stats'}
                 </p>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
                   {[
@@ -164,7 +162,7 @@ export default function WeaponsClient({ weapons }: { weapons: Weapon[] }) {
                 {stats.damageRanges.length > 0 && (
                   <>
                     <p className="font-barlow text-white/30 text-[10px] tracking-[4px] uppercase mb-3">
-                      // Damage
+                      {'// Damage'}
                     </p>
                     <div className="border border-white/10 rounded-sm overflow-hidden mb-6">
                       <div className="grid grid-cols-4 bg-white/5 px-4 py-2">

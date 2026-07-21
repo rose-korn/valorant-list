@@ -1,11 +1,14 @@
 import Link from 'next/link'
-import Image from 'next/image'
+import type { Agent } from './agents/AgentsClient'
+import type { GameMap } from './maps/MapsClient'
+import type { Weapon } from './weapons/WeaponsClient'
 
 async function getHomeData() {
   const [agentsRes, mapsRes, weaponsRes] = await Promise.all([
     fetch('https://valorant-api.com/v1/agents?isPlayableCharacter=true&language=th-TH', { next: { revalidate: 3600 } }),
     fetch('https://valorant-api.com/v1/maps?language=th-TH', { next: { revalidate: 3600 } }),
-    fetch('https://valorant-api.com/v1/weapons?language=th-TH', { next: { revalidate: 3600 } }),
+    // response is ~5MB, over Next's 2MB data-cache limit, so revalidate can't cache it
+    fetch('https://valorant-api.com/v1/weapons?language=th-TH', { cache: 'no-store' }),
   ])
   const [agents, maps, weapons] = await Promise.all([
     agentsRes.json(),
@@ -14,22 +17,23 @@ async function getHomeData() {
   ])
   return {
     // สุ่มเอาตัวนึง
-    featuredAgent: agents.data?.[Math.floor(Math.random() * 10)],
-    featuredMap: maps.data?.find((m: any) => m.splash),
-    featuredWeapon: weapons.data?.find((w: any) => w.category === 'EEquippableCategory::Rifle' && w.displayIcon),
+    featuredAgent: agents.data?.[Math.floor(Math.random() * 10)] as Agent | undefined,
     // เอามาแสดงใน grid
-    agentPreviews: agents.data?.slice(0, 6),
-    mapPreviews: maps.data?.filter((m: any) => m.splash).slice(0, 3),
-    weaponPreviews: weapons.data?.filter((w: any) => w.displayIcon).slice(0, 5).map((w: any) => ({
-      uuid: w.uuid,
-      displayName: w.displayName,
-      displayIcon: w.displayIcon,
-    })),
+    agentPreviews: agents.data?.slice(0, 6) as Agent[] | undefined,
+    mapPreviews: maps.data?.filter((m: GameMap) => m.splash).slice(0, 3) as GameMap[] | undefined,
+    weaponPreviews: weapons.data
+      ?.filter((w: Weapon) => w.displayIcon)
+      .slice(0, 5)
+      .map((w: Weapon) => ({
+        uuid: w.uuid,
+        displayName: w.displayName,
+        displayIcon: w.displayIcon,
+      })),
   }
 }
 
 export default async function HomePage() {
-  const { featuredAgent, featuredMap, featuredWeapon, agentPreviews, mapPreviews, weaponPreviews } = await getHomeData()
+  const { featuredAgent, agentPreviews, mapPreviews, weaponPreviews } = await getHomeData()
 
   return (
     <>
@@ -214,7 +218,7 @@ export default async function HomePage() {
             {agentPreviews && (
               <div className="a4 flex items-center gap-3">
                 <div className="flex">
-                  {agentPreviews.slice(0, 5).map((agent: any, i: number) => (
+                  {agentPreviews.slice(0, 5).map((agent: Agent, i: number) => (
                     <div
                       key={agent.uuid}
                       className="rounded-full overflow-hidden border-2 border-[#0f1923]"
@@ -317,7 +321,7 @@ export default async function HomePage() {
           {/* agent grid */}
           {agentPreviews && (
             <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-              {agentPreviews.map((agent: any) => (
+              {agentPreviews.map((agent: Agent) => (
                 <Link href="/agents" key={agent.uuid}>
                   <div
                     className="card-hover relative overflow-hidden rounded-sm cursor-pointer"
@@ -366,13 +370,13 @@ export default async function HomePage() {
           {/* map grid */}
           {mapPreviews && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {mapPreviews.map((map: any) => (
+              {mapPreviews.map((map: GameMap) => (
                 <Link href="/maps" key={map.uuid}>
                   <div className="card-hover relative overflow-hidden rounded-sm cursor-pointer" style={{ aspectRatio: '16/9' }}>
                     <img src={map.listViewIcon ?? map.splash} alt={map.displayName} className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-500" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-4">
                       <div>
-                        <p className="font-barlow text-[#ff4654] uppercase tracking-widest mb-1" style={{ fontSize: '9px' }}>// Map</p>
+                        <p className="font-barlow text-[#ff4654] uppercase tracking-widest mb-1" style={{ fontSize: '9px' }}>{'// Map'}</p>
                         <p className="font-rajdhani font-bold text-white uppercase" style={{ fontSize: '18px', letterSpacing: '1px' }}>
                           {map.displayName}
                         </p>
@@ -425,7 +429,7 @@ export default async function HomePage() {
           {/* weapon showcase */}
           {weaponPreviews && (
             <div className="flex flex-col gap-6">
-              {weaponPreviews.map((weapon: any, i: number) => (
+              {weaponPreviews.map((weapon: Pick<Weapon, 'uuid' | 'displayName' | 'displayIcon'>, i: number) => (
                 <Link href="/weapons" key={weapon.uuid}>
                   <div
                     className="flex items-center gap-6 group cursor-pointer"

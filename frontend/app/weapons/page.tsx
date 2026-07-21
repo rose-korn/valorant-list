@@ -1,15 +1,16 @@
-import WeaponsClient from "./WeaponsClient"
+import WeaponsClient, { type Weapon } from "./WeaponsClient"
 
 
-async function getWeapons() {
+async function getWeapons(): Promise<Weapon[]> {
     const res = await fetch(
       'https://valorant-api.com/v1/weapons?language=th-TH',
-      { cache: 'no-store' } // 
+      // response is ~5MB, over Next's 2MB data-cache limit, so revalidate can't cache it
+      { cache: 'no-store' }
     )
     const data = await res.json()
-  
+
     // กรองเฉพาะ field ที่ใช้ ตัด skins ออก
-    return data.data.map((w: any) => ({
+    return data.data.map((w: Weapon) => ({
       uuid: w.uuid,
       displayName: w.displayName,
       category: w.category,

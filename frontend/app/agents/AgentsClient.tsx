@@ -12,7 +12,7 @@ interface Ability {
   displayIcon: string | null
 }
 
-interface Agent {
+export interface Agent {
   uuid: string
   displayName: string
   description: string
@@ -40,7 +40,7 @@ export default function AgentsClient({ agents }: { agents: Agent[] }) {
   const [selected, setSelected] = useState<Agent | null>(null)
   const [activeAbility, setActiveAbility] = useState<number | null>(null)
   const [filterRole, setFilterRole] = useState('ALL')
-  const { isMobile, isTablet } = useDeviceSize()
+  const { isMobile } = useDeviceSize()
   const { height, marginTop } = useAgentImageHeight()
 
   const bgColor = selected?.backgroundGradientColors?.[0]
@@ -122,7 +122,7 @@ export default function AgentsClient({ agents }: { agents: Agent[] }) {
 
               {/* abilities */}
               <p className="font-barlow text-white/30 text-[10px] tracking-[4px] uppercase mb-1">
-                // Abilities
+                {'// Abilities'}
               </p>
               <p className="font-barlow text-white/20 text-[9px] mb-2">
                 กดที่สกิลเพื่อดูคำอธิบาย

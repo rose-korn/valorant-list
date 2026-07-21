@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useDeviceSize } from '@/hooks/useDeviceSize'
 
-interface GameMap {
+export interface GameMap {
     uuid: string
     displayName: string
     coordinates: string
@@ -40,7 +40,7 @@ export default function MapsClient({ maps }: { maps: GameMap[] }) {
                 <div className="w-64 flex-shrink-0 border-r border-white/10 overflow-y-auto h-screen sticky top-14 z-20 scrollbar-hide">
                     <div className="p-4 border-b border-white/5">
                         <p className="font-barlow text-white/30 text-[10px] tracking-[4px] uppercase">
-                        // Select Map
+                        {'// Select Map'}
                         </p>
                     </div>
                     {maps.map((map) => {
@@ -117,7 +117,7 @@ export default function MapsClient({ maps }: { maps: GameMap[] }) {
                         <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 flex items-end gap-4">
                             <div className="flex-1">
                                 <p className="font-barlow text-[#ff4654] text-[10px] tracking-[4px] uppercase mb-1">
-        // Map
+        {'// Map'}
                                 </p>
                                 <h1
                                     className="font-rajdhani font-bold uppercase text-white leading-none mb-1"
@@ -159,7 +159,7 @@ export default function MapsClient({ maps }: { maps: GameMap[] }) {
                             {!isMobileOrTablet && (
                                 <div className="absolute top-0 right-8 transform -translate-y-6">
                                     <p className="font-barlow text-white/30 text-[9px] tracking-[3px] uppercase">
-          // Minimap
+          {'// Minimap'}
                                     </p>
                                 </div>
                             )}
@@ -257,7 +257,7 @@ export default function MapsClient({ maps }: { maps: GameMap[] }) {
                         <div className="flex items-center justify-between mb-3">
                             <div>
                                 <p className="font-barlow text-[#ff4654] text-[10px] tracking-[4px] uppercase mb-1">
-            // Minimap
+            {'// Minimap'}
                                 </p>
                                 <p className="font-rajdhani font-bold text-2xl uppercase text-white">
                                     {selected.displayName}
@@ -285,7 +285,7 @@ export default function MapsClient({ maps }: { maps: GameMap[] }) {
                         {selected.callouts && selected.callouts.length > 0 && (
                             <div className="mt-4">
                                 <p className="font-barlow text-white/30 text-[10px] tracking-[4px] uppercase mb-3">
-      // Callouts
+      {'// Callouts'}
                                 </p>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                     {/* จัดกลุ่มตาม superRegionName */}
