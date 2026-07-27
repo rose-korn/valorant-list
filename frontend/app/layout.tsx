@@ -1,16 +1,18 @@
 import type { Metadata } from 'next'
-import { Barlow, Rajdhani } from 'next/font/google'
+import { Prompt, Chakra_Petch } from 'next/font/google'
 import './globals.css'
-import Navbar from './component/navbar'
+import Navbar from './_components/Navbar'
 
-const barlow = Barlow({
-  subsets: ['latin'],
+// Barlow/Rajdhani have no Thai glyphs, so Thai text fell back to a mismatched
+// system font. Prompt + Chakra Petch cover Thai + Latin with the same look.
+const barlow = Prompt({
+  subsets: ['latin', 'thai'],
   weight: ['400', '500', '600', '700'],
   variable: '--font-barlow',
 })
 
-const rajdhani = Rajdhani({
-  subsets: ['latin'],
+const rajdhani = Chakra_Petch({
+  subsets: ['latin', 'thai'],
   weight: ['500', '700'],
   variable: '--font-rajdhani',
 })

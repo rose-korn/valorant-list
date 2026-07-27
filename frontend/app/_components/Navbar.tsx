@@ -22,10 +22,10 @@ export default function Navbar() {
                 />
             )}
 
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0f1923]/95 border-b border-[#ff4654]/30 backdrop-blur-sm">
+            <nav className="glass fixed top-0 left-0 right-0 z-50" style={{ borderLeft: 'none', borderRight: 'none', borderTop: 'none' }}>
                 <div
                     className="flex items-center justify-between h-14"
-                    style={{ paddingLeft: '32px', paddingRight: '24px' }}
+                    style={{ paddingLeft: '24px', paddingRight: '24px' }}
                 >
                     {/* Logo */}
                     <Link
@@ -55,7 +55,8 @@ export default function Navbar() {
                         <a
                             href="https://playvalorant.com"
                             target="_blank"
-                            className="hidden sm:block bg-[#ff4654] text-white text-xs tracking-widest uppercase px-4 py-2 rounded-sm hover:bg-[#e03545] transition-colors whitespace-nowrap"
+                            className="hidden sm:block text-white text-xs tracking-widest uppercase px-4 py-2 rounded-full transition-transform hover:scale-105 whitespace-nowrap"
+                            style={{ background: 'linear-gradient(135deg, #ff4654, #d92f3d)', boxShadow: '0 6px 20px -6px rgba(255,70,84,0.55)' }}
                         >
                             Play Free
                         </a>
@@ -84,8 +85,8 @@ export default function Navbar() {
                     style={{ maxHeight: menuOpen ? '300px' : '0px' }}
                 >
                     <div
-                        className="border-t border-white/10 bg-[#0f1923] py-4 flex flex-col gap-4"
-                        style={{ paddingLeft: '32px', paddingRight: '32px' }}
+                        className="border-t border-white/10 py-4 flex flex-col gap-4"
+                        style={{ paddingLeft: '24px', paddingRight: '24px' }}
                     >
                         {NAV_LINKS.map((link) => (
                             <Link
@@ -93,7 +94,6 @@ export default function Navbar() {
                                 href={link.href}
                                 onClick={() => setMenuOpen(false)}
                                 className="text-xs tracking-widest uppercase text-white/60 hover:text-[#ff4654] transition-colors"
-                                style={{ paddingLeft: '16px' }}
                             >
                                 {link.label}
                             </Link>
@@ -101,8 +101,8 @@ export default function Navbar() {
                         <a
                             href="https://playvalorant.com"
                             target="_blank"
-                            className="bg-[#ff4654] text-white text-xs tracking-widest uppercase py-2 rounded-sm hover:bg-[#e03545] transition-colors text-center"
-                            style={{ marginLeft: '16px' }}
+                            className="text-white text-xs tracking-widest uppercase py-2.5 rounded-full transition-transform hover:scale-[1.02] text-center"
+                            style={{ background: 'linear-gradient(135deg, #ff4654, #d92f3d)' }}
                         >
                             Play Free
                         </a>
