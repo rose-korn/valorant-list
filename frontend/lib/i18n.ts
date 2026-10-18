@@ -205,6 +205,8 @@ const th = {
     allSkinsNote: 'กดที่สกินเพื่อหมุนดูด้านบน',
     allTiers: 'ทุกระดับ',
     searchSkin: 'หาชื่อสกิน...',
+    volumeNote: 'เสียงเริ่มที่ 25% ปรับได้ที่แถบวิดีโอ (จำค่าไว้ให้)',
+    browseHint: 'กด ◀ ▶ หรือปุ่มลูกศรบนคีย์บอร์ดเพื่อดูสกินถัดไป',
   },
   ranks: {
     title: 'แรงค์',
@@ -515,6 +517,8 @@ const en: Dict = {
     allSkinsNote: 'tap a skin to spin it above',
     allTiers: 'All tiers',
     searchSkin: 'Search skins...',
+    volumeNote: 'Videos start at 25% volume — adjust it in the player and we’ll remember it',
+    browseHint: 'use ◀ ▶ or your arrow keys to flip through skins',
   },
   ranks: {
     title: 'Ranks',
