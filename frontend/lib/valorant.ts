@@ -185,6 +185,43 @@ export interface Buddy {
   displayName: string
   isHiddenIfNotOwned: boolean
   displayIcon: string
+  levels?: { uuid: string; charmLevel: number; displayName: string; displayIcon: string }[]
+}
+
+/** ของแต่งโปรไฟล์ (Flex / Totem) ที่อยู่ในพาส */
+export interface Flex {
+  uuid: string
+  displayName: string
+  displayIcon: string
+}
+
+export interface ContractReward {
+  /** EquippableSkinLevel | EquippableCharmLevel | Spray | PlayerCard | Title | Currency | Character | Totem */
+  type: string
+  uuid: string
+  amount: number
+  isHighlighted: boolean
+}
+
+export interface ContractLevel {
+  reward: ContractReward
+  xp: number
+  vpCost: number
+  isPurchasableWithVP: boolean
+}
+
+export interface Contract {
+  uuid: string
+  displayName: string
+  displayIcon: string | null
+  shipIt: boolean
+  content: {
+    /** Season = Battle Pass, Agent = สัญญาเอเจนท์, Event = พาสอีเวนต์ */
+    relationType: string | null
+    relationUuid: string | null
+    chapters: { isEpilogue: boolean; levels: ContractLevel[]; freeRewards: ContractReward[] | null }[]
+    premiumVPCost: number
+  }
 }
 
 export interface PlayerTitle {
@@ -356,6 +393,21 @@ export function nowMs() {
 /** index ของวัน ใช้หมุนเวียนเนื้อหาเด่นรายวัน */
 export function dayIndex() {
   return Math.floor(nowMs() / 86_400_000)
+}
+
+/** ชื่อสั้นของสิ่งที่ปลดในแต่ละเลเวลสกิน (EEquippableSkinLevelItem::X → X) */
+export function levelItemKey(levelItem: string | null) {
+  return levelItem ? (levelItem.split('::')[1] ?? levelItem) : 'Base'
+}
+
+/** ชื่อ "Episode X · Act Y" จาก season ที่ contract ผูกอยู่ */
+export function actLabel(contract: Contract, seasons: Season[]) {
+  const act = seasons.find((s) => s.uuid === contract.content.relationUuid)
+  const ep = act?.parentUuid ? seasons.find((s) => s.uuid === act.parentUuid) : null
+  return {
+    act,
+    label: [ep?.title ?? ep?.displayName, act?.title ?? act?.displayName].filter(Boolean).join(' · '),
+  }
 }
 
 export function formatDuration(seconds: number) {

@@ -6,6 +6,7 @@ export const NAV_LINKS = [
   { href: '/maps', key: 'maps', emoji: '🗺️' },
   { href: '/weapons', key: 'weapons', emoji: '🔫' },
   { href: '/ranks', key: 'ranks', emoji: '🏆' },
+  { href: '/battlepass', key: 'battlepass', emoji: '🎟️' },
   { href: '/bundles', key: 'bundles', emoji: '🛍️' },
   { href: '/collection', key: 'collection', emoji: '🃏' },
   { href: '/modes', key: 'modes', emoji: '🎮' },

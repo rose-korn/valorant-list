@@ -51,6 +51,7 @@ This project is created for **educational and demonstration purposes only**.
 | `/bundles` | All store bundles with promo art |
 | `/collection`, `/collection/[type]` | Player cards, sprays, gun buddies, titles (3D inspect) |
 | `/modes` | Game modes & currencies |
+| `/battlepass`, `/battlepass/[uuid]` | Every act's battle pass and event passes: rewards per tier, free track, highlights, total XP |
 | `/share` | Make a shareable "my main" card (PNG download / native share / link) |
 | `/play` | Aim Rush — 30-second aim trainer with combos, headshots and a rank result |
 

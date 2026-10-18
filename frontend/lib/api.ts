@@ -7,6 +7,8 @@ import type {
   Agent,
   Bundle,
   Buddy,
+  Contract,
+  Flex,
   CompetitiveSeason,
   ContentTier,
   Currency,
@@ -53,4 +55,7 @@ export const getGameModes = () => request<GameMode[]>('/gamemodes', [])
 export const getGear = () => request<Gear[]>('/gear', [])
 export const getSeasons = () => request<Season[]>('/seasons', [])
 export const getCurrencies = () => request<Currency[]>('/currencies', [])
+export const getContracts = () => request<Contract[]>('/contracts', [])
+export const getContract = (uuid: string) => request<Contract | null>(`/contracts/${uuid}`, null)
+export const getFlex = () => request<Flex[]>('/flex', [])
 export const getVersion = () => request<VersionInfo | null>('/version', null)

@@ -1,9 +1,11 @@
 'use client'
 
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import Viewer3D from '@/components/three/Viewer3D'
 import { Container } from '@/components/ui'
 import { useI18n } from '@/components/LangProvider'
+import Modal from '@/components/Modal'
+import { levelItemKey } from '@/lib/valorant'
 
 export interface TierInfo {
   uuid: string
@@ -70,6 +72,8 @@ export default function SkinExplorer({
   const [sort, setSort] = useState<Sort>('tier')
   const [limit, setLimit] = useState(PAGE)
   const [video, setVideo] = useState<{ src: string; title: string } | null>(null)
+  const [details, setDetails] = useState(false)
+  const closeDetails = useCallback(() => setDetails(false), [])
 
   const tierOf = (uuid: string | null) => tiers.find((x) => x.uuid === uuid)
   const tierNow = tierOf(selected.tier)
@@ -167,6 +171,11 @@ export default function SkinExplorer({
               <h2 key={title} className="min-w-0 flex-1 animate-fade-in truncate text-xl font-bold md:text-2xl">
                 {title}
               </h2>
+              {(selected.chromas.length > 1 || selected.levels.length > 1) && (
+                <button onClick={() => setDetails(true)} className="btn btn-paper shrink-0 !px-3 !py-1 text-sm">
+                  📋 {w.details}
+                </button>
+              )}
             </div>
 
             {/* สี + คลิปเลเวล อยู่แถวเดียวกันใต้จอ */}
@@ -319,6 +328,12 @@ export default function SkinExplorer({
                             {st && <img src={st.icon} alt={st.name} className="mt-0.5 h-4 w-4 shrink-0" />}
                             <span className="line-clamp-2 text-sm leading-snug font-medium">{s.displayName}</span>
                           </span>
+                          {(s.chromas.length > 1 || s.levels.length > 1) && (
+                            <span className="mt-1 flex flex-wrap gap-1 px-0.5">
+                              {s.chromas.length > 1 && <span className="rounded-full bg-paper-2 px-1.5 text-[11px] font-semibold">{w.badgeVariants(s.chromas.length)}</span>}
+                              {s.levels.length > 1 && <span className="rounded-full bg-paper-2 px-1.5 text-[11px] font-semibold">{w.badgeLevels(s.levels.length)}</span>}
+                            </span>
+                          )}
                           {on && (
                             <span aria-hidden className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-red text-xs font-bold text-white">
                               ✓
@@ -344,9 +359,88 @@ export default function SkinExplorer({
 
       {children}
 
+      {/* ================= รายละเอียด: ร่าง + เลเวลอัปเกรด ================= */}
+      <Modal open={details} onClose={closeDetails} title={selected.displayName} wide>
+        {selected.chromas.length > 1 && (
+          <section>
+            <h4 className="mb-3 text-xl font-bold">{w.variants(selected.chromas.length)}</h4>
+            <ul className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+              {selected.chromas.map((c, i) => (
+                <li key={c.uuid} className={`card flex flex-col p-2.5 ${chroma === i ? '!bg-mustard' : ''}`}>
+                  <span className="skeleton-dark flex h-16 items-center justify-center rounded-md px-3 sm:h-24">
+                    {c.image && <img src={c.image} alt={c.displayName} loading="lazy" className="max-h-[80%] max-w-full object-contain" />}
+                  </span>
+                  <span className="mt-2 flex items-center gap-2">
+                    {c.swatch && <img src={c.swatch} alt="" className="h-6 w-6 shrink-0 rounded-md border-2 border-ink" />}
+                    <span className="min-w-0">
+                      <span className="block font-display text-sm font-bold text-red-ink">{w.variantN(i + 1)}</span>
+                      <span className="block truncate text-sm">{c.displayName}</span>
+                    </span>
+                  </span>
+                  <span className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => {
+                        setChroma(i)
+                        setDetails(false)
+                      }}
+                      className="btn btn-paper flex-1 !py-1 text-sm"
+                    >
+                      ↻ 3D
+                    </button>
+                    {c.video && (
+                      <button onClick={() => setVideo({ src: c.video!, title: c.displayName })} className="btn flex-1 !py-1 text-sm">
+                        ▶
+                      </button>
+                    )}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section className={selected.chromas.length > 1 ? 'mt-8' : ''}>
+          <h4 className="mb-1 text-xl font-bold">{w.upgrades(selected.levels.length)}</h4>
+          {selected.levels.length > 1 ? (
+            <>
+              <p className="hand mb-3 text-base">{w.upgradeNote}</p>
+              <ol className="relative space-y-2 border-l-2 border-dashed border-ink/40 pl-5">
+                {selected.levels.map((l, i) => {
+                  const key = levelItemKey(i === 0 ? null : l.levelItem)
+                  return (
+                    <li key={l.uuid} className="relative">
+                      <span className="absolute top-3 -left-[29px] flex h-4 w-4 items-center justify-center rounded-full border-2 border-ink bg-card" />
+                      <div className="card flex items-center gap-3 p-3 !shadow-[2px_3px_0_var(--color-ink)]">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ink font-display font-bold text-paper">
+                          {i + 1}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-xs text-ink-soft">
+                            {w.levelN(i + 1)} · {w.unlocks}
+                          </span>
+                          <span className="block font-display font-bold">{w.levelItem[key] ?? key}</span>
+                          <span className="block truncate text-xs text-ink-soft">{l.displayName}</span>
+                        </span>
+                        {l.video && (
+                          <button onClick={() => setVideo({ src: l.video!, title: l.displayName })} className="btn !px-3 !py-1 text-sm" aria-label={`${w.playVideo} ${l.displayName}`}>
+                            ▶
+                          </button>
+                        )}
+                      </div>
+                    </li>
+                  )
+                })}
+              </ol>
+            </>
+          ) : (
+            <p className="text-ink-soft">{w.noUpgrades}</p>
+          )}
+        </section>
+      </Modal>
+
       {/* ================= VIDEO ================= */}
       {video && (
-        <div className="fixed inset-0 z-[60] flex animate-fade-in items-center justify-center bg-ink/80 p-4" onClick={() => setVideo(null)}>
+        <div className="fixed inset-0 z-[70] flex animate-fade-in items-center justify-center bg-ink/80 p-4" onClick={() => setVideo(null)}>
           <div className="w-full max-w-4xl rounded-2xl border-2 border-ink bg-paper p-3 shadow-[6px_8px_0_var(--color-ink)]" onClick={(e) => e.stopPropagation()}>
             <div className="mb-2 flex items-center justify-between gap-4 px-1">
               <p className="truncate font-display text-lg font-bold">{video.title}</p>
