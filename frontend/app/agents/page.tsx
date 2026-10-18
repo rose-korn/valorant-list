@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import AgentsClient from './AgentsClient'
-import { EmptyState, PageHero, Container } from '@/components/ui'
+import { Container, EmptyState, PageHero } from '@/components/ui'
 import { getAgents, groupByRole } from '@/lib/valorant'
 
-export const metadata: Metadata = { title: 'Agents' }
+export const metadata: Metadata = { title: 'เอเจนท์' }
 
 export default async function AgentsPage() {
   const agents = await getAgents()
@@ -16,10 +16,8 @@ export default async function AgentsPage() {
       uuid: a.uuid,
       displayName: a.displayName,
       developerName: a.developerName,
-      fullPortrait: a.fullPortrait,
       bustPortrait: a.bustPortrait,
       displayIcon: a.displayIcon,
-      background: a.background,
       backgroundGradientColors: a.backgroundGradientColors,
       roleUuid: a.role?.uuid ?? '',
       roleName: a.role?.displayName ?? '',
@@ -30,14 +28,10 @@ export default async function AgentsPage() {
   return (
     <>
       <PageHero
-        eyebrow="Agents"
-        title="Agents"
-        th="เอเจนท์"
-        description="ทุกเอเจนท์มีสกิลเฉพาะตัวและบทบาทที่ต่างกัน เลือกบทบาท ค้นหา แล้วกดเข้าไปดูสกิล เสียงพากย์ และโมเดล 3D"
-        stats={[
-          { label: 'Agents', value: agents.length },
-          ...groups.map((g) => ({ label: g.role.displayName, value: g.agents.length })),
-        ]}
+        en="Agents"
+        title="เอเจนท์ทั้งหมด"
+        description="กรองตามบทบาท หรือพิมพ์ชื่อหาได้เลย กดที่ตัวไหนก็เข้าไปดูสกิล ฟังเสียงพากย์ และหมุนดูแบบ 3D"
+        facts={[{ label: 'ตัว', value: agents.length }, ...groups.map((g) => ({ label: g.role.displayName, value: g.agents.length }))]}
       />
       <Container className="py-10 md:py-14">
         {slim.length ? (

@@ -3,12 +3,7 @@ import Reveal from '@/components/Reveal'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getCurrencies, getGameModes } from '@/lib/valorant'
 
-export const metadata: Metadata = { title: 'Game Modes' }
-
-const ECONOMY: Record<string, string> = {
-  'EEconomyType::Default': 'ซื้อของปกติ',
-  'EEconomyType::None': 'ไม่มีระบบเงิน',
-}
+export const metadata: Metadata = { title: 'โหมดเกม' }
 
 export default async function ModesPage() {
   const [modes, currencies] = await Promise.all([getGameModes(), getCurrencies()])
@@ -18,50 +13,38 @@ export default async function ModesPage() {
   return (
     <>
       <PageHero
-        eyebrow="Play"
-        title="Modes"
-        th="โหมดเกม"
-        description="ตั้งแต่ Competitive เต็มรูปแบบไปจนถึงโหมดเล่นสนุก — ดูกติกา ระยะเวลา และจำนวนรอบของแต่ละโหมด"
-        stats={[
-          { label: 'Game modes', value: visible.length },
-          { label: 'Currencies', value: currencies.length },
-        ]}
+        en="Game modes"
+        title="โหมดเกม"
+        description="จะจริงจังแบบ Competitive หรือเล่นขำ ๆ กับเพื่อน มาดูว่าแต่ละโหมดเล่นกันยังไง ใช้เวลานานแค่ไหน"
+        facts={[{ label: 'โหมด', value: visible.length }]}
+        note="Spike Rush ตอนเบื่อ ๆ คือดีที่สุด"
       />
 
       <Container className="py-10 md:py-14">
         {visible.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {visible.map((m, i) => (
-              <Reveal key={m.uuid} delay={(i % 3) * 70}>
-                <article className="group val-panel val-corners relative flex h-full flex-col overflow-hidden p-6">
-                  {m.listViewIconTall && (
-                    <img
-                      src={m.listViewIconTall}
-                      alt=""
-                      loading="lazy"
-                      className="pointer-events-none absolute top-0 right-0 h-full w-1/2 object-cover opacity-15 transition-opacity duration-500 [mask-image:linear-gradient(to_left,black,transparent)] group-hover:opacity-30"
-                    />
-                  )}
-                  <div className="relative flex items-center gap-4">
-                    <span className="flex h-14 w-14 shrink-0 items-center justify-center bg-val-red/15">
-                      <img src={m.displayIcon!} alt="" className="h-8 w-8" />
+              <Reveal key={m.uuid} delay={(i % 3) * 60}>
+                <article className={`card flex h-full flex-col p-5 ${i % 2 ? 'rotate-[0.5deg]' : '-rotate-[0.5deg]'}`}>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-ink">
+                      <img src={m.displayIcon!} alt="" className="h-7 w-7" />
                     </span>
                     <div>
-                      <h2 className="font-display text-3xl leading-none text-val-cream uppercase">{m.displayName}</h2>
-                      {m.duration && <p className="mt-1 text-xs tracking-wider text-val-red uppercase">{m.duration}</p>}
+                      <h2 className="text-2xl font-bold">{m.displayName}</h2>
+                      {m.duration && <p className="text-sm text-ink-soft">⏱ {m.duration}</p>}
                     </div>
                   </div>
-                  <p className="relative mt-4 font-thai text-sm leading-relaxed font-light text-val-cream/65">{m.description}</p>
-                  <dl className="relative mt-auto flex flex-wrap gap-x-5 gap-y-2 pt-5 text-xs">
-                    {m.roundsPerHalf > 0 && <Stat k="Rounds/half" v={m.roundsPerHalf} />}
-                    {m.orbCount > 0 && <Stat k="Orbs" v={m.orbCount} />}
-                    {m.economyType && <Stat k="Economy" v={ECONOMY[m.economyType] ?? m.economyType.split('::')[1]} />}
-                    <Stat k="Timeouts" v={m.allowsMatchTimeouts ? 'Yes' : 'No'} />
-                    <Stat k="Team voice" v={m.isTeamVoiceAllowed ? 'Yes' : 'No'} />
-                    {m.isMinimapHidden && <Stat k="Minimap" v="Hidden" />}
-                  </dl>
+                  <p className="mt-3 text-ink/85">{m.description}</p>
+                  <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
+                    {m.roundsPerHalf > 0 && <span className="chip !bg-paper-2 text-sm">ครึ่งละ {m.roundsPerHalf} รอบ</span>}
+                    {m.orbCount > 0 && <span className="chip !bg-paper-2 text-sm">{m.orbCount} ลูกแก้ว</span>}
+                    {m.economyType?.endsWith('None') && <span className="chip !bg-paper-2 text-sm">ไม่ต้องซื้อของ</span>}
+                    {m.allowsMatchTimeouts && <span className="chip !bg-paper-2 text-sm">ขอเวลานอกได้</span>}
+                    {m.isMinimapHidden && <span className="chip !bg-paper-2 text-sm">ไม่มีมินิแมพ</span>}
+                  </div>
                 </article>
               </Reveal>
             ))}
@@ -70,14 +53,16 @@ export default async function ModesPage() {
       </Container>
 
       {currencies.length > 0 && (
-        <section className="border-t border-white/5 bg-val-deep py-14 md:py-20">
+        <section className="border-t-2 border-ink bg-paper-2 py-12 md:py-16">
           <Container>
-            <SectionHeading index="Economy" title="Currencies" th="สกุลเงินในเกม" />
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <SectionHeading title="สกุลเงินในเกม" note="VP หมดอีกแล้ว..." />
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
               {currencies.map((c) => (
-                <div key={c.uuid} className="val-panel flex flex-col items-center gap-3 p-6 text-center">
-                  <img src={c.largeIcon ?? c.displayIcon} alt="" className="h-14 w-14 object-contain" loading="lazy" />
-                  <p className="font-display text-xl text-val-cream uppercase">{c.displayName}</p>
+                <div key={c.uuid} className="card flex items-center gap-3 p-4">
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-ink">
+                    <img src={c.largeIcon ?? c.displayIcon} alt="" className="h-7 w-7 object-contain" loading="lazy" />
+                  </span>
+                  <p className="font-display font-bold">{c.displayName}</p>
                 </div>
               ))}
             </div>
@@ -85,14 +70,5 @@ export default async function ModesPage() {
         </section>
       )}
     </>
-  )
-}
-
-function Stat({ k, v }: { k: string; v: string | number }) {
-  return (
-    <div>
-      <dt className="text-[10px] tracking-[0.2em] text-val-cream/35 uppercase">{k}</dt>
-      <dd className="font-thai text-val-cream/80">{v}</dd>
-    </div>
   )
 }

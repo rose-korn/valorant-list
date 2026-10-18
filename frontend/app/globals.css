@@ -1,68 +1,78 @@
 @import "tailwindcss";
 
+/*
+  ธีม "สมุดแฟนเมด" — กระดาษอุ่น ๆ หมึกเข้ม แต้มแดง Valorant
+  ตั้งใจให้อ่านสบายตาและดูทำมือ มากกว่าความเงาวับแบบ HUD
+*/
 @theme {
-  --font-display: var(--font-anton), var(--font-kanit), 'Impact', sans-serif;
-  --font-body: var(--font-barlow), var(--font-kanit), system-ui, sans-serif;
-  --font-thai: var(--font-kanit), sans-serif;
+  --font-display: var(--font-chakra), system-ui, sans-serif;
+  --font-body: var(--font-bai), system-ui, sans-serif;
+  --font-hand: var(--font-itim), cursive;
 
-  --color-val-red: #ff4654;
-  --color-val-red-dark: #bd3944;
-  --color-val-ink: #0f1923;
-  --color-val-deep: #0a1118;
-  --color-val-panel: #111c27;
-  --color-val-line: #1f2b38;
-  --color-val-cream: #ece8e1;
-  --color-val-teal: #3fe3c6;
-  --color-val-gold: #f5c96b;
+  --color-paper: #f4efe6;
+  --color-paper-2: #ebe3d4;
+  --color-card: #fffdf8;
+  --color-ink: #1d1f24;
+  --color-ink-soft: #555a63;
+  --color-line: #d8cfbf;
+  --color-night: #1c1e24;
+  --color-night-2: #262931;
+  --color-red: #ff4654;
+  --color-red-ink: #d6323f;
+  --color-teal: #2bb5a0;
+  --color-mustard: #f2b84b;
+  --color-sky: #8ec5ff;
 
-  --animate-fade-up: fade-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  --animate-fade-in: fade-in 0.6s ease-out both;
-  --animate-slide-in: slide-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
-  --animate-marquee: marquee 40s linear infinite;
-  --animate-float: float 5s ease-in-out infinite;
-  --animate-scan: scan 6s linear infinite;
+  --animate-fade-up: fade-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-wiggle: wiggle 2.4s ease-in-out infinite;
+  --animate-bob: bob 4s ease-in-out infinite;
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(28px); }
+  from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes fade-in {
   from { opacity: 0; }
   to { opacity: 1; }
 }
-@keyframes slide-in {
-  from { opacity: 0; transform: translateX(48px); }
-  to { opacity: 1; transform: translateX(0); }
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
 }
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
-}
-@keyframes float {
+@keyframes bob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-14px); }
+  50% { transform: translateY(-8px); }
 }
-@keyframes scan {
-  from { transform: translateY(-100%); }
-  to { transform: translateY(100vh); }
+@keyframes draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
 }
 
 @layer base {
   html {
-    background: var(--color-val-ink);
-    color: var(--color-val-cream);
+    background: var(--color-paper);
+    color: var(--color-ink);
     -webkit-tap-highlight-color: transparent;
   }
   body {
     min-height: 100dvh;
-    background: var(--color-val-ink);
     font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.65;
     overflow-x: hidden;
+    /* เกรนกระดาษจาง ๆ */
+    background-color: var(--color-paper);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.3 0 0 0 0 0.2 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    line-height: 1.1;
   }
   ::selection {
-    background: var(--color-val-red);
-    color: white;
+    background: var(--color-mustard);
+    color: var(--color-ink);
   }
   img {
     user-select: none;
@@ -71,135 +81,124 @@
   button {
     cursor: pointer;
   }
+  :focus-visible {
+    outline: 3px solid var(--color-mustard);
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
-  /* ปุ่มทรงมุมตัดแบบ Valorant */
-  .val-btn {
-    position: relative;
+  /* การ์ดกระดาษขอบหมึก + เงาแบบปั๊ม */
+  .card {
+    background: var(--color-card);
+    border: 2px solid var(--color-ink);
+    border-radius: 14px;
+    box-shadow: 4px 5px 0 var(--color-ink);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translate(-2px, -2px) rotate(-0.4deg);
+    box-shadow: 6px 8px 0 var(--color-ink);
+  }
+
+  .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.6rem;
-    padding: 0.95rem 1.8rem;
+    gap: 0.5rem;
+    padding: 0.7rem 1.4rem;
     font-family: var(--font-display);
-    font-size: 0.95rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 1rem;
     color: white;
-    background: var(--color-val-red);
-    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
-    transition: background 0.25s, transform 0.25s;
+    background: var(--color-red);
+    border: 2px solid var(--color-ink);
+    border-radius: 12px;
+    box-shadow: 3px 4px 0 var(--color-ink);
+    transition: transform 0.15s, box-shadow 0.15s;
   }
-  .val-btn:hover {
-    background: var(--color-val-cream);
-    color: var(--color-val-ink);
+  .btn:hover {
+    transform: translate(-1px, -2px);
+    box-shadow: 4px 6px 0 var(--color-ink);
   }
-  .val-btn-ghost {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    padding: 0.95rem 1.8rem;
-    font-family: var(--font-display);
-    font-size: 0.95rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--color-val-cream);
-    border: 1px solid rgb(236 232 225 / 0.3);
-    transition: border-color 0.25s, color 0.25s, background 0.25s;
+  .btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 var(--color-ink);
   }
-  .val-btn-ghost:hover {
-    border-color: var(--color-val-red);
-    color: white;
-    background: rgb(255 70 84 / 0.1);
+  .btn-paper {
+    color: var(--color-ink);
+    background: var(--color-card);
   }
 
-  .val-panel {
-    position: relative;
-    background: linear-gradient(160deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.01));
-    border: 1px solid rgb(255 255 255 / 0.08);
-  }
-
-  /* กรอบมุมเล็ก ๆ แบบ HUD */
-  .val-corners {
-    position: relative;
-  }
-  .val-corners::before,
-  .val-corners::after {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    pointer-events: none;
-    transition: all 0.3s;
-  }
-  .val-corners::before {
-    top: -1px;
-    left: -1px;
-    border-top: 2px solid var(--color-val-red);
-    border-left: 2px solid var(--color-val-red);
-  }
-  .val-corners::after {
-    bottom: -1px;
-    right: -1px;
-    border-bottom: 2px solid var(--color-val-red);
-    border-right: 2px solid var(--color-val-red);
-  }
-  .val-corners:hover::before,
-  .val-corners:hover::after {
-    width: 28px;
-    height: 28px;
-  }
-
-  .val-cut {
-    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
-  }
-
-  .val-grid-bg {
-    background-image:
-      linear-gradient(rgb(255 70 84 / 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 70 84 / 0.05) 1px, transparent 1px);
-    background-size: 64px 64px;
-  }
-
-  .val-stripes {
-    background-image: repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 10px);
-  }
-
-  .val-noise::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background-image: repeating-linear-gradient(0deg, transparent 0 2px, rgb(0 0 0 / 0.08) 2px 3px);
-    mix-blend-mode: multiply;
-  }
-
-  .val-outline-text {
-    color: transparent;
-    -webkit-text-stroke: 1px rgb(236 232 225 / 0.12);
-  }
-
-  .val-chip {
+  .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    padding: 0.3rem 0.7rem;
-    font-size: 0.7rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    border: 1px solid rgb(255 255 255 / 0.15);
-    color: rgb(236 232 225 / 0.75);
+    padding: 0.2rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    background: var(--color-card);
+    border: 1.5px solid var(--color-ink);
+    border-radius: 999px;
+  }
+
+  /* เทปกาวแปะบนการ์ด */
+  .tape {
+    position: relative;
+  }
+  .tape::before {
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    width: 84px;
+    height: 24px;
+    transform: translateX(-50%) rotate(-4deg);
+    background: rgb(242 184 75 / 0.65);
+    border-left: 2px dashed rgb(255 255 255 / 0.5);
+    border-right: 2px dashed rgb(255 255 255 / 0.5);
+    z-index: 2;
+    pointer-events: none;
+  }
+  .tape-teal::before {
+    background: rgb(43 181 160 / 0.5);
+  }
+  .tape-red::before {
+    background: rgb(255 70 84 / 0.45);
+  }
+
+  /* ขอบขาวแบบสติกเกอร์ไดคัท */
+  .sticker {
+    filter: drop-shadow(2px 0 0 white) drop-shadow(-2px 0 0 white) drop-shadow(0 2px 0 white) drop-shadow(0 -2px 0 white)
+      drop-shadow(3px 4px 0 rgb(29 31 36 / 0.25));
+  }
+
+  .hand {
+    font-family: var(--font-hand);
+    color: var(--color-red-ink);
+    line-height: 1.3;
+  }
+
+  /* จอมืด ๆ สำหรับฉาก 3D */
+  .screen {
+    background: radial-gradient(ellipse at 50% 35%, #30343e, var(--color-night) 70%);
+    border: 2px solid var(--color-ink);
+    border-radius: 18px;
+    box-shadow: 4px 5px 0 var(--color-ink);
+    overflow: hidden;
+  }
+
+  .dotted-bg {
+    background-image: radial-gradient(rgb(29 31 36 / 0.12) 1.2px, transparent 1.2px);
+    background-size: 22px 22px;
   }
 
   .scrollbar-hide::-webkit-scrollbar { display: none; }
   .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-  .val-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
-  .val-scroll::-webkit-scrollbar-thumb { background: rgb(255 70 84 / 0.5); }
-  .val-scroll::-webkit-scrollbar-track { background: transparent; }
+  .soft-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .soft-scroll::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 99px; }
+  .soft-scroll::-webkit-scrollbar-track { background: transparent; }
 }
 
 @media (prefers-reduced-motion: reduce) {

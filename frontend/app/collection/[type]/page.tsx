@@ -16,7 +16,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: PageProps<'/collection/[type]'>): Promise<Metadata> {
   const { type } = await params
-  return { title: isKind(type) ? COLLECTIONS[type].title : 'Collection' }
+  return { title: isKind(type) ? COLLECTIONS[type].th : 'ของสะสม' }
 }
 
 export default async function CollectionTypePage({ params }: PageProps<'/collection/[type]'>) {
@@ -27,17 +27,13 @@ export default async function CollectionTypePage({ params }: PageProps<'/collect
 
   return (
     <>
-      <PageHero eyebrow="Collection" title={meta.title} th={meta.th} description={meta.description} stats={[{ label: 'Items', value: items.length.toLocaleString() }]}>
-        <div className="mt-8 flex flex-wrap items-center gap-4">
-          <BackLink href="/collection" label="Collection" />
-          <span className="h-4 w-px bg-white/15" />
+      <PageHero en={meta.title} title={meta.th} description={meta.description} facts={[{ label: 'ชิ้น', value: items.length.toLocaleString() }]}>
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          <BackLink href="/collection" label="ของสะสม" />
+          <span className="mx-1 text-ink-soft">/</span>
           {KINDS.map((k) => (
-            <Link
-              key={k}
-              href={`/collection/${k}`}
-              className={`font-display text-sm tracking-[0.15em] uppercase transition-colors ${k === type ? 'text-val-red' : 'text-val-cream/50 hover:text-white'}`}
-            >
-              {COLLECTIONS[k].title}
+            <Link key={k} href={`/collection/${k}`} className={`chip ${k === type ? '!bg-ink !text-paper' : 'hover:!bg-mustard/50'}`}>
+              {COLLECTIONS[k].th}
             </Link>
           ))}
         </div>

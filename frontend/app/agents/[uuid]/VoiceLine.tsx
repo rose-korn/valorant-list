@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 /** ปุ่มเล่นเสียงพากย์ตอนเลือกเอเจนท์ พร้อม equalizer เล็ก ๆ */
-export default function VoiceLine({ src, color }: { src: string; color: string }) {
+export default function VoiceLine({ src }: { src: string }) {
   const audio = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState(false)
 
@@ -34,21 +34,21 @@ export default function VoiceLine({ src, color }: { src: string; color: string }
   }
 
   return (
-    <button onClick={toggle} className="val-btn-ghost" aria-pressed={playing}>
+    <button onClick={toggle} className="btn btn-paper" aria-pressed={playing}>
       <span className="flex h-4 items-end gap-0.5">
         {[0, 1, 2, 3].map((i) => (
           <span
             key={i}
             className="w-0.5 origin-bottom"
             style={{
-              background: color,
+              background: 'var(--color-red)',
               height: playing ? '100%' : '35%',
               animation: playing ? `eq 0.${5 + i}s ease-in-out ${i * 0.1}s infinite alternate` : 'none',
             }}
           />
         ))}
       </span>
-      {playing ? 'หยุด' : 'Voice Line'}
+      {playing ? 'หยุดเสียง' : 'ฟังเสียงพากย์'}
       <style>{`@keyframes eq { from { transform: scaleY(.2) } to { transform: scaleY(1) } }`}</style>
     </button>
   )

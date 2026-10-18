@@ -41,7 +41,7 @@ export default function Reveal({
         transition: 'opacity .8s cubic-bezier(.2,.7,.2,1), transform .8s cubic-bezier(.2,.7,.2,1)',
         transitionDelay: `${delay}ms`,
         opacity: shown ? 1 : 0,
-        transform: shown ? 'none' : 'translateY(32px)',
+        transform: shown ? 'none' : 'translateY(18px)',
       }}
     >
       {children}

@@ -13,8 +13,6 @@ export interface WeaponCard {
   fireRate: number
   magazine: number
   head: number
-  body: number
-  wallPen: string | null
   skins: number
 }
 
@@ -41,90 +39,76 @@ export default function ArsenalClient({
     const q = query.trim().toLowerCase()
     return categories
       .filter((c) => cat === 'ALL' || c.key === cat)
-      .map((c) => ({
-        ...c,
-        items: weapons.filter((w) => w.category === c.key && (!q || w.displayName.toLowerCase().includes(q))),
-      }))
+      .map((c) => ({ ...c, items: weapons.filter((w) => w.category === c.key && (!q || w.displayName.toLowerCase().includes(q))) }))
       .filter((g) => g.items.length)
   }, [weapons, categories, cat, query])
 
   return (
     <>
-      <FilterBar search={<SearchInput value={query} onChange={setQuery} placeholder="ค้นหาอาวุธ..." />}>
+      <FilterBar search={<SearchInput value={query} onChange={setQuery} placeholder="หาชื่อปืน..." />}>
         <FilterButton active={cat === 'ALL'} onClick={() => setCat('ALL')}>
-          All
+          ทั้งหมด
         </FilterButton>
         {categories.map((c) => (
           <FilterButton key={c.key} active={cat === c.key} onClick={() => setCat(c.key)}>
-            {c.label}
+            {c.th}
           </FilterButton>
         ))}
       </FilterBar>
 
-      <div className="space-y-14">
+      <div className="space-y-12">
         {groups.map((g) => (
           <section key={g.key}>
-            <div className="mb-5 flex items-baseline gap-4 border-b border-white/10 pb-3">
-              <h2 className="font-display text-4xl text-val-cream uppercase md:text-5xl">{g.label}</h2>
-              <span className="font-thai text-sm text-val-cream/40">{g.th}</span>
-              <span className="ml-auto font-display text-val-red">{String(g.items.length).padStart(2, '0')}</span>
+            <div className="mb-5 flex items-baseline gap-3">
+              <h2 className="text-3xl font-bold">{g.th}</h2>
+              <span className="text-ink-soft">{g.label}</span>
             </div>
-            <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {g.items.map((w) => (
                 <li key={w.uuid}>
-                  <Link
-                    href={`/weapons/${w.uuid}`}
-                    className="group val-panel relative flex h-full flex-col overflow-hidden p-5 transition-colors hover:border-val-red/60"
-                  >
-                    <span className="absolute inset-x-0 top-0 h-0.5 origin-left scale-x-0 bg-val-red transition-transform duration-500 group-hover:scale-x-100" />
-                    <div className="flex items-start justify-between">
-                      <h3 className="font-display text-2xl text-val-cream uppercase">{w.displayName}</h3>
-                      {w.cost > 0 && <span className="font-display text-val-red">¤ {w.cost.toLocaleString()}</span>}
+                  <Link href={`/weapons/${w.uuid}`} className="card card-hover group flex h-full flex-col p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="text-xl font-bold">{w.displayName}</h3>
+                      {w.cost > 0 && <span className="chip !px-2 text-sm">{w.cost.toLocaleString()}</span>}
                     </div>
-                    <div className="relative my-4 flex h-24 items-center justify-center">
-                      <div className="absolute inset-0 rounded-full bg-val-red/0 blur-2xl transition-colors duration-500 group-hover:bg-val-red/20" />
+                    <div className="my-4 flex h-20 items-center justify-center rounded-lg bg-ink px-3">
                       <img
                         src={w.displayIcon}
                         alt={w.displayName}
                         loading="lazy"
-                        className="relative max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-3"
+                        className="max-h-14 max-w-full object-contain transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-2"
                       />
                     </div>
                     {w.fireRate > 0 ? (
-                      <dl className="mt-auto space-y-2">
-                        <StatBar label="Fire rate" value={w.fireRate} max={max.fireRate} unit="/s" />
-                        <StatBar label="Magazine" value={w.magazine} max={max.magazine} />
-                        <StatBar label="Head dmg" value={w.head} max={max.head} />
+                      <dl className="mt-auto space-y-1.5">
+                        <StatBar label="ความเร็วยิง" value={w.fireRate} max={max.fireRate} />
+                        <StatBar label="กระสุน" value={w.magazine} max={max.magazine} />
+                        <StatBar label="ยิงหัว" value={w.head} max={max.head} />
                       </dl>
                     ) : (
-                      <p className="mt-auto font-thai text-xs text-val-cream/40">อาวุธระยะประชิด</p>
+                      <p className="mt-auto text-sm text-ink-soft">อาวุธระยะประชิด ฟันอย่างเดียว</p>
                     )}
-                    <p className="mt-4 text-[10px] tracking-[0.25em] text-val-cream/40 uppercase">
-                      {w.skins} skins <span className="text-val-red">→</span>
-                    </p>
+                    <p className="mt-3 text-sm font-semibold text-red-ink">{w.skins} สกิน →</p>
                   </Link>
                 </li>
               ))}
             </ul>
           </section>
         ))}
-        {groups.length === 0 && <p className="py-20 text-center font-thai text-val-cream/40">ไม่พบอาวุธที่ค้นหา</p>}
+        {groups.length === 0 && <p className="hand py-16 text-center text-xl">ไม่เจอปืนชื่อนี้นะ</p>}
       </div>
     </>
   )
 }
 
-function StatBar({ label, value, max, unit = '' }: { label: string; value: number; max: number; unit?: string }) {
+function StatBar({ label, value, max }: { label: string; value: number; max: number }) {
   return (
-    <div className="grid grid-cols-[72px_1fr_44px] items-center gap-2 text-[11px]">
-      <dt className="tracking-wider text-val-cream/45 uppercase">{label}</dt>
-      <div className="h-1 bg-white/10">
-        <div className="h-full bg-val-cream/70 transition-all group-hover:bg-val-red" style={{ width: `${(value / max) * 100}%` }} />
+    <div className="grid grid-cols-[84px_1fr_36px] items-center gap-2 text-sm">
+      <dt className="text-ink-soft">{label}</dt>
+      <div className="h-2 overflow-hidden rounded-full bg-paper-2">
+        <div className="h-full rounded-full bg-red" style={{ width: `${(value / max) * 100}%` }} />
       </div>
-      <dd className="text-right font-mono text-val-cream/80">
-        {Number.isInteger(value) ? value : value.toFixed(1)}
-        {unit}
-      </dd>
+      <dd className="text-right font-display font-semibold">{Number.isInteger(value) ? value : value.toFixed(1)}</dd>
     </div>
   )
 }

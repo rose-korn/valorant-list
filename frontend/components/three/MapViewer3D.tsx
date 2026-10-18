@@ -8,7 +8,7 @@ import type { GameMap } from '@/lib/valorant'
 import { calloutToUV } from '@/lib/valorant'
 import { createRenderer, disposeObject, loadTexture, onResize, prefersReducedMotion, runLoop, useWebGLSupport } from './utils'
 
-const PALETTE = ['#ff4654', '#3fe3c6', '#f5c96b', '#8fa8ff', '#ff9f5a', '#c58bff', '#ece8e1', '#7ee081']
+const PALETTE = ['#ff4654', '#2bb5a0', '#f2b84b', '#8ec5ff', '#ff9f5a', '#c58bff', '#f4efe6', '#7ee081']
 const SIZE = 10
 const LAYERS = 14
 const HEIGHT = 0.35
@@ -73,7 +73,7 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
     container.appendChild(labelRenderer.domElement)
 
     const scene = new THREE.Scene()
-    scene.fog = new THREE.Fog(0x0f1923, 18, 40)
+    scene.fog = new THREE.Fog(0x1c1e24, 18, 40)
     const camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 0.1, 100)
     const views = {
       '3d': new THREE.Vector3(0, 9, 10.5),
@@ -94,14 +94,14 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
     const time = { value: 0 }
 
     // ---------- โต๊ะ / grid ----------
-    const grid = new THREE.GridHelper(30, 30, 0xff4654, 0x1f2b38)
+    const grid = new THREE.GridHelper(30, 30, 0x3a3f4a, 0x2c3038)
     ;(grid.material as THREE.Material).transparent = true
     ;(grid.material as THREE.Material).opacity = 0.5
     grid.position.y = -0.02
     scene.add(grid)
     const frame = new THREE.LineSegments(
       new THREE.EdgesGeometry(new THREE.BoxGeometry(SIZE + 0.6, 0.01, SIZE + 0.6)),
-      new THREE.LineBasicMaterial({ color: 0xff4654, transparent: true, opacity: 0.7 }),
+      new THREE.LineBasicMaterial({ color: 0xf4efe6, transparent: true, opacity: 0.35 }),
     )
     scene.add(frame)
 
@@ -133,9 +133,10 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
       const el = document.createElement('div')
       el.textContent = c.regionName
       el.className =
-        'px-1.5 py-0.5 text-[10px] leading-none whitespace-nowrap uppercase tracking-wider text-white bg-black/70 border-l-2 transition-opacity duration-300'
+        'rounded-md border-2 px-1.5 py-0.5 text-xs leading-none whitespace-nowrap text-ink bg-paper transition-opacity duration-300'
       el.style.borderColor = color.getStyle()
       el.style.fontFamily = 'var(--font-body)'
+      el.style.boxShadow = '1px 2px 0 rgb(0 0 0 / .35)'
       const label = new CSS2DObject(el)
       label.position.set(0, 0.95, 0)
       pin.add(label)
@@ -262,19 +263,19 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
 
   if (!supported || !map.displayIcon) {
     return map.displayIcon ? (
-      <div className={`flex items-center justify-center bg-val-deep ${className}`}>
+      <div className={`flex items-center justify-center bg-night ${className}`}>
         <img src={map.displayIcon} alt={`${map.displayName} minimap`} className="max-h-full max-w-full" />
       </div>
     ) : null
   }
 
   return (
-    <div className={`relative overflow-hidden bg-val-deep ${className}`}>
+    <div className={`relative overflow-hidden ${className}`}>
       <div ref={ref} className="absolute inset-0" role="img" aria-label={`${map.displayName} 3D tactical map`} />
 
       {loading && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="h-10 w-10 animate-spin border-2 border-val-red border-t-transparent" />
+          <span className="hand animate-pulse text-lg !text-paper/70">กำลังกางแผนที่...</span>
         </div>
       )}
 
@@ -293,39 +294,37 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
       )}
 
       <div className="absolute right-3 bottom-3 flex gap-1.5">
-        <div className="flex border border-white/15 bg-black/40 backdrop-blur">
+        <div className="flex overflow-hidden rounded-lg border-2 border-paper/30 bg-night/70 backdrop-blur">
           {(['3d', 'top'] as const).map((v) => (
             <button
               key={v}
               onClick={() => changeView(v)}
-              className={`px-3 py-2 font-display text-xs tracking-widest uppercase transition-colors ${
-                view === v ? 'bg-val-red text-white' : 'text-val-cream/60 hover:text-white'
+              className={`px-3 py-1 text-sm transition-colors ${
+                view === v ? 'bg-mustard text-ink' : 'text-paper/80 hover:text-mustard'
               }`}
             >
-              {v === '3d' ? '3D' : 'Top'}
+              {v === '3d' ? 'มุมเอียง' : 'มุมบน'}
             </button>
           ))}
         </div>
         <button
           onClick={toggleLabels}
-          className={`border px-3 py-2 font-display text-xs tracking-widest uppercase backdrop-blur transition-colors ${
-            labels ? 'border-val-red bg-val-red/20 text-white' : 'border-white/15 bg-black/40 text-val-cream/60'
+          className={`rounded-lg border-2 px-2.5 py-1 text-sm backdrop-blur transition-colors ${
+            labels ? 'border-mustard bg-night/70 text-mustard' : 'border-paper/30 bg-night/70 text-paper/80'
           }`}
         >
-          Labels
+          ชื่อจุด
         </button>
         <button
           onClick={fullscreen}
           aria-label="เต็มจอ"
-          className="flex w-9 items-center justify-center border border-white/15 bg-black/40 text-val-cream/70 backdrop-blur hover:border-val-red hover:text-white"
+          className="rounded-lg border-2 border-paper/30 bg-night/70 px-2.5 py-1 text-sm text-paper/80 backdrop-blur hover:border-mustard hover:text-mustard"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-            <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" />
-          </svg>
+          เต็มจอ
         </button>
       </div>
-      <p className="pointer-events-none absolute bottom-4 left-3 hidden font-thai text-[11px] text-val-cream/40 md:block">
-        ลากเพื่อหมุน · คลิกขวา/สองนิ้วเพื่อเลื่อน · สกรอลเพื่อซูม
+      <p className="hand pointer-events-none absolute bottom-3 left-4 hidden -rotate-1 text-base !text-mustard md:block">
+        ลากหมุน · คลิกขวาเลื่อน · สกรอลซูม
       </p>
     </div>
   )
@@ -345,11 +344,11 @@ function RegionChip({
   return (
     <button
       onClick={onClick}
-      className={`flex shrink-0 items-center gap-1.5 border px-2.5 py-1.5 text-[11px] tracking-wider uppercase backdrop-blur transition-colors ${
-        active ? 'border-white/60 bg-white/15 text-white' : 'border-white/10 bg-black/40 text-val-cream/60 hover:text-white'
+      className={`flex shrink-0 items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm backdrop-blur transition-colors ${
+        active ? 'border-paper bg-paper text-ink' : 'border-paper/25 bg-night/70 text-paper/85 hover:border-paper/60'
       }`}
     >
-      <span className="h-2 w-2 rotate-45" style={{ background: color }} />
+      <span className="h-2.5 w-2.5 rounded-full" style={{ background: color }} />
       {children}
     </button>
   )

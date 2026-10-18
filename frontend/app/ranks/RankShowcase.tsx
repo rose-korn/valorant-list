@@ -8,7 +8,6 @@ interface TierView {
   name: string
   division: string
   color: string
-  bg: string
   icon: string
   small: string | null
 }
@@ -24,56 +23,42 @@ export default function RankShowcase({ tiers }: { tiers: TierView[] }) {
   }, [tiers])
 
   const index = tiers.findIndex((t) => t.tier === active.tier)
+  const go = (d: number) => {
+    const next = tiers[index + d]
+    if (next) setActive(next)
+  }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr]">
+    <div className="grid gap-8 lg:grid-cols-[1.05fr_1fr]">
       <div className="lg:sticky lg:top-24 lg:self-start">
-        <div
-          className="val-corners relative h-[46svh] min-h-[320px] overflow-hidden border border-white/10 transition-colors duration-700 md:h-[56svh]"
-          style={{ background: `radial-gradient(circle at 50% 45%, ${active.color}33, #0f1923 70%)` }}
-        >
-          <Viewer3D src={active.icon} alt={active.name} accent={active.color} variant="emblem" className="h-full w-full !bg-transparent" />
+        <div className="screen h-[42svh] min-h-[300px] md:h-[50svh]" style={{ background: `radial-gradient(circle at 50% 42%, ${active.color}55, #1c1e24 70%)` }}>
+          <Viewer3D src={active.icon} alt={active.name} accent={active.color} variant="emblem" className="h-full w-full" />
         </div>
-        <div className="mt-5 flex items-end justify-between gap-4">
+        <div className="mt-5 flex items-center justify-between gap-4">
           <div key={active.tier} className="animate-fade-up">
-            <p className="text-[10px] tracking-[0.3em] text-val-cream/40 uppercase">Tier {String(index + 1).padStart(2, '0')} / {tiers.length}</p>
-            <h2 className="font-display text-5xl leading-none uppercase md:text-6xl" style={{ color: active.color }}>
-              {active.name}
-            </h2>
+            <p className="text-sm text-ink-soft">
+              ระดับที่ {index + 1} จาก {tiers.length}
+            </p>
+            <h2 className="text-4xl font-bold">{active.name}</h2>
           </div>
-          <div className="flex gap-1.5">
-            <button
-              onClick={() => index > 0 && setActive(tiers[index - 1])}
-              disabled={index <= 0}
-              className="flex h-11 w-11 items-center justify-center border border-white/15 text-val-cream transition-colors hover:border-val-red hover:bg-val-red disabled:opacity-30"
-              aria-label="แรงค์ก่อนหน้า"
-            >
+          <div className="flex gap-2">
+            <button onClick={() => go(-1)} disabled={index <= 0} className="btn btn-paper !px-3 disabled:opacity-40" aria-label="แรงค์ก่อนหน้า">
               ←
             </button>
-            <button
-              onClick={() => index < tiers.length - 1 && setActive(tiers[index + 1])}
-              disabled={index >= tiers.length - 1}
-              className="flex h-11 w-11 items-center justify-center border border-white/15 text-val-cream transition-colors hover:border-val-red hover:bg-val-red disabled:opacity-30"
-              aria-label="แรงค์ถัดไป"
-            >
+            <button onClick={() => go(1)} disabled={index >= tiers.length - 1} className="btn btn-paper !px-3 disabled:opacity-40" aria-label="แรงค์ถัดไป">
               →
             </button>
           </div>
         </div>
-        {/* progress bar ตามระดับ */}
-        <div className="mt-4 flex gap-0.5">
-          {tiers.map((t, i) => (
-            <span key={t.tier} className="h-1 flex-1 transition-colors" style={{ background: i <= index ? active.color : 'rgb(255 255 255 / .08)' }} />
-          ))}
+        <div className="mt-3 h-3 overflow-hidden rounded-full border-2 border-ink bg-card">
+          <div className="h-full bg-red transition-all duration-500" style={{ width: `${((index + 1) / tiers.length) * 100}%` }} />
         </div>
       </div>
 
       <div className="space-y-3">
         {groups.map(([division, list]) => (
-          <div key={division} className="val-panel flex flex-wrap items-center gap-3 p-3 md:p-4">
-            <p className="w-full font-display text-xl tracking-wider uppercase sm:w-28" style={{ color: list[0].color }}>
-              {division}
-            </p>
+          <div key={division} className="card flex flex-wrap items-center gap-3 p-3">
+            <p className="w-full font-display text-lg font-bold sm:w-28">{division}</p>
             <div className="flex flex-1 flex-wrap gap-2">
               {list.map((t) => {
                 const on = t.tier === active.tier
@@ -81,14 +66,13 @@ export default function RankShowcase({ tiers }: { tiers: TierView[] }) {
                   <button
                     key={t.tier}
                     onClick={() => setActive(t)}
-                    title={t.name}
-                    className={`group flex flex-col items-center gap-1 border p-2 transition-all ${
-                      on ? 'border-current' : 'border-transparent hover:border-white/20'
+                    aria-pressed={on}
+                    className={`flex flex-col items-center rounded-xl border-2 p-1.5 transition-all ${
+                      on ? '-translate-y-0.5 border-ink bg-mustard shadow-[2px_3px_0_var(--color-ink)]' : 'border-transparent hover:border-line'
                     }`}
-                    style={on ? { color: t.color, background: `${t.color}1a` } : undefined}
                   >
-                    <img src={t.small ?? t.icon} alt={t.name} loading="lazy" className="h-12 w-12 object-contain transition-transform group-hover:scale-110 md:h-14 md:w-14" />
-                    <span className="text-[10px] tracking-wider text-val-cream/60 uppercase">{t.name}</span>
+                    <img src={t.small ?? t.icon} alt={t.name} loading="lazy" className="h-11 w-11 object-contain md:h-12 md:w-12" />
+                    <span className="text-xs text-ink-soft">{t.name}</span>
                   </button>
                 )
               })}

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { BackLink, Container, Eyebrow } from '@/components/ui'
+import { BackLink, Container, SectionHeading } from '@/components/ui'
 import { WALL_PEN, categoryLabel, getContentTiers, getWeapon, getWeapons, isRealSkin, rgbaHex, skinImage } from '@/lib/valorant'
 import SkinExplorer, { type SkinItem, type TierInfo } from './SkinExplorer'
 
@@ -12,10 +12,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<'/weapons/[uuid]'>): Promise<Metadata> {
   const { uuid } = await params
   const weapon = await getWeapon(uuid)
-  return { title: weapon ? `${weapon.displayName} — Skins & Stats` : 'Weapon' }
+  return { title: weapon ? `${weapon.displayName} — สกินและสเตตัส` : 'ปืน' }
 }
 
 const HP = 150
+const WALL_PEN_TH: Record<string, string> = { Low: 'ต่ำ', Medium: 'กลาง', High: 'สูง' }
 
 export default async function WeaponPage({ params }: PageProps<'/weapons/[uuid]'>) {
   const { uuid } = await params
@@ -27,15 +28,7 @@ export default async function WeaponPage({ params }: PageProps<'/weapons/[uuid]'
   )
 
   const skins: SkinItem[] = [
-    {
-      uuid: 'default',
-      displayName: `Standard ${weapon.displayName}`,
-      tier: null,
-      image: weapon.displayIcon,
-      wallpaper: null,
-      chromas: [],
-      levels: [],
-    },
+    { uuid: 'default', displayName: `${weapon.displayName} ธรรมดา`, tier: null, image: weapon.displayIcon, wallpaper: null, chromas: [], levels: [] },
     ...weapon.skins
       .filter(isRealSkin)
       .map((s) => ({
@@ -44,19 +37,8 @@ export default async function WeaponPage({ params }: PageProps<'/weapons/[uuid]'
         tier: s.contentTierUuid,
         image: skinImage(s),
         wallpaper: s.wallpaper,
-        chromas: s.chromas.map((c) => ({
-          uuid: c.uuid,
-          displayName: c.displayName,
-          image: c.fullRender ?? c.displayIcon,
-          swatch: c.swatch,
-          video: c.streamedVideo,
-        })),
-        levels: s.levels.map((l) => ({
-          uuid: l.uuid,
-          displayName: l.displayName,
-          levelItem: l.levelItem,
-          video: l.streamedVideo,
-        })),
+        chromas: s.chromas.map((c) => ({ uuid: c.uuid, displayName: c.displayName, image: c.fullRender ?? c.displayIcon, swatch: c.swatch, video: c.streamedVideo })),
+        levels: s.levels.map((l) => ({ uuid: l.uuid, displayName: l.displayName, levelItem: l.levelItem, video: l.streamedVideo })),
       }))
       .filter((s) => s.image)
       .sort((a, b) => (tierMap[b.tier ?? '']?.rank ?? 0) - (tierMap[a.tier ?? '']?.rank ?? 0) || a.displayName.localeCompare(b.displayName)),
@@ -66,31 +48,21 @@ export default async function WeaponPage({ params }: PageProps<'/weapons/[uuid]'
   const usedTiers = Object.values(tierMap)
     .filter((t) => skins.some((s) => s.tier === t.uuid))
     .sort((a, b) => b.rank - a.rank)
+  const wallPen = stats ? WALL_PEN[stats.wallPenetration] : undefined
 
   return (
     <>
-      <section className="relative overflow-hidden border-b border-white/5">
-        <div className="val-grid-bg absolute inset-0 opacity-60" />
-        <Container className="relative pt-6">
-          <BackLink href="/weapons" label="Arsenal" />
-          <div className="mt-6 flex flex-wrap items-end justify-between gap-4">
+      <section className="dotted-bg border-b-2 border-ink">
+        <Container className="pt-8 pb-6">
+          <BackLink href="/weapons" label="ปืนทั้งหมด" />
+          <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <Eyebrow>{weapon.shopData?.categoryText ?? categoryLabel(weapon.category)}</Eyebrow>
-              <h1 className="mt-3 animate-fade-up font-display text-7xl leading-[0.85] text-val-cream uppercase sm:text-8xl lg:text-9xl">
-                {weapon.displayName}
-              </h1>
+              <p className="text-ink-soft">{weapon.shopData?.categoryText ?? categoryLabel(weapon.category)}</p>
+              <h1 className="animate-fade-up text-6xl font-bold sm:text-7xl">{weapon.displayName}</h1>
             </div>
-            <div className="flex gap-6 pb-2">
-              {weapon.shopData?.cost != null && (
-                <div className="border-l-2 border-val-red pl-4">
-                  <p className="font-display text-4xl text-val-cream">¤ {weapon.shopData.cost.toLocaleString()}</p>
-                  <p className="text-[10px] tracking-[0.3em] text-val-cream/40 uppercase">Cost</p>
-                </div>
-              )}
-              <div className="border-l-2 border-val-red pl-4">
-                <p className="font-display text-4xl text-val-cream">{skins.length - 1}</p>
-                <p className="text-[10px] tracking-[0.3em] text-val-cream/40 uppercase">Skins</p>
-              </div>
+            <div className="flex gap-2">
+              {weapon.shopData?.cost != null && <span className="chip text-base">💰 {weapon.shopData.cost.toLocaleString()} เครดิต</span>}
+              <span className="chip text-base">🎨 {skins.length - 1} สกิน</span>
             </div>
           </div>
         </Container>
@@ -98,64 +70,54 @@ export default async function WeaponPage({ params }: PageProps<'/weapons/[uuid]'
 
       <SkinExplorer weaponName={weapon.displayName} skins={skins} tiers={usedTiers}>
         {stats && (
-          <section className="border-y border-white/5 bg-val-deep py-14 md:py-20">
+          <section className="border-y-2 border-ink bg-paper-2 py-12 md:py-16">
             <Container>
-              <Eyebrow className="mb-6">Stats</Eyebrow>
-              <dl className="grid grid-cols-2 gap-px bg-white/5 sm:grid-cols-3 lg:grid-cols-6">
+              <SectionHeading title="สเตตัส" note="ตัวเลขจาก API ของเกมตรง ๆ" />
+              <dl className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 {[
-                  ['Fire rate', `${stats.fireRate}`, 'rounds/sec'],
-                  ['Magazine', `${stats.magazineSize}`, 'rounds'],
-                  ['Reload', `${stats.reloadTimeSeconds}`, 'seconds'],
-                  ['Equip', `${stats.equipTimeSeconds}`, 'seconds'],
-                  ['Run speed', `${Math.round(stats.runSpeedMultiplier * 100)}%`, 'of base'],
-                  ['Wall pen', WALL_PEN[stats.wallPenetration] ?? '—', 'penetration'],
-                  ['First shot', `${stats.firstBulletAccuracy}°`, 'spread'],
-                  ...(stats.shotgunPelletCount > 1 ? [['Pellets', `${stats.shotgunPelletCount}`, 'per shot']] : []),
-                  ...(stats.adsStats
-                    ? [
-                        ['ADS zoom', `${stats.adsStats.zoomMultiplier}x`, 'magnification'],
-                        ['ADS rate', `${stats.adsStats.fireRate}`, 'rounds/sec'],
-                      ]
-                    : []),
-                  ...(stats.fireMode ? [['Fire mode', stats.fireMode.split('::')[1] ?? stats.fireMode, '']] : []),
-                  ...(stats.altFireType ? [['Alt fire', stats.altFireType.split('::')[1] ?? stats.altFireType, '']] : []),
-                  ...(stats.feature ? [['Feature', stats.feature.split('::')[1] ?? stats.feature, '']] : []),
-                ].map(([k, v, unit]) => (
-                  <div key={k} className="bg-val-deep p-4 md:p-5">
-                    <dt className="text-[10px] tracking-[0.25em] text-val-red uppercase">{k}</dt>
-                    <dd className="mt-1 font-display text-3xl break-words text-val-cream">{v}</dd>
-                    {unit && <p className="text-[10px] text-val-cream/35">{unit}</p>}
+                  ['ยิงต่อวินาที', `${stats.fireRate}`],
+                  ['กระสุนต่อแม็ก', `${stats.magazineSize} นัด`],
+                  ['รีโหลด', `${stats.reloadTimeSeconds} วิ`],
+                  ['ชักปืน', `${stats.equipTimeSeconds} วิ`],
+                  ['ความเร็ววิ่ง', `${Math.round(stats.runSpeedMultiplier * 100)}%`],
+                  ['ยิงทะลุกำแพง', wallPen ? WALL_PEN_TH[wallPen] ?? wallPen : '—'],
+                  ['ความแม่นนัดแรก', `${stats.firstBulletAccuracy}°`],
+                  ...(stats.shotgunPelletCount > 1 ? [['เม็ดลูกปราย', `${stats.shotgunPelletCount}`]] : []),
+                  ...(stats.adsStats ? [['ซูม', `${stats.adsStats.zoomMultiplier}x`]] : []),
+                ].map(([k, v]) => (
+                  <div key={k} className="card !shadow-[2px_3px_0_var(--color-ink)] px-4 py-3">
+                    <dt className="text-sm text-ink-soft">{k}</dt>
+                    <dd className="font-display text-2xl font-bold">{v}</dd>
                   </div>
                 ))}
               </dl>
 
               {stats.damageRanges.length > 0 && (
-                <div className="mt-12">
-                  <Eyebrow className="mb-6">Damage by range</Eyebrow>
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <>
+                  <h3 className="mt-12 mb-1 text-2xl font-bold">ดาเมจตามระยะ</h3>
+                  <p className="hand mb-5 text-lg">ตัวเลขหลังขีดคือยิงกี่นัดตาย (เทียบศัตรู 100 HP + เกราะ 50)</p>
+                  <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
                     {stats.damageRanges.map((r) => {
-                      const parts = [
-                        { k: 'Head', v: r.headDamage, color: '#ff4654' },
-                        { k: 'Body', v: r.bodyDamage, color: '#ece8e1' },
-                        { k: 'Legs', v: r.legDamage, color: '#3fe3c6' },
-                      ]
                       const top = Math.max(...stats.damageRanges.map((d) => d.headDamage), 1)
                       return (
-                        <div key={`${r.rangeStartMeters}-${r.rangeEndMeters}`} className="val-panel p-5">
-                          <p className="font-display text-2xl text-val-cream">
-                            {r.rangeStartMeters}–{r.rangeEndMeters}
-                            <span className="ml-1 text-sm text-val-cream/40">m</span>
+                        <div key={`${r.rangeStartMeters}-${r.rangeEndMeters}`} className="card p-5">
+                          <p className="font-display text-xl font-bold">
+                            {r.rangeStartMeters}–{r.rangeEndMeters} เมตร
                           </p>
-                          <div className="mt-4 space-y-3">
-                            {parts.map((p) => (
-                              <div key={p.k} className="grid grid-cols-[44px_1fr_auto] items-center gap-3 text-sm">
-                                <span className="text-[11px] tracking-wider text-val-cream/50 uppercase">{p.k}</span>
-                                <span className="h-2 bg-white/5">
-                                  <span className="block h-full" style={{ width: `${(p.v / top) * 100}%`, background: p.color }} />
+                          <div className="mt-3 space-y-2.5">
+                            {[
+                              { k: 'หัว', v: r.headDamage, c: 'var(--color-red)' },
+                              { k: 'ตัว', v: r.bodyDamage, c: 'var(--color-mustard)' },
+                              { k: 'ขา', v: r.legDamage, c: 'var(--color-teal)' },
+                            ].map((p) => (
+                              <div key={p.k} className="grid grid-cols-[32px_1fr_92px] items-center gap-2">
+                                <span className="text-ink-soft">{p.k}</span>
+                                <span className="h-3 overflow-hidden rounded-full bg-paper-2">
+                                  <span className="block h-full rounded-full" style={{ width: `${(p.v / top) * 100}%`, background: p.c }} />
                                 </span>
-                                <span className="w-24 text-right font-mono text-val-cream/85">
-                                  {Math.round(p.v)}
-                                  <span className="ml-2 text-[10px] text-val-cream/40">{Math.ceil(HP / Math.max(p.v, 1))} shots</span>
+                                <span className="text-right">
+                                  <b className="font-display">{Math.round(p.v)}</b>
+                                  <span className="text-sm text-ink-soft"> — {Math.ceil(HP / Math.max(p.v, 1))} นัด</span>
                                 </span>
                               </div>
                             ))}
@@ -164,8 +126,7 @@ export default async function WeaponPage({ params }: PageProps<'/weapons/[uuid]'
                       )
                     })}
                   </div>
-                  <p className="mt-3 font-thai text-xs text-val-cream/40">* จำนวนนัดที่ต้องใช้คำนวณจากเป้าหมาย {HP} HP (100 HP + เกราะหนัก 50)</p>
-                </div>
+                </>
               )}
             </Container>
           </section>

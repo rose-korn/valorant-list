@@ -1,35 +1,29 @@
 import Link from 'next/link'
 import { getVersion } from '@/lib/valorant'
-import { Logo, NAV_LINKS } from './brand'
+import { NAV_LINKS } from './brand'
 
 export default async function Footer() {
   const version = await getVersion()
 
   return (
-    <footer className="relative overflow-hidden border-t border-val-red/20 bg-val-deep">
-      <div className="val-grid-bg pointer-events-none absolute inset-0 opacity-40" />
-      <div
-        aria-hidden
-        className="val-outline-text pointer-events-none absolute -bottom-6 left-1/2 -translate-x-1/2 font-display text-[22vw] leading-none whitespace-nowrap uppercase select-none"
-      >
-        Valorant
-      </div>
-
-      <div className="relative mx-auto grid max-w-[1440px] gap-10 px-4 py-14 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr] lg:px-10">
+    <footer className="mt-10 border-t-2 border-ink bg-night text-paper">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.3fr_1fr_1fr]">
         <div>
-          <Logo />
-          <p className="mt-4 max-w-sm font-thai text-sm leading-relaxed font-light text-val-cream/50">
-            แฟนไซต์ที่รวมข้อมูลทุกอย่างจาก Valorant — เอเจนท์ แผนที่ อาวุธ สกิน แรงค์ และของสะสม
-            พร้อมมุมมอง 3D แบบโต้ตอบได้
+          <p className="font-display text-2xl font-bold">
+            valo<span className="text-red">list</span>
           </p>
+          <p className="mt-3 max-w-sm text-paper/75">
+            เว็บเล็ก ๆ ที่ทำไว้ดูข้อมูล Valorant กับเพื่อน ๆ ในคอมมู ถ้าชอบก็แชร์ต่อได้เลย 🙌
+          </p>
+          <p className="hand mt-4 -rotate-2 text-lg !text-mustard">gg wp ทุกคน!</p>
         </div>
 
         <div>
-          <p className="mb-4 text-xs tracking-[0.3em] text-val-red uppercase">{'// Explore'}</p>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-2">
+          <p className="mb-3 font-display font-semibold text-paper/60">ไปที่</p>
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5">
             {NAV_LINKS.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="text-sm text-val-cream/60 transition-colors hover:text-val-red">
+                <Link href={l.href} className="text-paper/85 underline-offset-4 hover:text-red hover:underline">
                   {l.label}
                 </Link>
               </li>
@@ -38,35 +32,25 @@ export default async function Footer() {
         </div>
 
         <div>
-          <p className="mb-4 text-xs tracking-[0.3em] text-val-red uppercase">{'// Game Build'}</p>
+          <p className="mb-3 font-display font-semibold text-paper/60">เวอร์ชันเกมตอนนี้</p>
           {version ? (
-            <dl className="space-y-1.5 text-sm">
-              <div className="flex justify-between gap-4 border-b border-white/5 pb-1.5">
-                <dt className="text-val-cream/40">Version</dt>
-                <dd className="font-mono text-val-cream/80">{version.version}</dd>
-              </div>
-              <div className="flex justify-between gap-4 border-b border-white/5 pb-1.5">
-                <dt className="text-val-cream/40">Branch</dt>
-                <dd className="font-mono text-val-cream/80">{version.branch}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-val-cream/40">Build date</dt>
-                <dd className="font-mono text-val-cream/80">
-                  {new Date(version.buildDate).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
-                </dd>
-              </div>
-            </dl>
+            <div className="inline-block rounded-xl border-2 border-paper/20 px-4 py-3">
+              <p className="font-display text-2xl font-bold text-mustard">{version.version.split('.').slice(0, 2).join('.')}</p>
+              <p className="text-sm text-paper/60">
+                อัปเดตเมื่อ {new Date(version.buildDate).toLocaleDateString('th-TH', { dateStyle: 'medium' })}
+              </p>
+            </div>
           ) : (
-            <p className="text-sm text-val-cream/40">—</p>
+            <p className="text-paper/60">—</p>
           )}
         </div>
       </div>
 
-      <div className="relative border-t border-white/5">
-        <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-4 py-5 text-[11px] tracking-[0.2em] text-val-cream/35 uppercase sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-10">
-          <span>Fan site — not affiliated with Riot Games</span>
-          <a href="https://valorant-api.com" target="_blank" rel="noreferrer" className="hover:text-val-red">
-            Data · valorant-api.com
+      <div className="border-t border-paper/10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-4 text-sm text-paper/55 sm:flex-row sm:justify-between sm:px-6">
+          <span>แฟนไซต์ ไม่ได้เกี่ยวข้องกับ Riot Games</span>
+          <a href="https://valorant-api.com" target="_blank" rel="noreferrer" className="hover:text-red">
+            ข้อมูลจาก valorant-api.com
           </a>
         </div>
       </div>

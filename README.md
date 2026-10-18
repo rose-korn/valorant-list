@@ -36,7 +36,7 @@ This project is created for **educational and demonstration purposes only**.
 ## 🛠️ Tech Stack
 
 * Frontend: Next.js 16 (App Router) · React 19 · Tailwind CSS v4
-* 3D: Three.js — hero scene, interactive 3D viewer for weapons/skins/agents/ranks/cosmetics, 3D tactical map with callouts
+* 3D: Three.js — paper-confetti hero, interactive 3D viewer for weapons/skins/agents/ranks/cosmetics, 3D tactical map with callouts
 * API: Valorant Public API (`th-TH`), ISR revalidate every hour
 
 ### Pages
