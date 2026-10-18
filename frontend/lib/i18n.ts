@@ -35,6 +35,7 @@ const th = {
     credits: 'เครดิต',
     prev: 'ก่อนหน้า',
     next: 'ถัดไป',
+    clear: 'ล้างตัวกรอง',
   },
   sort: {
     label: 'เรียง',
@@ -347,6 +348,7 @@ const en: Dict = {
     credits: 'credits',
     prev: 'Previous',
     next: 'Next',
+    clear: 'Clear filters',
   },
   sort: {
     label: 'Sort',
