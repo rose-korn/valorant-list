@@ -4,9 +4,9 @@ import { BackLink, Container } from '@/components/ui'
 import { getContract, getSeasons } from '@/lib/api'
 import { dateLocale } from '@/lib/i18n'
 import { getI18n } from '@/lib/i18n-server'
-import { buildRewardIndex } from '@/lib/rewards'
+import { buildPassChapters, buildRewardIndex } from '@/lib/rewards'
 import { actLabel } from '@/lib/valorant'
-import PassChapters, { type ChapterView } from './PassChapters'
+import PassViewer from '@/components/PassViewer'
 
 export async function generateMetadata({ params }: PageProps<'/battlepass/[uuid]'>): Promise<Metadata> {
   const { uuid } = await params
@@ -23,12 +23,8 @@ export default async function PassPage({ params }: PageProps<'/battlepass/[uuid]
   const fmt = (d: string) => new Date(d).toLocaleDateString(dateLocale(lang), { day: 'numeric', month: 'short', year: 'numeric' })
 
   // ระดับนับต่อเนื่องข้ามบท (บท 1 = ระดับ 1-5, บท 2 = 6-10 ...)
-  let tier = 0
-  const chapters: ChapterView[] = contract.content.chapters.map((ch) => ({
-    isEpilogue: ch.isEpilogue,
-    levels: ch.levels.map((l) => ({ tier: ++tier, xp: l.xp, reward: resolve(l.reward) })),
-    free: (ch.freeRewards ?? []).map(resolve),
-  }))
+  const chapters = buildPassChapters(contract, resolve)
+  const tier = chapters.reduce((n, ch) => n + ch.levels.length, 0)
   const totalXp = contract.content.chapters.reduce((n, ch) => n + ch.levels.reduce((m, l) => m + l.xp, 0), 0)
   const freeCount = chapters.reduce((n, ch) => n + ch.free.length, 0)
 
@@ -61,7 +57,7 @@ export default async function PassPage({ params }: PageProps<'/battlepass/[uuid]
         </Container>
       </section>
       <Container className="py-10 md:py-14">
-        <PassChapters chapters={chapters} />
+        <PassViewer chapters={chapters} />
       </Container>
     </>
   )

@@ -4,9 +4,9 @@ import { notFound } from 'next/navigation'
 import Viewer3D from '@/components/three/Viewer3D'
 import { Arrow } from '@/components/brand'
 import { BackLink, Container, SectionHeading } from '@/components/ui'
-import RewardCard from '@/components/RewardCard'
+import PassViewer from '@/components/PassViewer'
 import { getAgent, getAgents, getContracts } from '@/lib/api'
-import { buildRewardIndex } from '@/lib/rewards'
+import { buildPassChapters, buildRewardIndex } from '@/lib/rewards'
 import { getI18n } from '@/lib/i18n-server'
 import { SLOT_ORDER, agentColor } from '@/lib/valorant'
 import AbilityPanel from './AbilityPanel'
@@ -25,11 +25,7 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
 
   // สัญญาเอเจนท์ (ของที่ปลดได้จากการเล่นตัวนี้)
   const contract = contracts.find((c) => c.content.relationType === 'Agent' && c.content.relationUuid === agent.uuid)
-  let tierNo = 0
-  const contractRewards = (contract?.content.chapters ?? []).flatMap((ch) => [
-    ...ch.levels.map((l) => ({ key: `l-${++tierNo}`, tier: tierNo, free: false, reward: resolve(l.reward) })),
-    ...(ch.freeRewards ?? []).map((f, i) => ({ key: `f-${tierNo}-${i}`, tier: tierNo, free: true, reward: resolve(f) })),
-  ])
+  const contractChapters = buildPassChapters(contract, resolve)
 
   const color = agentColor(agent)
   const sorted = [...all].sort((a, b) => a.displayName.localeCompare(b.displayName))
@@ -105,25 +101,11 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
       </section>
 
       {/* ================= AGENT CONTRACT ================= */}
-      {contractRewards.length > 0 && (
+      {contractChapters.some((ch) => ch.levels.length) && (
         <section className="border-t-2 border-ink py-14 md:py-16">
           <Container>
             <SectionHeading title={t.battlepass.agentContract} note={t.battlepass.agentContractNote} />
-            <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-              {contractRewards.map((r) => (
-                <li key={r.key}>
-                  <RewardCard
-                    reward={r.reward}
-                    label={r.free ? undefined : t.battlepass.tier(r.tier)}
-                    typeLabel={t.battlepass.types[r.reward.type] ?? r.reward.type}
-                    free={r.free}
-                    freeLabel={t.battlepass.free}
-                    highlightLabel={t.battlepass.highlight}
-                    fallbackName={t.battlepass.unknown}
-                  />
-                </li>
-              ))}
-            </ul>
+            <PassViewer chapters={contractChapters} />
           </Container>
         </section>
       )}
