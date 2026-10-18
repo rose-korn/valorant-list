@@ -1,343 +1,111 @@
 'use client'
 
-import { useAgentImageHeight } from '@/hooks/useAgentImageHeight'
-import { useDeviceSize } from '@/hooks/useDeviceSize'
-import { useState } from 'react'
+import Link from 'next/link'
+import { useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { FilterBar, FilterButton, SearchInput } from '@/components/Filters'
 
-
-interface Ability {
-  slot: string
-  displayName: string
-  description: string
-  displayIcon: string | null
-}
-
-interface Agent {
+export interface AgentCard {
   uuid: string
   displayName: string
-  description: string
-  fullPortrait: string
+  developerName: string
+  fullPortrait: string | null
+  bustPortrait: string | null
   displayIcon: string
-  background: string
+  background: string | null
   backgroundGradientColors: string[]
-  role: {
-    displayName: string
-    description: string
-    displayIcon: string
-  }
-  abilities: Ability[]
+  roleUuid: string
+  roleName: string
+  roleIcon: string
 }
 
-const keyBindMap: Record<string, string> = {
-  Ability1: 'Q',
-  Ability2: 'E',
-  Grenade: 'C',
-  Ultimate: 'X',
-  Passive: '—',
-}
+const hex = (raw: string | undefined, fallback: string) => (raw ? `#${raw.slice(0, 6)}` : fallback)
 
-export default function AgentsClient({ agents }: { agents: Agent[] }) {
-  const [selected, setSelected] = useState<Agent | null>(null)
-  const [activeAbility, setActiveAbility] = useState<number | null>(null)
-  const [filterRole, setFilterRole] = useState('ALL')
-  const { isMobile, isTablet } = useDeviceSize()
-  const { height, marginTop } = useAgentImageHeight()
+export default function AgentsClient({
+  agents,
+  roles,
+}: {
+  agents: AgentCard[]
+  roles: { uuid: string; name: string; icon: string }[]
+}) {
+  // รองรับลิงก์ /agents?role=<uuid> จากหน้าแรก
+  const initialRole = useSearchParams().get('role')
+  const [role, setRole] = useState<string>(() => (initialRole && roles.some((x) => x.uuid === initialRole) ? initialRole : 'ALL'))
+  const [query, setQuery] = useState('')
 
-  const bgColor = selected?.backgroundGradientColors?.[0]
-    ? `#${selected.backgroundGradientColors[0].slice(0, 6)}`
-    : '#0f1923'
-
-  const selectAgent = (agent: Agent) => {
-    if (selected?.uuid === agent.uuid) {
-      setSelected(null)
-      setActiveAbility(null)
-      return
-    }
-    setSelected(agent)
-    setActiveAbility(null)
-  }
+  const list = useMemo(() => {
+    const q = query.trim().toLowerCase()
+    return agents.filter(
+      (a) =>
+        (role === 'ALL' || a.roleUuid === role) &&
+        (!q || a.displayName.toLowerCase().includes(q) || a.developerName?.toLowerCase().includes(q)),
+    )
+  }, [agents, role, query])
 
   return (
-    <div
-      className="bg-[#0f1923] flex flex-col relative overflow-x-hidden"
-      style={{ minHeight: 'calc(100vh - 20px)' }}
-    >
-      {/* background color */}
-      <div
-        className="absolute inset-0 transition-all duration-700"
-        style={{ backgroundColor: bgColor, opacity: 0.08 }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0f1923]/80 via-transparent to-transparent" />
+    <>
+      <FilterBar search={<SearchInput value={query} onChange={setQuery} placeholder="ค้นหาเอเจนท์..." />}>
+        <FilterButton active={role === 'ALL'} onClick={() => setRole('ALL')}>
+          All
+        </FilterButton>
+        {roles.map((r) => (
+          <FilterButton key={r.uuid} active={role === r.uuid} onClick={() => setRole(r.uuid)}>
+            <img src={r.icon} alt="" className="h-3.5 w-3.5" />
+            {r.name}
+          </FilterButton>
+        ))}
+      </FilterBar>
 
-      {/* main area */}
-      <div className="flex-1 relative z-10 flex items-center justify-center py-6">
-        {selected ? (
-          <div className="flex flex-col md:flex-row items-center md:items-end gap-8 md:gap-16 w-full max-w-6xl px-5 md:px-12">
+      <p className="mb-4 text-xs tracking-[0.25em] text-val-cream/40 uppercase">
+        {list.length} / {agents.length} agents
+      </p>
 
-            {/* รูป agent */}
-            <div
-              className="relative flex-shrink-0 flex items-end justify-center w-full md:w-auto"
-              style={{ maxHeight: isMobile ? '40vh' : undefined, overflow: isMobile ? 'hidden' : 'visible' }}
-            >
-              {selected.background && (
-                <img
-                  src={selected.background}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-contain opacity-30"
-                  style={{ zIndex: 0, marginTop, animation: 'slideFromLeft 0.5s ease-out' }}
-                />
-              )}
-              <img
-                key={selected.uuid}
-                src={selected.fullPortrait ?? ''}
-                alt={selected.displayName}
-                className="relative w-auto object-contain"
-                style={{
-                  zIndex: 1,
-                  height,
-                  marginTop,
-                  animation: 'slideFromRight 0.5s ease-out',
-                }}
-              />
-            </div>
-
-            {/* info */}
-            <div className="flex-1 pb-4 md:pb-8 w-full px-5 md:px-0">
-              <div className="flex items-center gap-2 mb-2 md:mb-3">
-                {selected.role?.displayIcon && (
-                  <img src={selected.role.displayIcon} alt="" className="w-4 h-4 opacity-60" />
+      <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+        {list.map((a, i) => {
+          const c1 = hex(a.backgroundGradientColors?.[0], '#ff4654')
+          const c2 = hex(a.backgroundGradientColors?.[2], '#0f1923')
+          return (
+            <li key={a.uuid} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 12) * 40}ms` }}>
+              <Link
+                href={`/agents/${a.uuid}`}
+                className="group relative block aspect-[3/4] overflow-hidden"
+                style={{ background: `linear-gradient(165deg, ${c1}, ${c2})` }}
+              >
+                {a.background && (
+                  <img
+                    src={a.background}
+                    alt=""
+                    loading="lazy"
+                    className="absolute inset-0 h-full w-full scale-125 object-cover opacity-25 mix-blend-overlay transition-transform duration-700 group-hover:scale-110"
+                  />
                 )}
-                <span className="font-barlow text-[#ff4654] text-[10px] tracking-[4px] uppercase">
-                  {selected.role?.displayName}
+                <span
+                  aria-hidden
+                  className="absolute top-2 left-2 font-display text-[3.4rem] leading-none text-white/10 uppercase transition-colors group-hover:text-white/25 md:text-7xl"
+                >
+                  {a.displayName}
                 </span>
-              </div>
-
-              <h1 className="font-rajdhani font-bold text-5xl md:text-7xl uppercase leading-none text-white mb-2 md:mb-3">
-                {selected.displayName}
-              </h1>
-
-              <p className="font-barlow text-white/60 text-xs md:text-sm leading-relaxed mb-4 md:mb-6 max-w-md">
-                {selected.description}
-              </p>
-
-              {/* abilities */}
-              <p className="font-barlow text-white/30 text-[10px] tracking-[4px] uppercase mb-1">
-                // Abilities
-              </p>
-              <p className="font-barlow text-white/20 text-[9px] mb-2">
-                กดที่สกิลเพื่อดูคำอธิบาย
-              </p>
-              <div className="flex gap-2 md:gap-3 mb-3 flex-wrap">
-                {selected.abilities.filter((a) => a.displayIcon).map((ability, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setActiveAbility(activeAbility === i ? null : i)}
-                    className={`w-10 h-10 md:w-12 md:h-12 rounded-sm border p-1.5 md:p-2 transition-all duration-200
-                      ${activeAbility === i
-                        ? 'border-[#ff4654] bg-[#ff4654]/20'
-                        : 'border-white/20 bg-white/5 hover:border-white/40'
-                      }`}
-                  >
-                    <img
-                      src={ability.displayIcon ?? ''}
-                      alt={ability.displayName}
-                      className="w-full h-full object-contain"
-                    />
-                  </button>
-                ))}
-              </div>
-
-              {/* ability accordion */}
-              <div className={`overflow-hidden transition-all duration-500 pt-4 md:pt-6 ${activeAbility !== null ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}`}>
-                {activeAbility !== null && selected.abilities[activeAbility] && (
-                  <div className="border border-[#ff4654]/20 bg-[#ff4654]/5 rounded-sm mt-6 md:mt-8">
-
-                    {/* header — ชื่อ + keybind */}
-                    <div className="flex items-center gap-3 px-4 py-3 border-b border-[#ff4654]/10">
-
-                      <div className="flex-shrink-0 w-8 h-8 border border-white/20 bg-white/5 rounded-sm flex items-center justify-center">
-                        <span className="font-rajdhani font-bold text-white text-sm">
-                          {keyBindMap[selected.abilities[activeAbility].slot] ?? '—'}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-rajdhani font-bold text-xl md:text-2xl uppercase text-white leading-none">
-                          {selected.abilities[activeAbility].displayName}
-                        </p>
-                        <p className="font-barlow text-white/30 text-[9px] uppercase tracking-widest mt-0.5">
-                          Ability
-                        </p>
-                      </div>
-
-                    </div>
-
-                    {/* description */}
-                    <div className="px-4 py-4">
-                      <p className="font-barlow text-white/70 text-sm md:text-base leading-relaxed">
-                        {selected.abilities[activeAbility].description}
-                      </p>
-                    </div>
-
+                <img
+                  src={a.fullPortrait ?? a.bustPortrait ?? a.displayIcon}
+                  alt={a.displayName}
+                  loading="lazy"
+                  className="absolute inset-0 h-full w-full translate-y-[6%] scale-[1.45] object-cover object-[50%_20%] transition-transform duration-700 group-hover:scale-[1.55]"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 pt-14 md:p-4">
+                  <div className="flex items-center gap-1.5 text-[10px] tracking-[0.2em] text-white/70 uppercase">
+                    {a.roleIcon && <img src={a.roleIcon} alt="" className="h-3 w-3" />}
+                    {a.roleName}
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="text-center px-4">
-            <p className="font-rajdhani font-bold text-3xl md:text-4xl uppercase text-white/20 tracking-widest">
-              เลือกเอเจนท์
-            </p>
-            <p className="font-barlow text-white/20 text-sm mt-2 tracking-widest uppercase">
-              Select an agent below
-            </p>
-          </div>
-        )}
-      </div>
+                  <p className="font-display text-2xl leading-none text-white uppercase md:text-3xl">{a.displayName}</p>
+                </div>
+                <span className="absolute top-0 right-0 h-0 w-0 border-t-[28px] border-l-[28px] border-t-val-red border-l-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
 
-      {/* แถบล่าง */}
-      <div className="relative z-20">
-        <div
-          className="border-t border-white/10 backdrop-blur-sm transition-all duration-700"
-          style={{
-            background: selected
-              ? `linear-gradient(to right,
-                  #${selected.backgroundGradientColors?.[0]?.slice(0, 6) ?? '0f1923'}20,
-                  #${selected.backgroundGradientColors?.[1]?.slice(0, 6) ?? '0f1923'}10,
-                  transparent)`
-              : 'rgba(15,25,35,0.9)',
-          }}
-        >
-          {/* Filter tabs */}
-          <div className="pt-4 scrollbar-hide">
-            <div className="flex items-end gap-1 px-5 min-w-max md:min-w-0 md:justify-center mx-auto">
-              {[
-                { key: 'ALL', label: 'All' },
-                { key: 'DUELIST', label: 'Duelist' },
-                { key: 'INITIATOR', label: 'Initiator' },
-                { key: 'CONTROLLER', label: 'Controller' },
-                { key: 'SENTINEL', label: 'Sentinel' },
-              ].map((role) => {
-                const isActive = filterRole === role.key
-                return (
-                  <button
-                    key={role.key}
-                    onClick={() => setFilterRole(role.key)}
-                    className="relative font-barlow text-[10px] tracking-widest uppercase transition-all duration-200"
-                    style={{
-                      padding: isActive ? '8px 20px 10px' : '6px 16px 8px',
-                      background: isActive ? 'rgba(255,255,255,0.06)' : 'transparent',
-                      color: isActive ? '#fff' : 'rgba(255,255,255,0.3)',
-                      borderTop: isActive ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
-                      borderLeft: isActive ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
-                      borderRight: isActive ? '1px solid rgba(255,255,255,0.15)' : '1px solid transparent',
-                      borderBottom: '1px solid transparent',
-                      borderRadius: '4px 4px 0 0',
-                      marginBottom: isActive ? '-1px' : '0',
-                      zIndex: isActive ? 10 : 1,
-                    }}
-                  >
-                    {isActive && (
-                      <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-sm bg-[#ff4654]" />
-                    )}
-                    {role.label}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="border-b border-white/10 mx-5" />
-
-          {/* agent icons */}
-          <div className="px-5 pb-8" style={{ paddingTop: '40px' }}>
-            <div className="flex flex-wrap gap-4 justify-center items-end">
-              {agents
-                .filter((agent) =>
-                  filterRole === 'ALL'
-                    ? true
-                    : agent.role?.displayName?.toUpperCase() === filterRole
-                )
-                .map((agent) => {
-                  const isSelected = selected?.uuid === agent.uuid
-                  const agentColor = agent.backgroundGradientColors?.[0]
-                    ? `#${agent.backgroundGradientColors[0].slice(0, 6)}`
-                    : 'transparent'
-
-                  return (
-                    <button
-                      key={agent.uuid}
-                      onClick={() => selectAgent(agent)}
-                      className="flex flex-col items-center gap-1 flex-shrink-0"
-                      style={{ overflow: 'visible', position: 'relative' }}
-                    >
-                      <div style={{ height: isSelected ? '16px' : '0px', transition: 'height 0.2s' }} />
-
-                      <img
-                        src={agent.displayIcon}
-                        alt={agent.displayName}
-                        className={`w-14 h-14 object-cover rounded-sm transition-all duration-200 ${isSelected
-                          ? 'opacity-0'
-                          : 'opacity-40 grayscale hover:opacity-70 hover:grayscale-0'
-                          }`}
-                      />
-
-                      {isSelected && (
-                        <img
-                          src={agent.displayIcon}
-                          alt={agent.displayName}
-                          className="object-cover rounded-sm"
-                          style={{
-                            position: 'absolute',
-                            bottom: '20px',
-                            left: '50%',
-                            transform: 'translateX(-50%)',
-                            width: '80px',
-                            height: '80px',
-                            zIndex: 50,
-                            animation: 'popUp 0.2s ease-out',
-                            filter: `drop-shadow(0 0 10px ${agentColor}90)`,
-                          }}
-                        />
-                      )}
-
-                      <span
-                        className="font-barlow text-[9px] uppercase tracking-wider transition-all duration-200"
-                        style={{ color: isSelected ? agentColor : 'rgba(255,255,255,0.3)' }}
-                      >
-                        {agent.displayName}
-                      </span>
-
-                      {isSelected && (
-                        <div
-                          className="h-[2px] w-full rounded-full"
-                          style={{ backgroundColor: agentColor, opacity: 0.6 }}
-                        />
-                      )}
-                    </button>
-                  )
-                })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes slideFromRight {
-          from { opacity: 0; transform: translateX(80px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideFromLeft {
-          from { opacity: 0; transform: translateX(-80px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes popUp {
-          from { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(10px); }
-          to   { opacity: 1; transform: translateX(-50%) scale(1) translateY(0); }
-        }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-    </div>
+      {list.length === 0 && <p className="py-20 text-center font-thai text-val-cream/40">ไม่พบเอเจนท์ที่ค้นหา</p>}
+    </>
   )
 }

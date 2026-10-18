@@ -1,26 +1,211 @@
 @import "tailwindcss";
 
 @theme {
-  --font-barlow: 'Barlow', sans-serif;
-  --font-rajdhani: 'Rajdhani', sans-serif;
+  --font-display: var(--font-anton), var(--font-kanit), 'Impact', sans-serif;
+  --font-body: var(--font-barlow), var(--font-kanit), system-ui, sans-serif;
+  --font-thai: var(--font-kanit), sans-serif;
+
   --color-val-red: #ff4654;
-  --color-val-dark: #0f1923;
-  --color-val-darker: #141f2c;
+  --color-val-red-dark: #bd3944;
+  --color-val-ink: #0f1923;
+  --color-val-deep: #0a1118;
+  --color-val-panel: #111c27;
+  --color-val-line: #1f2b38;
+  --color-val-cream: #ece8e1;
+  --color-val-teal: #3fe3c6;
+  --color-val-gold: #f5c96b;
+
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-fade-in: fade-in 0.6s ease-out both;
+  --animate-slide-in: slide-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-marquee: marquee 40s linear infinite;
+  --animate-float: float 5s ease-in-out infinite;
+  --animate-scan: scan 6s linear infinite;
 }
 
-@layer utilities {
-  .font-barlow { font-family: var(--font-barlow); }
-  .font-rajdhani { font-family: var(--font-rajdhani); }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(48px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+@keyframes scan {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(100vh); }
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer base {
+  html {
+    background: var(--color-val-ink);
+    color: var(--color-val-cream);
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    min-height: 100dvh;
+    background: var(--color-val-ink);
+    font-family: var(--font-body);
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: var(--color-val-red);
+    color: white;
+  }
+  img {
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  button {
+    cursor: pointer;
+  }
 }
 
-html, body {
-  min-height: 100vh;
-  background-color: #0f1923;
-  color: white;
+@layer components {
+  /* ปุ่มทรงมุมตัดแบบ Valorant */
+  .val-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.8rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: white;
+    background: var(--color-val-red);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+    transition: background 0.25s, transform 0.25s;
+  }
+  .val-btn:hover {
+    background: var(--color-val-cream);
+    color: var(--color-val-ink);
+  }
+  .val-btn-ghost {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    padding: 0.95rem 1.8rem;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-val-cream);
+    border: 1px solid rgb(236 232 225 / 0.3);
+    transition: border-color 0.25s, color 0.25s, background 0.25s;
+  }
+  .val-btn-ghost:hover {
+    border-color: var(--color-val-red);
+    color: white;
+    background: rgb(255 70 84 / 0.1);
+  }
+
+  .val-panel {
+    position: relative;
+    background: linear-gradient(160deg, rgb(255 255 255 / 0.04), rgb(255 255 255 / 0.01));
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+
+  /* กรอบมุมเล็ก ๆ แบบ HUD */
+  .val-corners {
+    position: relative;
+  }
+  .val-corners::before,
+  .val-corners::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    transition: all 0.3s;
+  }
+  .val-corners::before {
+    top: -1px;
+    left: -1px;
+    border-top: 2px solid var(--color-val-red);
+    border-left: 2px solid var(--color-val-red);
+  }
+  .val-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-bottom: 2px solid var(--color-val-red);
+    border-right: 2px solid var(--color-val-red);
+  }
+  .val-corners:hover::before,
+  .val-corners:hover::after {
+    width: 28px;
+    height: 28px;
+  }
+
+  .val-cut {
+    clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  }
+
+  .val-grid-bg {
+    background-image:
+      linear-gradient(rgb(255 70 84 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 70 84 / 0.05) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  .val-stripes {
+    background-image: repeating-linear-gradient(-45deg, rgb(255 255 255 / 0.04) 0 2px, transparent 2px 10px);
+  }
+
+  .val-noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(0deg, transparent 0 2px, rgb(0 0 0 / 0.08) 2px 3px);
+    mix-blend-mode: multiply;
+  }
+
+  .val-outline-text {
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(236 232 225 / 0.12);
+  }
+
+  .val-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    border: 1px solid rgb(255 255 255 / 0.15);
+    color: rgb(236 232 225 / 0.75);
+  }
+
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .val-scroll::-webkit-scrollbar { width: 6px; height: 6px; }
+  .val-scroll::-webkit-scrollbar-thumb { background: rgb(255 70 84 / 0.5); }
+  .val-scroll::-webkit-scrollbar-track { background: transparent; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

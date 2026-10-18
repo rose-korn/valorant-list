@@ -35,8 +35,32 @@ This project is created for **educational and demonstration purposes only**.
 
 ## 🛠️ Tech Stack
 
-* Frontend: (add your stack here, e.g. Next.js / Flutter)
-* API: Valorant Public API
+* Frontend: Next.js 16 (App Router) · React 19 · Tailwind CSS v4
+* 3D: Three.js — hero scene, interactive 3D viewer for weapons/skins/agents/ranks/cosmetics, 3D tactical map with callouts
+* API: Valorant Public API (`th-TH`), ISR revalidate every hour
+
+### Pages
+
+| Route | Content |
+| --- | --- |
+| `/` | 3D hero, stats, roles, maps, arsenal 3D viewer, ranks, latest bundles |
+| `/agents`, `/agents/[uuid]` | Role filter + search; 3D portrait, abilities with keybinds, voice line, role info |
+| `/maps`, `/maps/[uuid]` | Competitive / other maps; 3D tactical map with callout pins & zone filter, artwork |
+| `/weapons`, `/weapons/[uuid]` | Stats, damage by range + shots-to-kill, skins by tier, chromas, upgrade-level videos, armor |
+| `/ranks` | 3D rank emblem, all tiers, episode/act timeline |
+| `/bundles` | All store bundles with promo art |
+| `/collection`, `/collection/[type]` | Player cards, sprays, gun buddies, titles (3D inspect) |
+| `/modes` | Game modes & currencies |
+
+### Run locally
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Set `VALORANT_API_BASE` to point at a different API base URL (defaults to `https://valorant-api.com/v1`).
 
 ---
 
