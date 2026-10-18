@@ -54,3 +54,39 @@ export function FilterButton({
     </button>
   )
 }
+
+/** ปุ่มสลับการเรียง (ใหม่ → เก่า / เก่า → ใหม่ / A-Z ...) */
+export function SortSwitch<T extends string>({
+  value,
+  options,
+  onChange,
+  label,
+  hint,
+}: {
+  value: T
+  options: { key: T; label: string }[]
+  onChange: (v: T) => void
+  label: string
+  hint?: string
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-sm text-ink-soft" title={hint}>
+        {label}
+        {hint && <span className="ml-1 cursor-help">ⓘ</span>}
+      </span>
+      <div role="group" aria-label={label} className="flex overflow-hidden rounded-xl border-2 border-ink bg-card text-sm">
+        {options.map((o) => (
+          <button
+            key={o.key}
+            onClick={() => onChange(o.key)}
+            aria-pressed={value === o.key}
+            className={`px-3 py-1.5 font-display font-semibold whitespace-nowrap transition-colors ${value === o.key ? 'bg-ink text-paper' : 'hover:bg-mustard/40'}`}
+          >
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}

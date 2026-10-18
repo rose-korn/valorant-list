@@ -1,12 +1,17 @@
 import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
-import { WEAPON_CATEGORIES, getGear, getWeapons, isRealSkin } from '@/lib/valorant'
+import { getGear, getWeapons } from '@/lib/api'
+import { getI18n } from '@/lib/i18n-server'
+import { WEAPON_CATEGORIES, isRealSkin } from '@/lib/valorant'
 import ArsenalClient, { type WeaponCard } from './ArsenalClient'
 
-export const metadata: Metadata = { title: 'ปืน & สกิน' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n()
+  return { title: t.weapons.title }
+}
 
 export default async function WeaponsPage() {
-  const [weapons, gear] = await Promise.all([getWeapons(), getGear()])
+  const [weapons, gear, { lang, t }] = await Promise.all([getWeapons(), getGear(), getI18n()])
 
   const order = (c: string) => {
     const i = WEAPON_CATEGORIES.findIndex((x) => x.key === c)
@@ -33,26 +38,33 @@ export default async function WeaponsPage() {
     <>
       <PageHero
         en="Arsenal"
-        title="ปืน & สกิน"
-        description="ดูค่าสเตตัส ดาเมจตามระยะ ว่ายิงกี่นัดตาย แล้วก็สกินทุกลายพร้อมสีและวิดีโอ หมุนดูแบบ 3D ได้ทุกอัน"
+        title={t.weapons.title}
+        description={t.weapons.desc}
         facts={[
-          { label: 'กระบอก', value: weapons.length },
-          { label: 'สกิน', value: totalSkins.toLocaleString() },
+          { label: t.weapons.unit, value: weapons.length },
+          { label: t.weapons.skins, value: totalSkins.toLocaleString() },
         ]}
-        note="ปืนที่ซื้อบ่อยสุดก็ Vandal กับ Phantom นั่นแหละ"
+        note={t.weapons.note}
       />
       <Container className="py-10 md:py-14">
         {cards.length ? (
-          <ArsenalClient weapons={cards} categories={WEAPON_CATEGORIES.filter((c) => cards.some((w) => w.category === c.key))} />
+          <ArsenalClient
+            weapons={cards}
+            categories={WEAPON_CATEGORIES.filter((c) => cards.some((w) => w.category === c.key)).map((c) => ({
+              key: c.key,
+              label: lang === 'th' ? c.th : c.label,
+              sub: lang === 'th' ? c.label : '',
+            }))}
+          />
         ) : (
-          <EmptyState />
+          <EmptyState text={t.common.empty} />
         )}
       </Container>
 
       {gear.length > 0 && (
         <section className="border-t-2 border-ink bg-paper-2 py-12 md:py-16">
           <Container>
-            <SectionHeading title="เกราะ" note="อย่าลืมซื้อทุกรอบนะ!" />
+            <SectionHeading title={t.weapons.armorTitle} note={t.weapons.armorNote} />
             <div className="grid gap-5 md:grid-cols-2">
               {gear.map((g) => (
                 <div key={g.uuid} className="card flex gap-4 p-5">
@@ -62,7 +74,7 @@ export default async function WeaponsPage() {
                   <div>
                     <div className="flex flex-wrap items-baseline gap-x-3">
                       <h3 className="text-2xl font-bold">{g.displayName}</h3>
-                      {g.shopData?.cost != null && <span className="font-display font-bold text-red-ink">{g.shopData.cost} เครดิต</span>}
+                      {g.shopData?.cost != null && <span className="font-display font-bold text-red-ink">{g.shopData.cost} {t.common.credits}</span>}
                     </div>
                     <p className="mt-1 text-ink-soft">{g.description}</p>
                     {g.details && g.details.length > 0 && (

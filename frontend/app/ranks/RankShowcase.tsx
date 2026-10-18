@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Viewer3D from '@/components/three/Viewer3D'
+import { useI18n } from '@/components/LangProvider'
 
 interface TierView {
   tier: number
@@ -13,6 +14,7 @@ interface TierView {
 }
 
 export default function RankShowcase({ tiers }: { tiers: TierView[] }) {
+  const { t } = useI18n()
   const [active, setActive] = useState(tiers[tiers.length - 1])
 
   // จัดกลุ่มตาม division (Iron, Bronze, ...)
@@ -36,16 +38,14 @@ export default function RankShowcase({ tiers }: { tiers: TierView[] }) {
         </div>
         <div className="mt-5 flex items-center justify-between gap-4">
           <div key={active.tier} className="animate-fade-up">
-            <p className="text-sm text-ink-soft">
-              ระดับที่ {index + 1} จาก {tiers.length}
-            </p>
+            <p className="text-sm text-ink-soft">{t.ranks.position(index + 1, tiers.length)}</p>
             <h2 className="text-4xl font-bold">{active.name}</h2>
           </div>
           <div className="flex gap-2">
-            <button onClick={() => go(-1)} disabled={index <= 0} className="btn btn-paper !px-3 disabled:opacity-40" aria-label="แรงค์ก่อนหน้า">
+            <button onClick={() => go(-1)} disabled={index <= 0} className="btn btn-paper !px-3 disabled:opacity-40" aria-label={t.common.prev}>
               ←
             </button>
-            <button onClick={() => go(1)} disabled={index >= tiers.length - 1} className="btn btn-paper !px-3 disabled:opacity-40" aria-label="แรงค์ถัดไป">
+            <button onClick={() => go(1)} disabled={index >= tiers.length - 1} className="btn btn-paper !px-3 disabled:opacity-40" aria-label={t.common.next}>
               →
             </button>
           </div>

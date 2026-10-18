@@ -37,7 +37,7 @@ This project is created for **educational and demonstration purposes only**.
 
 * Frontend: Next.js 16 (App Router) · React 19 · Tailwind CSS v4
 * 3D: Three.js — paper-confetti hero, interactive 3D viewer for weapons/skins/agents/ranks/cosmetics, 3D tactical map with callouts
-* API: Valorant Public API (`th-TH`), ISR revalidate every hour
+* API: Valorant Public API (`th-TH` / `en-US` from the language cookie), data cached for an hour
 
 ### Pages
 
@@ -51,6 +51,10 @@ This project is created for **educational and demonstration purposes only**.
 | `/bundles` | All store bundles with promo art |
 | `/collection`, `/collection/[type]` | Player cards, sprays, gun buddies, titles (3D inspect) |
 | `/modes` | Game modes & currencies |
+| `/share` | Make a shareable "my main" card (PNG download / native share / link) |
+| `/play` | Aim Rush — 30-second aim trainer with combos, headshots and a rank result |
+
+Other features: Thai / English switch (UI text and API data), grid or list view for agents, newest/oldest/A–Z sorting for bundles, skins and collectibles, and skeleton loading screens on every page.
 
 ### Run locally
 

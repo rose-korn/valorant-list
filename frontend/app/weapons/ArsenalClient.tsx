@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { FilterBar, FilterButton, SearchInput } from '@/components/Filters'
+import { useI18n } from '@/components/LangProvider'
 
 export interface WeaponCard {
   uuid: string
@@ -21,8 +22,9 @@ export default function ArsenalClient({
   categories,
 }: {
   weapons: WeaponCard[]
-  categories: { key: string; label: string; th: string }[]
+  categories: { key: string; label: string; sub: string }[]
 }) {
+  const { t } = useI18n()
   const [cat, setCat] = useState('ALL')
   const [query, setQuery] = useState('')
 
@@ -45,13 +47,13 @@ export default function ArsenalClient({
 
   return (
     <>
-      <FilterBar search={<SearchInput value={query} onChange={setQuery} placeholder="หาชื่อปืน..." />}>
+      <FilterBar search={<SearchInput value={query} onChange={setQuery} placeholder={t.weapons.search} />}>
         <FilterButton active={cat === 'ALL'} onClick={() => setCat('ALL')}>
-          ทั้งหมด
+          {t.common.all}
         </FilterButton>
         {categories.map((c) => (
           <FilterButton key={c.key} active={cat === c.key} onClick={() => setCat(c.key)}>
-            {c.th}
+            {c.label}
           </FilterButton>
         ))}
       </FilterBar>
@@ -60,8 +62,8 @@ export default function ArsenalClient({
         {groups.map((g) => (
           <section key={g.key}>
             <div className="mb-5 flex items-baseline gap-3">
-              <h2 className="text-3xl font-bold">{g.th}</h2>
-              <span className="text-ink-soft">{g.label}</span>
+              <h2 className="text-3xl font-bold">{g.label}</h2>
+              {g.sub && <span className="text-ink-soft">{g.sub}</span>}
             </div>
             <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {g.items.map((w) => (
@@ -81,21 +83,21 @@ export default function ArsenalClient({
                     </div>
                     {w.fireRate > 0 ? (
                       <dl className="mt-auto space-y-1.5">
-                        <StatBar label="ความเร็วยิง" value={w.fireRate} max={max.fireRate} />
-                        <StatBar label="กระสุน" value={w.magazine} max={max.magazine} />
-                        <StatBar label="ยิงหัว" value={w.head} max={max.head} />
+                        <StatBar label={t.weapons.fireRate} value={w.fireRate} max={max.fireRate} />
+                        <StatBar label={t.weapons.magazine} value={w.magazine} max={max.magazine} />
+                        <StatBar label={t.weapons.head} value={w.head} max={max.head} />
                       </dl>
                     ) : (
-                      <p className="mt-auto text-sm text-ink-soft">อาวุธระยะประชิด ฟันอย่างเดียว</p>
+                      <p className="mt-auto text-sm text-ink-soft">{t.weapons.melee}</p>
                     )}
-                    <p className="mt-3 text-sm font-semibold text-red-ink">{w.skins} สกิน →</p>
+                    <p className="mt-3 text-sm font-semibold text-red-ink">{t.weapons.skinCount(w.skins)}</p>
                   </Link>
                 </li>
               ))}
             </ul>
           </section>
         ))}
-        {groups.length === 0 && <p className="hand py-16 text-center text-xl">ไม่เจอปืนชื่อนี้นะ</p>}
+        {groups.length === 0 && <p className="hand py-16 text-center text-xl">{t.common.noResult}</p>}
       </div>
     </>
   )

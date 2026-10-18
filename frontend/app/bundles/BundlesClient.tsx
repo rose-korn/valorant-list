@@ -1,35 +1,57 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
-import { SearchInput } from '@/components/Filters'
+import { SearchInput, SortSwitch } from '@/components/Filters'
 import Modal from '@/components/Modal'
+import { useI18n } from '@/components/LangProvider'
 import type { Bundle } from '@/lib/valorant'
 
 const PAGE = 18
 const tilt = ['-rotate-1', 'rotate-1', 'rotate-[0.5deg]', '-rotate-[0.5deg]']
 
 export default function BundlesClient({ bundles }: { bundles: Bundle[] }) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<'new' | 'old' | 'az'>('new')
   const [limit, setLimit] = useState(PAGE)
   const [open, setOpen] = useState<Bundle | null>(null)
   const close = useCallback(() => setOpen(null), [])
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return q ? bundles.filter((b) => b.displayName.toLowerCase().includes(q)) : bundles
-  }, [bundles, query])
+    const found = q ? bundles.filter((b) => b.displayName.toLowerCase().includes(q)) : bundles.slice()
+    if (sort === 'new') found.reverse()
+    if (sort === 'az') found.sort((a, b) => a.displayName.localeCompare(b.displayName))
+    return found
+  }, [bundles, query, sort])
 
   return (
     <>
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-ink-soft">เจอ {list.length} ชุด</p>
+        <div className="flex flex-col gap-2">
+          <p className="text-ink-soft">{t.common.found(list.length, bundles.length)}</p>
+          <SortSwitch
+            value={sort}
+            onChange={(v) => {
+              setSort(v)
+              setLimit(PAGE)
+            }}
+            label={t.sort.label}
+            hint={t.sort.hint}
+            options={[
+              { key: 'new', label: t.sort.newest },
+              { key: 'old', label: t.sort.oldest },
+              { key: 'az', label: t.sort.az },
+            ]}
+          />
+        </div>
         <SearchInput
           value={query}
           onChange={(v) => {
             setQuery(v)
             setLimit(PAGE)
           }}
-          placeholder="หาชื่อบันเดิล..."
+          placeholder={t.bundles.search}
         />
       </div>
 
@@ -37,7 +59,7 @@ export default function BundlesClient({ bundles }: { bundles: Bundle[] }) {
         {list.slice(0, limit).map((b, i) => (
           <li key={b.uuid}>
             <button onClick={() => setOpen(b)} className={`card card-hover block w-full p-2.5 text-left ${tilt[i % tilt.length]}`}>
-              <div className="aspect-video overflow-hidden rounded-md bg-ink">
+              <div className="aspect-video overflow-hidden rounded-md skeleton-dark">
                 <img src={b.displayIcon} alt={b.displayName} loading="lazy" className="h-full w-full object-cover" />
               </div>
               <div className="px-1 pt-2">
@@ -49,11 +71,11 @@ export default function BundlesClient({ bundles }: { bundles: Bundle[] }) {
         ))}
       </ul>
 
-      {list.length === 0 && <p className="hand py-16 text-center text-xl">ไม่เจอบันเดิลชื่อนี้นะ</p>}
+      {list.length === 0 && <p className="hand py-16 text-center text-xl">{t.common.noResult}</p>}
       {list.length > limit && (
         <div className="mt-10 flex justify-center">
           <button onClick={() => setLimit((l) => l + PAGE)} className="btn btn-paper">
-            โหลดเพิ่มอีก ({list.length - limit})
+            {t.common.loadMore(list.length - limit)}
           </button>
         </div>
       )}

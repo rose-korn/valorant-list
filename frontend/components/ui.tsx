@@ -10,7 +10,7 @@ export function SectionHeading({
   title,
   note,
   href,
-  linkLabel = 'ดูทั้งหมด',
+  linkLabel,
   dark = false,
 }: {
   title: string
@@ -51,7 +51,7 @@ export function PageHero({
   children?: React.ReactNode
 }) {
   return (
-    <section className="dotted-bg border-b-2 border-ink">
+    <section className="dotted-bg overflow-hidden border-b-2 border-ink">
       <Container className="pt-10 pb-10 md:pt-14 md:pb-12">
         {en && <p className="font-display font-semibold text-ink-soft">{en}</p>}
         <div className="relative inline-block">
@@ -80,7 +80,7 @@ export function PageHero({
   )
 }
 
-export function EmptyState({ text = 'ดึงข้อมูลจาก API ไม่ได้ตอนนี้ ลองรีเฟรชใหม่อีกทีนะ' }: { text?: string }) {
+export function EmptyState({ text }: { text: string }) {
   return (
     <div className="card flex flex-col items-center gap-2 px-6 py-16 text-center">
       <span className="text-4xl">😵‍💫</span>

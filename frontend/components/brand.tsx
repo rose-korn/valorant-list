@@ -1,14 +1,20 @@
 // ใช้ร่วมกันทั้ง server และ client component
 
+// label ดึงจาก dict.nav ตามภาษา
 export const NAV_LINKS = [
-  { href: '/agents', label: 'เอเจนท์', en: 'Agents' },
-  { href: '/maps', label: 'แผนที่', en: 'Maps' },
-  { href: '/weapons', label: 'ปืน & สกิน', en: 'Arsenal' },
-  { href: '/ranks', label: 'แรงค์', en: 'Ranks' },
-  { href: '/bundles', label: 'บันเดิล', en: 'Bundles' },
-  { href: '/collection', label: 'ของสะสม', en: 'Collection' },
-  { href: '/modes', label: 'โหมดเกม', en: 'Modes' },
-]
+  { href: '/agents', key: 'agents', emoji: '🦸' },
+  { href: '/maps', key: 'maps', emoji: '🗺️' },
+  { href: '/weapons', key: 'weapons', emoji: '🔫' },
+  { href: '/ranks', key: 'ranks', emoji: '🏆' },
+  { href: '/bundles', key: 'bundles', emoji: '🛍️' },
+  { href: '/collection', key: 'collection', emoji: '🃏' },
+  { href: '/modes', key: 'modes', emoji: '🎮' },
+] as const
+
+export const FUN_LINKS = [
+  { href: '/share', key: 'share', emoji: '✨' },
+  { href: '/play', key: 'play', emoji: '🎯' },
+] as const
 
 export function Logo({ className = '' }: { className?: string }) {
   return (

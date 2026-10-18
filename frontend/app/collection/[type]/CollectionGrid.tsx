@@ -1,15 +1,18 @@
 'use client'
 
 import { useCallback, useMemo, useState } from 'react'
-import { SearchInput } from '@/components/Filters'
+import { SearchInput, SortSwitch } from '@/components/Filters'
 import Modal from '@/components/Modal'
 import Viewer3D from '@/components/three/Viewer3D'
+import { useI18n } from '@/components/LangProvider'
 import type { CollectionItem, CollectionKind } from '../data'
 
 const PAGE = 48
 
 export default function CollectionGrid({ kind, items }: { kind: CollectionKind; items: CollectionItem[] }) {
+  const { t } = useI18n()
   const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<'new' | 'old' | 'az'>('new')
   const [limit, setLimit] = useState(PAGE)
   const [open, setOpen] = useState<CollectionItem | null>(null)
   const [mode, setMode] = useState<'3d' | '2d'>('3d')
@@ -17,24 +20,41 @@ export default function CollectionGrid({ kind, items }: { kind: CollectionKind; 
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return q ? items.filter((i) => i.name.toLowerCase().includes(q)) : items
-  }, [items, query])
+    const found = q ? items.filter((i) => i.name.toLowerCase().includes(q)) : items.slice()
+    if (sort === 'new') found.reverse()
+    if (sort === 'az') found.sort((a, b) => a.name.localeCompare(b.name))
+    return found
+  }, [items, query, sort])
 
   const shown = kind === 'titles' ? limit * 2 : limit
 
   return (
     <>
       <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-ink-soft">
-          เจอ {list.length.toLocaleString()} จาก {items.length.toLocaleString()}
-        </p>
+        <div className="flex flex-col gap-2">
+          <p className="text-ink-soft">{t.common.found(list.length, items.length)}</p>
+          <SortSwitch
+            value={sort}
+            onChange={(v) => {
+              setSort(v)
+              setLimit(PAGE)
+            }}
+            label={t.sort.label}
+            hint={t.sort.hint}
+            options={[
+              { key: 'new', label: t.sort.newest },
+              { key: 'old', label: t.sort.oldest },
+              { key: 'az', label: t.sort.az },
+            ]}
+          />
+        </div>
         <SearchInput
           value={query}
           onChange={(v) => {
             setQuery(v)
             setLimit(PAGE)
           }}
-          placeholder="ค้นหา..."
+          placeholder={t.common.search}
         />
       </div>
 
@@ -56,7 +76,7 @@ export default function CollectionGrid({ kind, items }: { kind: CollectionKind; 
                   setMode('3d')
                 }}
                 title={item.name}
-                className={`group block w-full overflow-hidden rounded-xl border-2 border-ink bg-card transition-transform hover:-translate-y-1 hover:-rotate-2 ${
+                className={`group skeleton block w-full overflow-hidden rounded-xl border-2 border-ink transition-transform hover:-translate-y-1 hover:-rotate-2 ${
                   kind === 'cards' ? 'aspect-[1/2.4]' : 'aspect-square p-2'
                 }`}
               >
@@ -69,11 +89,11 @@ export default function CollectionGrid({ kind, items }: { kind: CollectionKind; 
         </ul>
       )}
 
-      {list.length === 0 && <p className="hand py-16 text-center text-xl">ไม่เจอเลย ลองคำอื่นดูนะ</p>}
+      {list.length === 0 && <p className="hand py-16 text-center text-xl">{t.common.noResult}</p>}
       {list.length > shown && (
         <div className="mt-10 flex justify-center">
           <button onClick={() => setLimit((l) => l + PAGE)} className="btn btn-paper">
-            โหลดเพิ่มอีก ({(list.length - shown).toLocaleString()})
+            {t.common.loadMore(list.length - shown)}
           </button>
         </div>
       )}
@@ -98,19 +118,19 @@ export default function CollectionGrid({ kind, items }: { kind: CollectionKind; 
                     onClick={() => setMode(m)}
                     className={`flex-1 py-2 font-display font-semibold ${mode === m ? 'bg-ink text-paper' : 'bg-card hover:bg-mustard/40'}`}
                   >
-                    {m === '3d' ? 'หมุน 3D' : kind === 'sprays' && open.extra ? 'ภาพเคลื่อนไหว' : 'ภาพ 2D'}
+                    {m === '3d' ? t.collection.view3d : kind === 'sprays' && open.extra ? t.collection.animated : t.collection.view2d}
                   </button>
                 ))}
               </div>
               {kind === 'cards' && open.extra && (
                 <div>
-                  <p className="mb-1.5 text-sm text-ink-soft">แบบแนวนอน</p>
+                  <p className="mb-1.5 text-sm text-ink-soft">{t.collection.wide}</p>
                   <img src={open.extra} alt="" className="w-full rounded-lg border-2 border-ink" />
                 </div>
               )}
               {open.full && (
                 <a href={open.full} target="_blank" rel="noreferrer" className="btn btn-paper mt-auto">
-                  เปิดรูปเต็ม ↗
+                  {t.collection.openFull}
                 </a>
               )}
             </div>

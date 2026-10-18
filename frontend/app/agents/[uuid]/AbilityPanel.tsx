@@ -3,16 +3,11 @@
 import { useState } from 'react'
 import type { Ability } from '@/lib/valorant'
 import { KEYBIND } from '@/lib/valorant'
-
-const SLOT_LABEL: Record<string, string> = {
-  Grenade: 'สกิลพื้นฐาน',
-  Ability1: 'สกิลพื้นฐาน',
-  Ability2: 'สกิลประจำตัว',
-  Ultimate: 'อัลติเมต',
-  Passive: 'พาสซีฟ',
-}
+import { useI18n } from '@/components/LangProvider'
 
 export default function AbilityPanel({ abilities, color }: { abilities: Ability[]; color: string }) {
+  const { t } = useI18n()
+  const SLOT_LABEL = t.agents.slot
   const [active, setActive] = useState(0)
   const current = abilities[active]
   if (!current) return null
@@ -34,7 +29,7 @@ export default function AbilityPanel({ abilities, color }: { abilities: Ability[
               </span>
               <span className="min-w-0">
                 <span className={`block text-xs ${on ? 'text-paper/70' : 'text-ink-soft'}`}>
-                  ปุ่ม {KEYBIND[a.slot] ?? '—'} · {SLOT_LABEL[a.slot] ?? a.slot}
+                  {t.agents.key} {KEYBIND[a.slot] ?? '—'} · {SLOT_LABEL[a.slot] ?? a.slot}
                 </span>
                 <span className="block truncate font-display text-lg font-bold">{a.displayName}</span>
               </span>
@@ -57,7 +52,7 @@ export default function AbilityPanel({ abilities, color }: { abilities: Ability[
           </div>
         </div>
         <p className="mt-5 text-lg leading-relaxed whitespace-pre-line text-ink/85">{current.description}</p>
-        {current.slot === 'Ultimate' && <p className="hand mt-4 -rotate-1 text-lg">ตัวเปลี่ยนเกมเลยอันนี้ 🔥</p>}
+        {current.slot === 'Ultimate' && <p className="hand mt-4 -rotate-1 text-lg">{t.agents.ultNote}</p>}
       </div>
     </div>
   )

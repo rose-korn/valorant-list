@@ -1,24 +1,28 @@
 import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero } from '@/components/ui'
-import { getBundles } from '@/lib/valorant'
+import { getBundles } from '@/lib/api'
+import { getI18n } from '@/lib/i18n-server'
 import BundlesClient from './BundlesClient'
 
-export const metadata: Metadata = { title: 'บันเดิล' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n()
+  return { title: t.bundles.title }
+}
 
 export default async function BundlesPage() {
-  // API เรียงจากเก่า → ใหม่ กลับด้านให้ชุดล่าสุดขึ้นก่อน
-  const bundles = (await getBundles()).slice().reverse()
+  // ส่งตามลำดับ API (เก่า → ใหม่) ให้ client เป็นคนเรียง
+  const [bundles, { t }] = await Promise.all([getBundles(), getI18n()])
 
   return (
     <>
       <PageHero
         en="Bundles"
-        title="บันเดิลสกิน"
-        description="รวมทุกชุดที่เคยขายในร้านค้า เรียงจากใหม่ไปเก่า กดดูภาพโปรโมทเต็ม ๆ ได้"
-        facts={[{ label: 'ชุด', value: bundles.length }]}
-        note="ชุดไหนที่คุณกดซื้อไปแล้วบ้าง?"
+        title={t.bundles.title}
+        description={t.bundles.desc}
+        facts={[{ label: t.bundles.unit, value: bundles.length }]}
+        note={t.bundles.note}
       />
-      <Container className="py-10 md:py-14">{bundles.length ? <BundlesClient bundles={bundles} /> : <EmptyState />}</Container>
+      <Container className="py-10 md:py-14">{bundles.length ? <BundlesClient bundles={bundles} /> : <EmptyState text={t.common.empty} />}</Container>
     </>
   )
 }

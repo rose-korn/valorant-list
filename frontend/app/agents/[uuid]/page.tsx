@@ -4,24 +4,21 @@ import { notFound } from 'next/navigation'
 import Viewer3D from '@/components/three/Viewer3D'
 import { Arrow } from '@/components/brand'
 import { BackLink, Container, SectionHeading } from '@/components/ui'
-import { SLOT_ORDER, agentColor, getAgent, getAgents } from '@/lib/valorant'
+import { getAgent, getAgents } from '@/lib/api'
+import { getI18n } from '@/lib/i18n-server'
+import { SLOT_ORDER, agentColor } from '@/lib/valorant'
 import AbilityPanel from './AbilityPanel'
 import VoiceLine from './VoiceLine'
-
-export async function generateStaticParams() {
-  const agents = await getAgents()
-  return agents.map((a) => ({ uuid: a.uuid }))
-}
 
 export async function generateMetadata({ params }: PageProps<'/agents/[uuid]'>): Promise<Metadata> {
   const { uuid } = await params
   const agent = await getAgent(uuid)
-  return { title: agent ? agent.displayName : 'เอเจนท์', description: agent?.description }
+  return { title: agent?.displayName ?? 'Agent', description: agent?.description }
 }
 
 export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>) {
   const { uuid } = await params
-  const [agent, all] = await Promise.all([getAgent(uuid), getAgents()])
+  const [agent, all, { t }] = await Promise.all([getAgent(uuid), getAgents(), getI18n()])
   if (!agent) notFound()
 
   const color = agentColor(agent)
@@ -42,7 +39,7 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
       <section className="dotted-bg border-b-2 border-ink">
         <Container className="grid gap-10 py-8 md:py-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <div className="order-2 lg:order-1">
-            <BackLink href="/agents" label="เอเจนท์ทั้งหมด" />
+            <BackLink href="/agents" label={t.agents.back} />
             <div className="mt-5 flex flex-wrap items-center gap-2">
               {agent.role && (
                 <span className="chip !bg-ink !text-paper">
@@ -50,7 +47,9 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
                   {agent.role.displayName}
                 </span>
               )}
-              <span className="chip">ชื่อในโค้ด: {agent.developerName}</span>
+              <span className="chip">
+                {t.agents.codename}: {agent.developerName}
+              </span>
             </div>
             <h1 className="mt-4 animate-fade-up text-6xl font-bold sm:text-7xl">{agent.displayName}</h1>
             <p className="mt-4 max-w-xl animate-fade-up text-lg text-ink-soft [animation-delay:100ms]">{agent.description}</p>
@@ -65,9 +64,12 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
             )}
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <a href="#abilities" className="btn">
-                ดูสกิล ↓
+                {t.agents.seeAbilities}
               </a>
               {voice && <VoiceLine src={voice} />}
+              <Link href={`/share?a=${agent.uuid}`} className="btn btn-paper !bg-[#ffd3d6]">
+                {t.agents.makeCard}
+              </Link>
             </div>
           </div>
 
@@ -78,7 +80,7 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
             </div>
             <p className="hand absolute -right-1 -bottom-9 flex rotate-2 items-start gap-1 text-lg">
               <Arrow className="h-7 w-9 -scale-y-100 rotate-180" />
-              {agent.displayName} โยกได้นะ
+              {t.agents.dragMe(agent.displayName)}
             </p>
           </div>
         </Container>
@@ -87,7 +89,7 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
       {/* ================= ABILITIES ================= */}
       <section id="abilities" className="scroll-mt-20 py-14 md:py-20">
         <Container>
-          <SectionHeading title="สกิลทั้งหมด" note="กดที่สกิลเพื่ออ่านรายละเอียด" />
+          <SectionHeading title={t.agents.abilitiesTitle} note={t.agents.abilitiesNote} />
           <AbilityPanel abilities={abilities} color={color} />
         </Container>
       </section>
@@ -100,12 +102,12 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
               <img src={agent.role.displayIcon} alt="" className="h-10 w-10" />
             </span>
             <div>
-              <p className="hand text-lg">บทบาทของ {agent.displayName}</p>
+              <p className="hand text-lg">{t.agents.roleOf(agent.displayName)}</p>
               <h2 className="text-3xl font-bold sm:text-4xl">{agent.role.displayName}</h2>
               <p className="mt-2 max-w-2xl text-ink-soft">{agent.role.description}</p>
               {sameRole.length > 0 && (
                 <>
-                  <p className="mt-6 mb-2 font-display font-semibold">เพื่อนร่วมสายเดียวกัน</p>
+                  <p className="mt-6 mb-2 font-display font-semibold">{t.agents.sameRole}</p>
                   <div className="flex flex-wrap gap-2">
                     {sameRole.map((a) => (
                       <Link key={a.uuid} href={`/agents/${a.uuid}`} className="chip !py-1 !pl-1 transition-transform hover:-translate-y-0.5">
@@ -128,13 +130,13 @@ export default async function AgentPage({ params }: PageProps<'/agents/[uuid]'>)
             <span className="text-2xl">←</span>
             <img src={prev.displayIconSmall ?? prev.displayIcon} alt="" className="h-12 w-12 rounded-lg" style={{ background: agentColor(prev) }} />
             <span>
-              <span className="block text-sm text-ink-soft">ก่อนหน้า</span>
+              <span className="block text-sm text-ink-soft">{t.common.prev}</span>
               <span className="font-display text-xl font-bold">{prev.displayName}</span>
             </span>
           </Link>
           <Link href={`/agents/${next.uuid}`} className="card card-hover flex items-center justify-end gap-3 p-3 text-right">
             <span>
-              <span className="block text-sm text-ink-soft">ถัดไป</span>
+              <span className="block text-sm text-ink-soft">{t.common.next}</span>
               <span className="font-display text-xl font-bold">{next.displayName}</span>
             </span>
             <img src={next.displayIconSmall ?? next.displayIcon} alt="" className="h-12 w-12 rounded-lg" style={{ background: agentColor(next) }} />

@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '@/components/LangProvider'
 
 /** ปุ่มเล่นเสียงพากย์ตอนเลือกเอเจนท์ พร้อม equalizer เล็ก ๆ */
 export default function VoiceLine({ src }: { src: string }) {
+  const { t } = useI18n()
   const audio = useRef<HTMLAudioElement | null>(null)
   const [playing, setPlaying] = useState(false)
 
@@ -48,7 +50,7 @@ export default function VoiceLine({ src }: { src: string }) {
           />
         ))}
       </span>
-      {playing ? 'หยุดเสียง' : 'ฟังเสียงพากย์'}
+      {playing ? t.agents.voiceStop : t.agents.voicePlay}
       <style>{`@keyframes eq { from { transform: scaleY(.2) } to { transform: scaleY(1) } }`}</style>
     </button>
   )

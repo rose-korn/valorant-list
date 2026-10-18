@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useI18n } from './LangProvider'
 
 export default function Modal({
   open,
@@ -15,6 +16,7 @@ export default function Modal({
   children: React.ReactNode
   wide?: boolean
 }) {
+  const { t } = useI18n()
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
@@ -41,8 +43,8 @@ export default function Modal({
       >
         <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b-2 border-ink bg-paper px-5 py-3">
           <h3 className="truncate text-xl font-bold md:text-2xl">{title}</h3>
-          <button onClick={onClose} className="btn btn-paper !px-3 !py-1 text-sm" aria-label="ปิด">
-            ปิด ✕
+          <button onClick={onClose} className="btn btn-paper !px-3 !py-1 text-sm" aria-label={t.common.close}>
+            {t.common.close}
           </button>
         </div>
         <div className="p-5">{children}</div>

@@ -13,6 +13,7 @@ import {
   textureAspect,
   useWebGLSupport,
 } from './utils'
+import { useI18n } from '../LangProvider'
 
 type Variant = 'weapon' | 'card' | 'emblem'
 
@@ -88,6 +89,7 @@ export default function Viewer3D({ src, accent = '#ff4654', variant = 'weapon', 
   const ref = useRef<HTMLDivElement>(null)
   const api = useRef<{ setSrc: (src: string) => void; setSway: (v: boolean) => void; reset: () => void } | null>(null)
   const supported = useWebGLSupport()
+  const { t } = useI18n()
   const [loading, setLoading] = useState(true)
   const [sway, setSway] = useState(true)
   const [error, setError] = useState(false)
@@ -270,7 +272,7 @@ export default function Viewer3D({ src, accent = '#ff4654', variant = 'weapon', 
 
       {loading && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="hand animate-pulse text-lg !text-paper/70">กำลังโหลด...</span>
+          <span className="hand animate-pulse text-lg !text-paper/70">{t.viewer.loading}</span>
         </div>
       )}
       {error && src && (
@@ -281,11 +283,11 @@ export default function Viewer3D({ src, accent = '#ff4654', variant = 'weapon', 
 
       {controls && (
         <>
-          <p className="hand pointer-events-none absolute top-3 left-4 -rotate-2 text-base !text-mustard">ลองลากดูสิ ↻</p>
+          <p className="hand pointer-events-none absolute top-3 left-4 -rotate-2 text-base !text-mustard">{t.viewer.hint}</p>
           <div className="absolute right-3 bottom-3 flex gap-1.5">
-            <ViewerButton onClick={toggleSway} label={sway ? 'หยุดโยก' : 'โยกต่อ'} />
-            <ViewerButton onClick={() => api.current?.reset()} label="รีเซ็ต" />
-            <ViewerButton onClick={fullscreen} label="เต็มจอ" />
+            <ViewerButton onClick={toggleSway} label={sway ? t.viewer.pause : t.viewer.resume} />
+            <ViewerButton onClick={() => api.current?.reset()} label={t.viewer.reset} />
+            <ViewerButton onClick={fullscreen} label={t.viewer.fullscreen} />
           </div>
         </>
       )}

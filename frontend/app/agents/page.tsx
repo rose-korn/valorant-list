@@ -2,26 +2,36 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import AgentsClient from './AgentsClient'
 import { Container, EmptyState, PageHero } from '@/components/ui'
-import { getAgents, groupByRole } from '@/lib/valorant'
+import { getAgents } from '@/lib/api'
+import { getI18n } from '@/lib/i18n-server'
+import { SLOT_ORDER, groupByRole } from '@/lib/valorant'
 
-export const metadata: Metadata = { title: 'เอเจนท์' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n()
+  return { title: t.agents.title }
+}
 
 export default async function AgentsPage() {
-  const agents = await getAgents()
+  const [agents, { t }] = await Promise.all([getAgents(), getI18n()])
   const groups = groupByRole(agents)
 
-  // ส่งเฉพาะ field ที่การ์ดใช้ ลดขนาด payload
+  // ส่งเฉพาะ field ที่การ์ด/รายการใช้ ลดขนาด payload
   const slim = agents
     .map((a) => ({
       uuid: a.uuid,
       displayName: a.displayName,
       developerName: a.developerName,
+      description: a.description,
       bustPortrait: a.bustPortrait,
       displayIcon: a.displayIcon,
       backgroundGradientColors: a.backgroundGradientColors,
       roleUuid: a.role?.uuid ?? '',
       roleName: a.role?.displayName ?? '',
       roleIcon: a.role?.displayIcon ?? '',
+      abilityIcons: [...a.abilities]
+        .filter((ab) => ab.displayIcon)
+        .sort((x, y) => SLOT_ORDER.indexOf(x.slot) - SLOT_ORDER.indexOf(y.slot))
+        .map((ab) => ({ icon: ab.displayIcon!, name: ab.displayName })),
     }))
     .sort((a, b) => a.displayName.localeCompare(b.displayName))
 
@@ -29,9 +39,9 @@ export default async function AgentsPage() {
     <>
       <PageHero
         en="Agents"
-        title="เอเจนท์ทั้งหมด"
-        description="กรองตามบทบาท หรือพิมพ์ชื่อหาได้เลย กดที่ตัวไหนก็เข้าไปดูสกิล ฟังเสียงพากย์ และหมุนดูแบบ 3D"
-        facts={[{ label: 'ตัว', value: agents.length }, ...groups.map((g) => ({ label: g.role.displayName, value: g.agents.length }))]}
+        title={t.agents.title}
+        description={t.agents.desc}
+        facts={[{ label: t.agents.unit, value: agents.length }, ...groups.map((g) => ({ label: g.role.displayName, value: g.agents.length }))]}
       />
       <Container className="py-10 md:py-14">
         {slim.length ? (
@@ -39,7 +49,7 @@ export default async function AgentsPage() {
             <AgentsClient agents={slim} roles={groups.map((g) => ({ uuid: g.uuid, name: g.role.displayName, icon: g.role.displayIcon }))} />
           </Suspense>
         ) : (
-          <EmptyState />
+          <EmptyState text={t.common.empty} />
         )}
       </Container>
     </>

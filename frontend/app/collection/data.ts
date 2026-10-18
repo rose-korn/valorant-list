@@ -1,4 +1,4 @@
-import { getBuddies, getPlayerCards, getPlayerTitles, getSprays } from '@/lib/valorant'
+import { getBuddies, getPlayerCards, getPlayerTitles, getSprays } from '@/lib/api'
 
 export type CollectionKind = 'cards' | 'sprays' | 'buddies' | 'titles'
 
@@ -13,12 +13,9 @@ export interface CollectionItem {
   extra: string | null
 }
 
-export const COLLECTIONS: Record<CollectionKind, { title: string; th: string; description: string }> = {
-  cards: { title: 'Player Cards', th: 'การ์ดผู้เล่น', description: 'การ์ดโปรไฟล์ที่แสดงตอนโหลดเกมและบนสกอร์บอร์ด' },
-  sprays: { title: 'Sprays', th: 'สเปรย์', description: 'สเปรย์สำหรับพ่นบนผนังระหว่างแมตช์ — บางลายเป็นแอนิเมชัน' },
-  buddies: { title: 'Gun Buddies', th: 'พวงกุญแจปืน', description: 'ของห้อยปืนสุดน่ารักที่ห้อยติดกับอาวุธของคุณ' },
-  titles: { title: 'Player Titles', th: 'ฉายาผู้เล่น', description: 'ฉายาที่แสดงใต้ชื่อผู้เล่น' },
-}
+// ชื่อ/คำอธิบายแต่ละหมวดอยู่ใน dict.collection.kinds
+export const KINDS: CollectionKind[] = ['cards', 'sprays', 'buddies', 'titles']
+export const isKind = (v: string): v is CollectionKind => (KINDS as string[]).includes(v)
 
 export async function getCollection(kind: CollectionKind): Promise<CollectionItem[]> {
   switch (kind) {

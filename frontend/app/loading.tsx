@@ -1,10 +1,15 @@
+import { CardSkeleton, HeroSkeleton } from '@/components/Skeleton'
+import { Container } from '@/components/ui'
+
 export default function Loading() {
   return (
-    <div className="flex min-h-[70svh] flex-col items-center justify-center gap-3">
-      <span className="flex h-14 w-14 animate-wiggle items-center justify-center rounded-xl border-2 border-ink bg-red font-display text-2xl font-bold text-white shadow-[3px_4px_0_var(--color-ink)]">
-        V
-      </span>
-      <p className="hand text-xl">รอแป๊บนะ กำลังโหลด...</p>
+    <div role="status" aria-label="loading" aria-busy="true">
+      <HeroSkeleton />
+      <Container className="grid grid-cols-2 gap-4 py-14 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <CardSkeleton key={i} aspect="aspect-[4/3]" lines={2} />
+        ))}
+      </Container>
     </div>
   )
 }

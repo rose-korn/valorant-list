@@ -7,6 +7,7 @@ import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRe
 import type { GameMap } from '@/lib/valorant'
 import { calloutToUV } from '@/lib/valorant'
 import { createRenderer, disposeObject, loadTexture, onResize, prefersReducedMotion, runLoop, useWebGLSupport } from './utils'
+import { useI18n } from '../LangProvider'
 
 const PALETTE = ['#ff4654', '#2bb5a0', '#f2b84b', '#8ec5ff', '#ff9f5a', '#c58bff', '#f4efe6', '#7ee081']
 const SIZE = 10
@@ -51,6 +52,7 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
     setRegion: (r: string | null) => void
   } | null>(null)
   const supported = useWebGLSupport()
+  const { t } = useI18n()
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<'3d' | 'top'>('3d')
   const [labels, setLabels] = useState(true)
@@ -275,7 +277,7 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
 
       {loading && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <span className="hand animate-pulse text-lg !text-paper/70">กำลังกางแผนที่...</span>
+          <span className="hand animate-pulse text-lg !text-paper/70">{t.viewer.mapLoading}</span>
         </div>
       )}
 
@@ -283,7 +285,7 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
       {regions.length > 0 && (
         <div className="scrollbar-hide absolute inset-x-0 top-0 flex gap-1.5 overflow-x-auto p-3">
           <RegionChip active={region === null} color="#ece8e1" onClick={() => pickRegion(null)}>
-            ทั้งหมด
+            {t.common.all}
           </RegionChip>
           {regions.map((r) => (
             <RegionChip key={r.name} active={region === r.name} color={r.color} onClick={() => pickRegion(r.name)}>
@@ -303,7 +305,7 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
                 view === v ? 'bg-mustard text-ink' : 'text-paper/80 hover:text-mustard'
               }`}
             >
-              {v === '3d' ? 'มุมเอียง' : 'มุมบน'}
+              {v === '3d' ? t.viewer.tilt : t.viewer.top}
             </button>
           ))}
         </div>
@@ -313,18 +315,18 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
             labels ? 'border-mustard bg-night/70 text-mustard' : 'border-paper/30 bg-night/70 text-paper/80'
           }`}
         >
-          ชื่อจุด
+          {t.viewer.labels}
         </button>
         <button
           onClick={fullscreen}
-          aria-label="เต็มจอ"
+          aria-label={t.viewer.fullscreen}
           className="rounded-lg border-2 border-paper/30 bg-night/70 px-2.5 py-1 text-sm text-paper/80 backdrop-blur hover:border-mustard hover:text-mustard"
         >
-          เต็มจอ
+          {t.viewer.fullscreen}
         </button>
       </div>
       <p className="hand pointer-events-none absolute bottom-3 left-4 hidden -rotate-1 text-base !text-mustard md:block">
-        ลากหมุน · คลิกขวาเลื่อน · สกรอลซูม
+        {t.viewer.mapHint}
       </p>
     </div>
   )

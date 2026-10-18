@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import Viewer3D from '@/components/three/Viewer3D'
-import { FilterBar, FilterButton, SearchInput } from '@/components/Filters'
+import { FilterBar, FilterButton, SearchInput, SortSwitch } from '@/components/Filters'
 import { Container, SectionHeading } from '@/components/ui'
+import { useI18n } from '@/components/LangProvider'
 
 export interface TierInfo {
   uuid: string
@@ -15,6 +16,8 @@ export interface TierInfo {
 
 export interface SkinItem {
   uuid: string
+  /** ลำดับใน API (-1 = ปืนเริ่มต้น) ใช้เรียงใหม่ → เก่า */
+  order: number
   displayName: string
   tier: string | null
   image: string | null
@@ -36,22 +39,29 @@ export default function SkinExplorer({
   tiers: TierInfo[]
   children?: React.ReactNode
 }) {
+  const { t } = useI18n()
+  const w = t.weapons
   const [selected, setSelected] = useState(skins[0])
   const [chroma, setChroma] = useState(0)
   const [tier, setTier] = useState('ALL')
   const [query, setQuery] = useState('')
+  const [sort, setSort] = useState<'tier' | 'new' | 'az'>('tier')
   const [limit, setLimit] = useState(PAGE)
   const [video, setVideo] = useState<{ src: string; title: string } | null>(null)
 
   const tierOf = (uuid: string | null) => tiers.find((t) => t.uuid === uuid)
-  const t = tierOf(selected.tier)
-  const accent = t?.color ?? '#ff4654'
+  const tierNow = tierOf(selected.tier)
+  const accent = tierNow?.color ?? '#ff4654'
   const image = selected.chromas[chroma]?.image ?? selected.image
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return skins.filter((s) => (tier === 'ALL' || s.tier === tier) && (!q || s.displayName.toLowerCase().includes(q)))
-  }, [skins, tier, query])
+    const found = skins.filter((s) => (tier === 'ALL' || s.tier === tier) && (!q || s.displayName.toLowerCase().includes(q)))
+    // ปืนเริ่มต้นอยู่หน้าสุดเสมอ ส่วนที่เหลือเรียงตามที่เลือก (server ส่งมาเรียงตามระดับแล้ว)
+    if (sort === 'new') found.sort((a, b) => (a.order < 0 ? -1 : b.order < 0 ? 1 : b.order - a.order))
+    if (sort === 'az') found.sort((a, b) => (a.order < 0 ? -1 : b.order < 0 ? 1 : a.displayName.localeCompare(b.displayName)))
+    return found
+  }, [skins, tier, query, sort])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setVideo(null)
@@ -81,13 +91,13 @@ export default function SkinExplorer({
 
           <div className="card flex flex-col p-5">
             <div className="flex items-center gap-2">
-              {t ? (
-                <span className="chip" style={{ background: `${t.color}33` }}>
-                  <img src={t.icon} alt="" className="h-4 w-4" />
-                  {t.name}
+              {tierNow ? (
+                <span className="chip" style={{ background: `${tierNow.color}33` }}>
+                  <img src={tierNow.icon} alt="" className="h-4 w-4" />
+                  {tierNow.name}
                 </span>
               ) : (
-                <span className="chip">ปืนเริ่มต้น</span>
+                <span className="chip">{w.starter}</span>
               )}
             </div>
             <h2 key={title} className="mt-3 animate-fade-up text-2xl font-bold md:text-3xl">
@@ -96,7 +106,7 @@ export default function SkinExplorer({
 
             {selected.chromas.length > 1 && (
               <div className="mt-5">
-                <p className="mb-2 font-semibold">สีให้เลือก ({selected.chromas.length})</p>
+                <p className="mb-2 font-semibold">{w.colors(selected.chromas.length)}</p>
                 <div className="flex flex-wrap gap-2">
                   {selected.chromas.map((c, i) => (
                     <button
@@ -117,7 +127,7 @@ export default function SkinExplorer({
                     onClick={() => setVideo({ src: selected.chromas[chroma].video!, title: selected.chromas[chroma].displayName })}
                     className="mt-3 font-semibold text-red-ink underline underline-offset-4"
                   >
-                    ▶ ดูวิดีโอสีนี้
+                    {w.colorVideo}
                   </button>
                 )}
               </div>
@@ -125,7 +135,7 @@ export default function SkinExplorer({
 
             {selected.levels.length > 1 && (
               <div className="mt-5">
-                <p className="mb-2 font-semibold">อัปเกรดได้ {selected.levels.length} เลเวล</p>
+                <p className="mb-2 font-semibold">{w.levels(selected.levels.length)}</p>
                 <ol className="space-y-1.5">
                   {selected.levels.map((l, i) => (
                     <li key={l.uuid} className="flex items-center gap-3 rounded-lg bg-paper-2 px-3 py-2">
@@ -135,7 +145,7 @@ export default function SkinExplorer({
                         <button
                           onClick={() => setVideo({ src: l.video!, title: l.displayName })}
                           className="shrink-0 rounded-md border-2 border-ink bg-card px-2 text-sm hover:bg-mustard"
-                          aria-label={`เล่นวิดีโอ ${l.displayName}`}
+                          aria-label={`${w.playVideo} ${l.displayName}`}
                         >
                           ▶
                         </button>
@@ -147,11 +157,11 @@ export default function SkinExplorer({
             )}
 
             {selected.uuid === 'default' && (
-              <p className="hand mt-5 -rotate-1 text-lg">เลือกสกินข้างล่างได้เลย มีตั้ง {skins.length - 1} ลายสำหรับ {weaponName} ↓</p>
+              <p className="hand mt-5 -rotate-1 text-lg">{w.pickNote(skins.length - 1, weaponName)}</p>
             )}
             {levelVideos.length > 0 && selected.levels.length <= 1 && (
               <button onClick={() => setVideo({ src: levelVideos[0].video!, title: selected.displayName })} className="btn btn-paper mt-5 self-start">
-                ▶ ดูวิดีโอ
+                {w.video}
               </button>
             )}
           </div>
@@ -163,7 +173,7 @@ export default function SkinExplorer({
       {/* ================= SKIN GALLERY ================= */}
       <section className="py-12 md:py-16">
         <Container>
-          <SectionHeading title={`สกิน ${weaponName} ทั้งหมด`} note="กดที่สกินเพื่อหมุนดูด้านบน" />
+          <SectionHeading title={w.allSkins(weaponName)} note={w.allSkinsNote} />
           <FilterBar
             search={
               <SearchInput
@@ -172,7 +182,7 @@ export default function SkinExplorer({
                   setQuery(v)
                   resetPage()
                 }}
-                placeholder="หาชื่อสกิน..."
+                placeholder={w.searchSkin}
               />
             }
           >
@@ -183,7 +193,7 @@ export default function SkinExplorer({
                 resetPage()
               }}
             >
-              ทุกระดับ
+              {w.allTiers}
             </FilterButton>
             {tiers.map((x) => (
               <FilterButton
@@ -200,6 +210,22 @@ export default function SkinExplorer({
             ))}
           </FilterBar>
 
+          <div className="mb-5">
+            <SortSwitch
+              value={sort}
+              onChange={(v) => {
+                setSort(v)
+                resetPage()
+              }}
+              label={t.sort.label}
+              hint={t.sort.hint}
+              options={[
+                { key: 'tier', label: t.sort.tier },
+                { key: 'new', label: t.sort.newest },
+                { key: 'az', label: t.sort.az },
+              ]}
+            />
+          </div>
           <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
             {list.slice(0, limit).map((s) => {
               const st = tierOf(s.tier)
@@ -207,7 +233,7 @@ export default function SkinExplorer({
               return (
                 <li key={s.uuid}>
                   <button onClick={() => pick(s)} aria-pressed={on} className={`card group flex h-full w-full flex-col p-2.5 text-left ${on ? '!bg-mustard' : 'card-hover'}`}>
-                    <span className="flex h-20 items-center justify-center rounded-md bg-ink px-2 md:h-24">
+                    <span className="flex h-20 items-center justify-center rounded-md skeleton-dark px-2 md:h-24">
                       {s.image && <img src={s.image} alt={s.displayName} loading="lazy" className="max-h-[80%] max-w-full object-contain transition-transform group-hover:scale-105" />}
                     </span>
                     <span className="mt-2 flex items-start gap-1.5 px-0.5">
@@ -219,11 +245,11 @@ export default function SkinExplorer({
               )
             })}
           </ul>
-          {list.length === 0 && <p className="hand py-14 text-center text-xl">ไม่เจอสกินชื่อนี้นะ</p>}
+          {list.length === 0 && <p className="hand py-14 text-center text-xl">{t.common.noResult}</p>}
           {list.length > limit && (
             <div className="mt-8 flex justify-center">
               <button onClick={() => setLimit((l) => l + PAGE)} className="btn btn-paper">
-                โหลดเพิ่มอีก ({list.length - limit})
+                {t.common.loadMore(list.length - limit)}
               </button>
             </div>
           )}
@@ -237,7 +263,7 @@ export default function SkinExplorer({
             <div className="mb-2 flex items-center justify-between gap-4 px-1">
               <p className="truncate font-display text-lg font-bold">{video.title}</p>
               <button onClick={() => setVideo(null)} className="btn btn-paper !px-3 !py-1 text-sm">
-                ปิด ✕
+                {t.common.close}
               </button>
             </div>
             <video key={video.src} src={video.src} autoPlay controls playsInline className="aspect-video w-full rounded-lg bg-black" />

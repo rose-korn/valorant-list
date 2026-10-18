@@ -1,12 +1,18 @@
 import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
-import { getCompetitiveTiers, getSeasons, latestTiers, nowMs, rgbaHex } from '@/lib/valorant'
+import { getCompetitiveTiers, getSeasons } from '@/lib/api'
+import { dateLocale } from '@/lib/i18n'
+import { getI18n } from '@/lib/i18n-server'
+import { latestTiers, nowMs, rgbaHex } from '@/lib/valorant'
 import RankShowcase from './RankShowcase'
 
-export const metadata: Metadata = { title: 'แรงค์' }
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getI18n()
+  return { title: t.ranks.title }
+}
 
 export default async function RanksPage() {
-  const [tierSeasons, seasons] = await Promise.all([getCompetitiveTiers(), getSeasons()])
+  const [tierSeasons, seasons, { lang, t }] = await Promise.all([getCompetitiveTiers(), getSeasons(), getI18n()])
   const tiers = latestTiers(tierSeasons).map((t) => ({
     tier: t.tier,
     name: t.tierName,
@@ -26,27 +32,27 @@ export default async function RanksPage() {
     }))
     .sort((a, b) => +new Date(b.startTime) - +new Date(a.startTime))
   const isNow = (s: { startTime: string; endTime: string }) => +new Date(s.startTime) <= now && now <= +new Date(s.endTime)
-  const fmt = (d: string) => new Date(d).toLocaleDateString('th-TH', { day: 'numeric', month: 'short', year: '2-digit' })
+  const fmt = (d: string) => new Date(d).toLocaleDateString(dateLocale(lang), { day: 'numeric', month: 'short', year: '2-digit' })
 
   return (
     <>
       <PageHero
         en="Ranks"
-        title="แรงค์"
-        description="จาก Iron ไปจนถึง Radiant — กดที่แรงค์ไหนก็ได้เพื่อดูตราแบบ 3D"
+        title={t.ranks.title}
+        description={t.ranks.desc}
         facts={[
-          { label: 'ระดับ', value: tiers.length },
+          { label: t.ranks.tiers, value: tiers.length },
           { label: 'Episode', value: episodes.length },
         ]}
-        note="สู้ ๆ นะ ขึ้นแรงค์ได้แน่"
+        note={t.ranks.note}
       />
 
-      <Container className="py-10 md:py-14">{tiers.length ? <RankShowcase tiers={tiers} /> : <EmptyState />}</Container>
+      <Container className="py-10 md:py-14">{tiers.length ? <RankShowcase tiers={tiers} /> : <EmptyState text={t.common.empty} />}</Container>
 
       {episodes.length > 0 && (
         <section className="border-t-2 border-ink bg-paper-2 py-12 md:py-16">
           <Container>
-            <SectionHeading title="ไทม์ไลน์ซีซั่น" note="Episode กับ Act ที่ผ่านมา" />
+            <SectionHeading title={t.ranks.timelineTitle} note={t.ranks.timelineNote} />
             <ol className="relative space-y-8 border-l-2 border-dashed border-ink/40 pl-6 md:pl-8">
               {episodes.map((ep) => {
                 const live = isNow(ep)
@@ -58,7 +64,7 @@ export default async function RanksPage() {
                       <span className="text-sm text-ink-soft">
                         {fmt(ep.startTime)} – {fmt(ep.endTime)}
                       </span>
-                      {live && <span className="hand text-lg">← ตอนนี้อยู่ตรงนี้!</span>}
+                      {live && <span className="hand text-lg">{t.ranks.now}</span>}
                     </div>
                     {ep.acts.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-2">

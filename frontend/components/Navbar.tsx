@@ -3,10 +3,12 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Logo, NAV_LINKS, Scribble } from './brand'
+import { FUN_LINKS, Logo, NAV_LINKS, Scribble } from './brand'
+import { LangSwitch, useI18n } from './LangProvider'
 
 export default function Navbar() {
   const pathname = usePathname()
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -34,53 +36,65 @@ export default function Navbar() {
           scrolled || open ? 'border-ink' : 'border-transparent'
         }`}
       >
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-          <Link href="/" aria-label="หน้าแรก" onClick={() => setOpen(false)}>
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
+          <Link href="/" aria-label={t.nav.home} onClick={() => setOpen(false)}>
             <Logo />
           </Link>
 
-          <ul className="hidden items-center gap-1 lg:flex">
+          <ul className="hidden items-center xl:flex">
             {NAV_LINKS.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className={`relative block px-3 py-1.5 font-display font-semibold transition-colors ${
+                  className={`relative block px-2.5 py-1.5 font-display font-semibold whitespace-nowrap transition-colors ${
                     isActive(link.href) ? 'text-ink' : 'text-ink-soft hover:text-ink'
                   }`}
                 >
-                  {link.label}
+                  {t.nav[link.key]}
                   {isActive(link.href) && <Scribble className="absolute inset-x-2 -bottom-1 h-2.5" />}
                 </Link>
               </li>
             ))}
           </ul>
 
-          <button
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? 'ปิดเมนู' : 'เปิดเมนู'}
-            aria-expanded={open}
-            className="btn btn-paper !px-3 !py-1.5 text-sm lg:hidden"
-          >
-            {open ? 'ปิด ✕' : 'เมนู'}
-          </button>
+          <div className="flex items-center gap-2">
+            {FUN_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`hidden rounded-full border-2 border-ink px-3 py-1 font-display text-sm font-semibold whitespace-nowrap transition-transform hover:-rotate-2 xl:block ${
+                  isActive(link.href) ? 'bg-ink text-paper' : link.key === 'play' ? 'bg-mustard' : 'bg-[#ffd3d6]'
+                }`}
+              >
+                {link.emoji} {t.nav[link.key]}
+              </Link>
+            ))}
+            <LangSwitch />
+            <button
+              onClick={() => setOpen((v) => !v)}
+              aria-label={open ? t.nav.close : t.nav.menu}
+              aria-expanded={open}
+              className="btn btn-paper !px-3 !py-1.5 text-sm xl:hidden"
+            >
+              {open ? t.nav.close : t.nav.menu}
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* เมนูมือถือ */}
       <div
-        className={`fixed inset-0 z-40 bg-paper transition-opacity duration-300 lg:hidden ${
-          open ? 'opacity-100' : 'pointer-events-none opacity-0'
-        }`}
+        className={`fixed inset-0 z-40 bg-paper transition-opacity duration-300 xl:hidden ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       >
         <div className="dotted-bg flex h-full flex-col overflow-y-auto px-6 pt-24 pb-10">
-          <p className="hand mb-4 -rotate-2 text-xl">ไปดูอะไรดีวันนี้~</p>
+          <p className="hand mb-4 -rotate-2 text-xl">{t.nav.menuNote}</p>
           <ul className="grid grid-cols-2 gap-3">
-            {NAV_LINKS.map((link, i) => (
+            {[...FUN_LINKS, ...NAV_LINKS].map((link, i) => (
               <li
                 key={link.href}
                 style={{
                   transition: 'opacity .35s, transform .35s',
-                  transitionDelay: open ? `${60 + i * 40}ms` : '0ms',
+                  transitionDelay: open ? `${40 + i * 35}ms` : '0ms',
                   opacity: open ? 1 : 0,
                   transform: open ? `rotate(${i % 2 ? 1 : -1}deg)` : 'translateY(12px)',
                 }}
@@ -88,10 +102,10 @@ export default function Navbar() {
                 <Link
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className={`card flex h-full flex-col p-4 ${isActive(link.href) ? '!bg-mustard' : ''}`}
+                  className={`card flex h-full items-center gap-2 p-4 ${isActive(link.href) ? '!bg-mustard' : ''}`}
                 >
-                  <span className="font-display text-2xl font-bold">{link.label}</span>
-                  <span className="text-sm text-ink-soft">{link.en}</span>
+                  <span className="text-2xl">{link.emoji}</span>
+                  <span className="font-display text-xl font-bold">{t.nav[link.key]}</span>
                 </Link>
               </li>
             ))}
