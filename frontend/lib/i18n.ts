@@ -325,6 +325,15 @@ const th = {
     viewSkin: 'ดูสกินนี้ →',
     unknown: 'รางวัล',
   },
+  fx: {
+    toggle: 'ลูกเล่น',
+    on: 'เปิด',
+    off: 'ปิด',
+    defused: 'Spike defused ✔',
+    you: 'คุณ',
+    ace: 'ACE!',
+    aceSub: 'เก็บครบห้าคน โหดเกิ๊น',
+  },
   share: {
     title: 'แชร์การ์ดเมนหลัก',
     desc: 'เลือกเอเจนท์ที่ชอบ ใส่ชื่อในเกม เลือกแคปชั่น แล้วโหลดรูปไปลงสตอรี่หรือส่งให้เพื่อนได้เลย',
@@ -706,6 +715,15 @@ const en: Dict = {
     agentContractNote: 'what you unlock by playing this agent',
     viewSkin: 'View skin →',
     unknown: 'Reward',
+  },
+  fx: {
+    toggle: 'Effects',
+    on: 'On',
+    off: 'Off',
+    defused: 'Spike defused ✔',
+    you: 'You',
+    ace: 'ACE!',
+    aceSub: 'all five down, absolute menace',
   },
   share: {
     title: 'Share your main',

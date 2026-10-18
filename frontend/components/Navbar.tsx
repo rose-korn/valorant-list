@@ -37,7 +37,7 @@ export default function Navbar() {
         }`}
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
-          <Link href="/" aria-label={t.nav.home} onClick={() => setOpen(false)}>
+          <Link href="/" aria-label={t.nav.home} data-logo onClick={() => setOpen(false)}>
             <Logo />
           </Link>
 
@@ -50,8 +50,11 @@ export default function Navbar() {
                     isActive(link.href) ? 'text-ink' : 'text-ink-soft hover:text-ink'
                   }`}
                 >
-                  {t.nav[link.key]}
-                  {isActive(link.href) && <Scribble className="absolute inset-x-2 -bottom-1 h-2.5" />}
+                  {/* เส้นใต้กว้างเท่าตัวหนังสือพอดี ไม่รวม padding */}
+                  <span className="relative">
+                    {t.nav[link.key]}
+                    {isActive(link.href) && <Scribble className="absolute -bottom-1.5 left-0 h-2 w-full" />}
+                  </span>
                 </Link>
               </li>
             ))}

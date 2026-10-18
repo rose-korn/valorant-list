@@ -3,6 +3,7 @@ import { getVersion } from '@/lib/api'
 import { dateLocale } from '@/lib/i18n'
 import { getI18n } from '@/lib/i18n-server'
 import { FUN_LINKS, NAV_LINKS } from './brand'
+import { FxToggle } from './FunLayer'
 
 export default async function Footer() {
   const [version, { lang, t }] = await Promise.all([getVersion(), getI18n()])
@@ -16,6 +17,9 @@ export default async function Footer() {
           </p>
           <p className="mt-3 max-w-sm text-paper/75">{t.footer.about}</p>
           <p className="hand mt-4 -rotate-2 text-lg !text-mustard">{t.footer.gg}</p>
+          <div className="mt-4">
+            <FxToggle />
+          </div>
         </div>
 
         <div>

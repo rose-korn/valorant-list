@@ -4,6 +4,7 @@ import './globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { LangProvider } from '@/components/LangProvider'
+import FunLayer from '@/components/FunLayer'
 import { getLang } from '@/lib/i18n-server'
 
 // ฟอนต์ไทยจาก Cadson Demak — หัวข้อเหลี่ยม ๆ เข้ากับเกม, เนื้อหาอ่านง่าย
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Navbar />
           <main className="min-h-dvh pt-16">{children}</main>
           <Footer />
+          <FunLayer />
         </LangProvider>
       </body>
     </html>
