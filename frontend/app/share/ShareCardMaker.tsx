@@ -323,21 +323,30 @@ export default function ShareCardMaker({ agents }: { agents: ShareAgent[] }) {
               {s.random}
             </button>
           </div>
-          <div className="soft-scroll grid max-h-72 grid-cols-5 gap-2 overflow-y-auto p-1 sm:grid-cols-7 lg:grid-cols-8">
-            {agents.map((a) => (
-              <button
-                key={a.uuid}
-                onClick={() => setAgentId(a.uuid)}
-                title={a.name}
-                aria-pressed={a.uuid === agent.uuid}
-                className={`aspect-square overflow-hidden rounded-xl border-2 transition-transform ${
-                  a.uuid === agent.uuid ? '-translate-y-1 border-ink shadow-[2px_3px_0_var(--color-ink)]' : 'border-transparent hover:border-line'
-                }`}
-                style={{ background: a.colors[0] }}
-              >
-                <img src={a.icon} alt={a.name} loading="lazy" className="h-full w-full object-cover" />
-              </button>
-            ))}
+          <div className="soft-scroll grid max-h-80 grid-cols-4 gap-2.5 overflow-y-auto p-2 sm:grid-cols-6 lg:grid-cols-7">
+            {agents.map((a) => {
+              const on = a.uuid === agent.uuid
+              return (
+                <button
+                  key={a.uuid}
+                  onClick={() => setAgentId(a.uuid)}
+                  aria-pressed={on}
+                  className={`relative flex flex-col items-center gap-1 rounded-xl border-2 p-1.5 transition-all ${
+                    on ? '-translate-y-0.5 border-ink bg-mustard shadow-[2px_3px_0_var(--color-ink)]' : 'border-line bg-card hover:border-ink'
+                  }`}
+                >
+                  <span className="aspect-square w-full overflow-hidden rounded-lg" style={{ background: a.colors[0] }}>
+                    <img src={a.icon} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  </span>
+                  <span className="w-full truncate text-center text-xs font-semibold text-ink">{a.name}</span>
+                  {on && (
+                    <span aria-hidden className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-red text-xs font-bold text-white">
+                      ✓
+                    </span>
+                  )}
+                </button>
+              )
+            })}
           </div>
         </section>
 
