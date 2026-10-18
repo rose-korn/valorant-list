@@ -180,7 +180,7 @@ export default function SkinExplorer({
 
             {/* สี + คลิปเลเวล อยู่แถวเดียวกันใต้จอ */}
             {(selected.chromas.length > 1 || levelVideos.length > 0) && (
-              <div className="scrollbar-hide mt-2 flex items-center gap-2 overflow-x-auto py-1">
+              <div className="mt-2 flex flex-wrap items-center gap-2 py-1">
                 {selected.chromas.length > 1 &&
                   selected.chromas.map((c, i) => (
                     <button
@@ -227,7 +227,7 @@ export default function SkinExplorer({
               <span className="shrink-0 text-sm text-ink-soft">{t.common.found(list.length, skins.length)}</span>
             </div>
 
-            {/* แถบเครื่องมือ: ค้นหา + เรียง / ปุ่มระดับเลื่อนแนวนอน */}
+            {/* แถบเครื่องมือ: ค้นหา + เรียง / ปุ่มระดับโชว์ครบทุกอัน ไม่ต้องเลื่อน */}
             <div className="card mb-5 space-y-3 p-3 lg:sticky lg:top-20 lg:z-10">
               <div className="flex gap-2">
                 <label className="relative block min-w-0 flex-1">
@@ -270,7 +270,7 @@ export default function SkinExplorer({
                 </label>
               </div>
 
-              <div className="scrollbar-hide -mx-3 flex gap-1.5 overflow-x-auto px-3">
+              <div className="flex flex-wrap gap-1.5">
                 <TierChip active={tier === 'ALL'} onClick={() => setTier('ALL')} label={w.allTiers} count={skins.length} />
                 {tiers.map((x) => (
                   <TierChip

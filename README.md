@@ -53,7 +53,7 @@ This project is created for **educational and demonstration purposes only**.
 | `/modes` | Game modes & currencies |
 | `/battlepass`, `/battlepass/[uuid]` | Every act's battle pass and event passes: rewards per tier, free track, highlights, total XP |
 | `/share` | Make a shareable "my main" card (PNG download / native share / link) |
-| `/play` | Aim Rush — 30-second aim trainer with combos, headshots and a rank result |
+| `/play` | Mini games: Aim Rush (30-second aim trainer) and Spike Beat (`?game=beat`, an Audition-style WASD rhythm game with synthesized keyboard sounds) |
 
 Other features: Thai / English switch (UI text and API data), grid or list view for agents, newest/oldest/A–Z sorting for bundles, skins and collectibles, and skeleton loading screens on every page.
 

@@ -27,6 +27,8 @@
   --animate-fade-in: fade-in 0.4s ease-out both;
   --animate-wiggle: wiggle 2.4s ease-in-out infinite;
   --animate-bob: bob 4s ease-in-out infinite;
+  --animate-judge: judge-pop 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  --animate-shake: shake 0.28s ease-out;
 }
 
 @keyframes fade-up {
@@ -67,6 +69,19 @@
   75% { transform: scale(1.04) rotate(-5deg); }
   88% { opacity: 1; transform: scale(1) rotate(-5deg); }
   100% { opacity: 0; transform: scale(1) rotate(-5deg) translateY(-20px); }
+}
+@keyframes judge-pop {
+  0% { opacity: 0; transform: scale(1.8) rotate(-6deg); }
+  40% { opacity: 1; transform: scale(.95) rotate(-3deg); }
+  70% { transform: scale(1.03) rotate(-3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-3deg); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(3px); }
 }
 @keyframes draw {
   from { stroke-dashoffset: 1; }
