@@ -2,6 +2,7 @@ import Link from 'next/link'
 import PaperScene from '@/components/three/PaperScene'
 import Viewer3D from '@/components/three/Viewer3D'
 import Reveal from '@/components/Reveal'
+import HScroller from '@/components/HScroller'
 import { Arrow, Scribble, Star } from '@/components/brand'
 import { Container, SectionHeading } from '@/components/ui'
 import { getI18n } from '@/lib/i18n-server'
@@ -146,7 +147,7 @@ export default async function HomePage() {
           </div>
 
           {/* โพลารอยด์เอเจนท์ เลื่อนแนวนอน */}
-          <div className="soft-scroll -mx-4 mt-10 flex snap-x gap-5 overflow-x-auto px-4 pt-3 pb-6 sm:-mx-6 sm:px-6">
+          <HScroller className="soft-scroll -mx-4 mt-10 flex snap-x scroll-px-4 gap-5 overflow-x-auto scroll-smooth px-4 pt-3 pb-6 sm:-mx-6 sm:scroll-px-6 sm:px-6">
             {agents.map((a, i) => (
               <Link key={a.uuid} href={`/agents/${a.uuid}`} className={`card card-hover w-40 shrink-0 snap-start p-2 md:w-44 ${tilt(i)}`}>
                 <div className="relative aspect-square overflow-hidden rounded-md" style={{ background: agentColor(a) }}>
@@ -155,7 +156,7 @@ export default async function HomePage() {
                 <p className="hand mt-1.5 text-center text-lg !text-ink">{a.displayName}</p>
               </Link>
             ))}
-          </div>
+          </HScroller>
         </Container>
       </section>
 
