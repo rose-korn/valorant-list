@@ -1,12 +1,12 @@
-import Link from 'next/link'
+import Link from '@/components/Link'
 import { getVersion } from '@/lib/api'
-import { dateLocale } from '@/lib/i18n'
-import { getI18n } from '@/lib/i18n-server'
+import { type Lang, dateLocale, dict } from '@/lib/i18n'
 import { FUN_LINKS, NAV_LINKS } from './brand'
 import { FxToggle } from './FunLayer'
 
-export default async function Footer() {
-  const [version, { lang, t }] = await Promise.all([getVersion(), getI18n()])
+export default async function Footer({ lang }: { lang: Lang }) {
+  const version = await getVersion(lang)
+  const t = dict[lang]
 
   return (
     <footer className="mt-10 border-t-2 border-ink bg-night text-paper">

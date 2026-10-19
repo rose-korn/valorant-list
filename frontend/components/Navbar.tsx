@@ -1,13 +1,12 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import Link from '@/components/Link'
 import { useEffect, useState } from 'react'
 import { FUN_LINKS, Logo, NAV_LINKS, Scribble } from './brand'
-import { LangSwitch, useI18n } from './LangProvider'
+import { LangSwitch, useBarePath, useI18n } from './LangProvider'
 
 export default function Navbar() {
-  const pathname = usePathname()
+  const pathname = useBarePath()
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)

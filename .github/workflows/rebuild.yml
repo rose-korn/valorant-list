@@ -1,0 +1,19 @@
+# เว็บเป็น static: ข้อมูลจาก valorant-api จะอัปเดตก็ต่อเมื่อ build ใหม่ — สั่ง Cloudflare Pages build ใหม่ทุกวัน
+# ต้องตั้ง secret CF_PAGES_DEPLOY_HOOK = URL ของ Deploy Hook (Pages → Settings → Builds & deployments → Deploy hooks)
+name: Daily rebuild
+
+on:
+  schedule:
+    - cron: '17 21 * * *' # ทุกวัน 04:17 เวลาไทย (หลัง patch ใหม่มักออกตอนกลางคืน)
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Pages build
+        env:
+          HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$HOOK" ]; then echo "CF_PAGES_DEPLOY_HOOK is not set, skipping"; exit 0; fi
+          curl -fsS -X POST "$HOOK"

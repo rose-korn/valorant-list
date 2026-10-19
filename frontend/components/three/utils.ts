@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import * as THREE from 'three'
+import { withProxyFallback } from '@/lib/media'
 
 const textureCache = new Map<string, Promise<THREE.Texture>>()
 
@@ -9,7 +10,7 @@ function loadWith(loader: THREE.TextureLoader, url: string) {
 
 /**
  * โหลด texture จาก media.valorant-api.com
- * ลองโหลดตรงก่อน (crossOrigin anonymous) ถ้าโดน CORS จะ fallback ไปที่ /api/media proxy
+ * ลองโหลดตรงก่อน (crossOrigin anonymous) ถ้าโดน CORS จะ fallback ไปที่ media proxy (ถ้าตั้งไว้)
  */
 export function loadTexture(url: string): Promise<THREE.Texture> {
   const cached = textureCache.get(url)
@@ -17,8 +18,7 @@ export function loadTexture(url: string): Promise<THREE.Texture> {
 
   const loader = new THREE.TextureLoader()
   loader.setCrossOrigin('anonymous')
-  const promise = loadWith(loader, url)
-    .catch(() => loadWith(loader, `/api/media?u=${encodeURIComponent(url)}`))
+  const promise = withProxyFallback(url, (u) => loadWith(loader, u))
     .then((tex) => {
       tex.colorSpace = THREE.SRGBColorSpace
       tex.anisotropy = 8

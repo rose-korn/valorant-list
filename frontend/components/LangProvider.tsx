@@ -1,8 +1,8 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { createContext, useContext, useTransition } from 'react'
-import { type Lang, LANG_COOKIE, dict } from '@/lib/i18n'
+import { type Lang, LANG_KEY, dict, stripLang } from '@/lib/i18n'
 
 const LangContext = createContext<Lang>('th')
 
@@ -15,20 +15,31 @@ export function useI18n() {
   return { lang, t: dict[lang] }
 }
 
-function saveLang(lang: Lang) {
-  document.cookie = `${LANG_COOKIE}=${lang}; path=/; max-age=31536000; samesite=lax`
+/** path ปัจจุบันแบบตัดภาษาออกแล้ว เช่น /th/agents → /agents */
+export function useBarePath() {
+  return stripLang(usePathname())
 }
 
-/** ปุ่มสลับ TH / EN — เก็บค่าใน cookie แล้วให้ server render ใหม่ (ข้อมูลจาก API ก็เปลี่ยนภาษาตาม) */
+function saveLang(lang: Lang) {
+  try {
+    localStorage.setItem(LANG_KEY, lang)
+  } catch {
+    // private mode — ไม่เป็นไร
+  }
+}
+
+/** ปุ่มสลับ TH / EN — ไปหน้าเดียวกันของอีกภาษา (/th/... ↔ /en/...) แต่ละภาษา build ไว้แยกกันทั้งหน้า */
 export function LangSwitch({ className = '' }: { className?: string }) {
   const { lang, t } = useI18n()
   const router = useRouter()
+  const bare = useBarePath()
   const [pending, startTransition] = useTransition()
 
   const set = (next: Lang) => {
     if (next === lang) return
     saveLang(next)
-    startTransition(() => router.refresh())
+    const target = `/${next}${bare === '/' ? '' : bare}${window.location.search}${window.location.hash}`
+    startTransition(() => router.push(target, { scroll: false }))
   }
 
   return (

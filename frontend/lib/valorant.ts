@@ -385,7 +385,7 @@ export function latestTiers(seasons: CompetitiveSeason[]) {
   )
 }
 
-/** เวลาปัจจุบันตอน render ฝั่ง server (หน้า ISR จะอัปเดตทุก revalidate) */
+/** เวลาปัจจุบันตอน render (เว็บเป็น static: คือเวลาตอน build ซึ่ง build ใหม่ทุกวัน) */
 export function nowMs() {
   return Date.now()
 }

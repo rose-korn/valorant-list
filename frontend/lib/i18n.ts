@@ -1,7 +1,20 @@
 // ข้อความทั้งเว็บ 2 ภาษา — ภาษาอังกฤษต้องมี key ครบเหมือนภาษาไทย (TypeScript เช็คให้)
 
-export type Lang = 'th' | 'en'
-export const LANG_COOKIE = 'lang'
+export const LANGS = ['th', 'en'] as const
+export type Lang = (typeof LANGS)[number]
+/** localStorage key จำภาษาที่เลือกไว้ (ใช้ตอนเข้าหน้าแรก / ลิงก์เก่าที่ไม่มี /th /en) */
+export const LANG_KEY = 'valolist:lang'
+
+/** ตัด /th หรือ /en ออกจาก pathname → path ของหน้าแบบไม่สนภาษา */
+export function stripLang(pathname: string) {
+  const m = pathname.match(/^\/(th|en)(?=\/|$)/)
+  return m ? pathname.slice(m[0].length) || '/' : pathname
+}
+/** เติมภาษาหน้า path ภายในเว็บ ('/agents' → '/th/agents') */
+export function withLang(lang: Lang, href: string) {
+  if (!href.startsWith('/') || href.startsWith('//') || /^\/(th|en)(\/|$|\?|#)/.test(href)) return href
+  return href === '/' ? `/${lang}` : /^\/[?#]/.test(href) ? `/${lang}${href.slice(1)}` : `/${lang}${href}`
+}
 export const apiLang = (lang: Lang) => (lang === 'en' ? 'en-US' : 'th-TH')
 export const dateLocale = (lang: Lang) => (lang === 'en' ? 'en-GB' : 'th-TH')
 

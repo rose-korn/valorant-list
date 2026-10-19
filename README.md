@@ -37,9 +37,12 @@ This project is created for **educational and demonstration purposes only**.
 
 * Frontend: Next.js 16 (App Router) · React 19 · Tailwind CSS v4
 * 3D: Three.js — paper-confetti hero, interactive 3D viewer for weapons/skins/agents/ranks/cosmetics, 3D tactical map with callouts
-* API: Valorant Public API (`th-TH` / `en-US` from the language cookie), data cached for an hour
+* API: Valorant Public API (`th-TH` / `en-US` picked from the URL), fetched once at build time
+* Hosting: fully static export (`out/`) — every page is a plain file, so Cloudflare Pages can serve it without limits
 
 ### Pages
+
+Every route lives under a language prefix: `/th/...` or `/en/...` (e.g. `/th/agents`). Opening `/` or an old link without a prefix redirects to the language picked last time (Thai by default).
 
 | Route | Content |
 | --- | --- |
@@ -53,7 +56,7 @@ This project is created for **educational and demonstration purposes only**.
 | `/modes` | Game modes & currencies |
 | `/battlepass`, `/battlepass/[uuid]` | Every act's battle pass and event passes: rewards per tier, free track, highlights, total XP |
 | `/share` | Make a shareable "my main" card (PNG download / native share / link) |
-| `/play` | Mini games: Aim Rush (30-second aim trainer) and Spike Beat (`?game=beat`, an Audition-style WASD rhythm game with synthesized keyboard sounds) |
+| `/play` | Mini games: Aim Rush (30-second aim trainer) and Spike Beat (`/play/beat`, an Audition-style WASD rhythm game with synthesized keyboard sounds) |
 
 Other features: Thai / English switch (UI text and API data), grid or list view for agents, newest/oldest/A–Z sorting for bundles, skins and collectibles, and skeleton loading screens on every page.
 
@@ -66,6 +69,19 @@ npm run dev
 ```
 
 Set `VALORANT_API_BASE` to point at a different API base URL (defaults to `https://valorant-api.com/v1`).
+
+### Build & deploy (Cloudflare Pages)
+
+```bash
+cd frontend
+npm run build      # writes the whole site to frontend/out
+```
+
+Cloudflare Pages settings: root directory `frontend`, build command `npm run build`, output directory `out`.
+
+* The data is baked in at build time. `.github/workflows/rebuild.yml` rebuilds the site every day: create a Deploy Hook in Cloudflare Pages and save its URL as the `CF_PAGES_DEPLOY_HOOK` repository secret.
+* If valorant-api.com is down during a build, the build fails on purpose so the last good deploy stays online.
+* Optional image proxy for the 3D viewer and share card (only used when an image fails to load because of CORS): deploy `workers/media-proxy` with `npx wrangler deploy`, then set `NEXT_PUBLIC_MEDIA_PROXY` to its URL in the Pages build environment.
 
 ---
 

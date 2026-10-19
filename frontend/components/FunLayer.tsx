@@ -1,8 +1,7 @@
 'use client'
 
-import { usePathname } from 'next/navigation'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
-import { useI18n } from './LangProvider'
+import { useBarePath, useI18n } from './LangProvider'
 import { FUN_LINKS, NAV_LINKS } from './brand'
 
 // ================= เปิด/ปิดลูกเล่น (เก็บใน localStorage) =================
@@ -128,7 +127,7 @@ const LINKS = [...NAV_LINKS, ...FUN_LINKS]
 
 function KillFeed() {
   const { t } = useI18n()
-  const pathname = usePathname()
+  const pathname = useBarePath()
   const [prev, setPrev] = useState({ path: pathname, seq: 0 })
   const [feed, setFeed] = useState<{ id: number; to: string; emoji: string }[]>([])
 

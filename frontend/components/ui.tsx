@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/Link'
 import { Arrow, Scribble, Star } from './brand'
 
 export function Container({ children, className = '' }: { children: React.ReactNode; className?: string }) {

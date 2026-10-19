@@ -2,6 +2,7 @@
 // ใช้ฝั่ง server เท่านั้น เพราะต้องโหลดข้อมูลหลายชุดมาจับคู่
 
 import { getAgents, getBuddies, getCurrencies, getFlex, getPlayerCards, getPlayerTitles, getSprays, getWeapons } from './api'
+import type { Lang } from './i18n'
 import type { Contract, ContractReward } from './valorant'
 
 export interface ResolvedReward {
@@ -17,16 +18,16 @@ export interface ResolvedReward {
 
 type Entry = Omit<ResolvedReward, 'amount' | 'isHighlighted' | 'type' | 'uuid'>
 
-export async function buildRewardIndex() {
+export async function buildRewardIndex(lang: Lang) {
   const [weapons, buddies, sprays, cards, titles, currencies, agents, flex] = await Promise.all([
-    getWeapons(),
-    getBuddies(),
-    getSprays(),
-    getPlayerCards(),
-    getPlayerTitles(),
-    getCurrencies(),
-    getAgents(),
-    getFlex(),
+    getWeapons(lang),
+    getBuddies(lang),
+    getSprays(lang),
+    getPlayerCards(lang),
+    getPlayerTitles(lang),
+    getCurrencies(lang),
+    getAgents(lang),
+    getFlex(lang),
   ])
 
   const index = new Map<string, Entry>()
