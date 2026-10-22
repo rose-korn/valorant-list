@@ -1,0 +1,37 @@
+# เช็กว่า build ผ่าน (ดึงข้อมูลจริงจาก valorant-api) ก่อน merge เข้า main
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npx next typegen && npx tsc --noEmit
+      - run: npm run lint
+      - run: npm run build
+      - name: Check output
+        run: |
+          for f in index.html 404.html th.html en.html th/agents.html en/weapons.html; do
+            test -f "out/$f" || { echo "missing out/$f"; exit 1; }
+          done
+          echo "pages: $(find out -name '*.html' | wc -l), files: $(find out -type f | wc -l)"
+          du -sh out
+          find out -type f -size +1M -printf '%s %p\n' | sort -rn | head -5
+          # Cloudflare Workers static assets: at most 20,000 files and 25 MiB per file
+          test "$(find out -type f | wc -l)" -le 20000
+          test -z "$(find out -type f -size +25M)"

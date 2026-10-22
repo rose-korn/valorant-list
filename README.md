@@ -35,8 +35,54 @@ This project is created for **educational and demonstration purposes only**.
 
 ## 🛠️ Tech Stack
 
-* Frontend: (add your stack here, e.g. Next.js / Flutter)
-* API: Valorant Public API
+* Frontend: Next.js 16 (App Router) · React 19 · Tailwind CSS v4
+* 3D: Three.js — paper-confetti hero, interactive 3D viewer for weapons/skins/agents/ranks/cosmetics, 3D tactical map with callouts
+* API: Valorant Public API (`th-TH` / `en-US` picked from the URL), fetched once at build time
+* Hosting: fully static export (`out/`) — every page is a plain file, so Cloudflare Pages can serve it without limits
+
+### Pages
+
+Every route lives under a language prefix: `/th/...` or `/en/...` (e.g. `/th/agents`). Opening `/` or an old link without a prefix redirects to the language picked last time (Thai by default).
+
+| Route | Content |
+| --- | --- |
+| `/` | 3D hero, stats, roles, maps, arsenal 3D viewer, ranks, latest bundles |
+| `/agents`, `/agents/[uuid]` | Role filter + search; 3D portrait, abilities with keybinds, voice line, role info |
+| `/maps`, `/maps/[uuid]` | Competitive / other maps; 3D tactical map with callout pins & zone filter, artwork |
+| `/weapons`, `/weapons/[uuid]` | Stats, damage by range + shots-to-kill, skins by tier, chromas, upgrade-level videos, armor |
+| `/ranks` | 3D rank emblem, all tiers, episode/act timeline |
+| `/bundles` | All store bundles with promo art |
+| `/collection`, `/collection/[type]` | Player cards, sprays, gun buddies, titles (3D inspect) |
+| `/modes` | Game modes & currencies |
+| `/battlepass`, `/battlepass/[uuid]` | Every act's battle pass and event passes: rewards per tier, free track, highlights, total XP |
+| `/share` | Make a shareable "my main" card (PNG download / native share / link) |
+| `/play` | Mini games: Aim Rush (30-second aim trainer) and Spike Beat (`/play/beat`, an Audition-style WASD rhythm game with synthesized keyboard sounds) |
+
+Other features: Thai / English switch (UI text and API data), grid or list view for agents, newest/oldest/A–Z sorting for bundles, skins and collectibles, and skeleton loading screens on every page.
+
+### Run locally
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Set `VALORANT_API_BASE` to point at a different API base URL (defaults to `https://valorant-api.com/v1`).
+
+### Build & deploy (Cloudflare Workers)
+
+```bash
+cd frontend
+npm run build      # writes the whole site to frontend/out
+npx wrangler deploy  # serves frontend/out as static assets (frontend/wrangler.jsonc)
+```
+
+Cloudflare dashboard (Workers Builds, connected to this repo): root directory `frontend`, build command `npm run build`, deploy command `npx wrangler deploy`. Every push to `main` redeploys. Live at https://valo.rosekorn.com.
+
+* The data is baked in at build time. `.github/workflows/rebuild.yml` rebuilds and deploys every day once the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are set.
+* If valorant-api.com is down during a build, the build fails on purpose so the last good deploy stays online.
+* Optional image proxy for the 3D viewer and share card (only used when an image fails to load because of CORS): deploy `workers/media-proxy` with `npx wrangler deploy`, then set `NEXT_PUBLIC_MEDIA_PROXY` to its URL as a build variable.
 
 ---
 
