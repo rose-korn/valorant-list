@@ -29,5 +29,9 @@ jobs:
           for f in index.html 404.html th.html en.html th/agents.html en/weapons.html; do
             test -f "out/$f" || { echo "missing out/$f"; exit 1; }
           done
-          echo "pages: $(find out -name '*.html' | wc -l)"
+          echo "pages: $(find out -name '*.html' | wc -l), files: $(find out -type f | wc -l)"
           du -sh out
+          find out -type f -size +1M -printf '%s %p\n' | sort -rn | head -5
+          # Cloudflare Workers static assets: at most 20,000 files and 25 MiB per file
+          test "$(find out -type f | wc -l)" -le 20000
+          test -z "$(find out -type f -size +25M)"
