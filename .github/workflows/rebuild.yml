@@ -1,5 +1,6 @@
-# เว็บเป็น static: ข้อมูลจาก valorant-api จะอัปเดตก็ต่อเมื่อ build ใหม่ — สั่ง Cloudflare Pages build ใหม่ทุกวัน
-# ต้องตั้ง secret CF_PAGES_DEPLOY_HOOK = URL ของ Deploy Hook (Pages → Settings → Builds & deployments → Deploy hooks)
+# เว็บเป็น static: ข้อมูลจาก valorant-api จะอัปเดตก็ต่อเมื่อ build ใหม่ ไฟล์นี้ build แล้ว deploy ขึ้น Cloudflare ทุกวัน
+# ต้องตั้ง repository secret 2 ตัว: CLOUDFLARE_API_TOKEN (สิทธิ์ "Edit Cloudflare Workers") และ CLOUDFLARE_ACCOUNT_ID
+# ถ้ายังไม่ตั้ง จะข้ามไปเฉย ๆ (เว็บยังอัปเดตตามปกติทุกครั้งที่ push เข้า main)
 name: Daily rebuild
 
 on:
@@ -10,10 +11,30 @@ on:
 jobs:
   rebuild:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
     steps:
-      - name: Trigger Cloudflare Pages build
-        env:
-          HOOK: ${{ secrets.CF_PAGES_DEPLOY_HOOK }}
+      - name: Check secrets
+        id: check
+        working-directory: .
         run: |
-          if [ -z "$HOOK" ]; then echo "CF_PAGES_DEPLOY_HOOK is not set, skipping"; exit 0; fi
-          curl -fsS -X POST "$HOOK"
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "Cloudflare secrets are not set, skipping"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.skip != 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.skip != 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - if: steps.check.outputs.skip != 'true'
+        run: npm ci && npm run build
+      - if: steps.check.outputs.skip != 'true'
+        run: npx wrangler deploy

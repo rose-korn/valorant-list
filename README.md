@@ -70,18 +70,19 @@ npm run dev
 
 Set `VALORANT_API_BASE` to point at a different API base URL (defaults to `https://valorant-api.com/v1`).
 
-### Build & deploy (Cloudflare Pages)
+### Build & deploy (Cloudflare Workers)
 
 ```bash
 cd frontend
 npm run build      # writes the whole site to frontend/out
+npx wrangler deploy  # serves frontend/out as static assets (frontend/wrangler.jsonc)
 ```
 
-Cloudflare Pages settings: root directory `frontend`, build command `npm run build`, output directory `out`.
+Cloudflare dashboard (Workers Builds, connected to this repo): root directory `frontend`, build command `npm run build`, deploy command `npx wrangler deploy`. Every push to `main` redeploys. Live at https://valo.rosekorn.com.
 
-* The data is baked in at build time. `.github/workflows/rebuild.yml` rebuilds the site every day: create a Deploy Hook in Cloudflare Pages and save its URL as the `CF_PAGES_DEPLOY_HOOK` repository secret.
+* The data is baked in at build time. `.github/workflows/rebuild.yml` rebuilds and deploys every day once the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are set.
 * If valorant-api.com is down during a build, the build fails on purpose so the last good deploy stays online.
-* Optional image proxy for the 3D viewer and share card (only used when an image fails to load because of CORS): deploy `workers/media-proxy` with `npx wrangler deploy`, then set `NEXT_PUBLIC_MEDIA_PROXY` to its URL in the Pages build environment.
+* Optional image proxy for the 3D viewer and share card (only used when an image fails to load because of CORS): deploy `workers/media-proxy` with `npx wrangler deploy`, then set `NEXT_PUBLIC_MEDIA_PROXY` to its URL as a build variable.
 
 ---
 

@@ -1,0 +1,10 @@
+// Cloudflare Workers: เสิร์ฟไฟล์ static จาก out/ (ได้จาก `npm run build`) ไม่มีโค้ดฝั่ง server
+// static asset ไม่นับโควตา request ของ Worker ในแผนฟรี
+{
+  "name": "valorant-list",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}
