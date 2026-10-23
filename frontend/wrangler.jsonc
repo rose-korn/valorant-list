@@ -9,5 +9,7 @@
     "directory": "./out",
     "binding": "ASSETS",
     "not_found_handling": "404-page"
-  }
+  },
+  // ให้ Cloudflare ทำ preview ของแต่ละ PR ได้ (`npx wrangler preview`) — ว่างไว้ได้ ใช้ค่าข้างบนทั้งหมด
+  "previews": {}
 }
