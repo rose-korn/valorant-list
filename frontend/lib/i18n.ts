@@ -348,6 +348,9 @@ const th = {
     you: 'คุณ',
     ace: 'ACE!',
     aceSub: 'เก็บครบห้าคน โหดเกิ๊น',
+    tabPlanted: '💣 Spike planted!',
+    tabComeBack: 'กลับมาด่วน 😱',
+    tabBack: '✔ Defused ยินดีต้อนรับกลับ',
   },
   share: {
     title: 'แชร์การ์ดเมนหลัก',
@@ -776,6 +779,9 @@ const en: Dict = {
     you: 'You',
     ace: 'ACE!',
     aceSub: 'all five down, absolute menace',
+    tabPlanted: '💣 Spike planted!',
+    tabComeBack: 'come back quick 😱',
+    tabBack: '✔ Defused, welcome back',
   },
   share: {
     title: 'Share your main',

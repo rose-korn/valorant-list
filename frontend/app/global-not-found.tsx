@@ -6,6 +6,7 @@ import { LANG_REDIRECT_JS } from '@/lib/lang-redirect'
 
 export const metadata: Metadata = {
   title: '404 · Valorant List',
+  icons: { icon: '/icon.svg' },
 }
 
 // หน้า 404 กลาง (กลายเป็น 404.html ตอน export) — ถ้า path ไม่มีภาษานำหน้า สคริปต์จะพาไป /th/... หรือ /en/... ให้เอง

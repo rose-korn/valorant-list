@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import HScroller from './HScroller'
 import { useI18n } from './LangProvider'
 import type { PassChapterData, ResolvedReward } from '@/lib/rewards'
 
@@ -110,7 +111,9 @@ export default function PassViewer({ chapters }: { chapters: PassChapter[] }) {
       </div>
 
       {/* ================= แถวการ์ดของบทนี้ ================= */}
-      <div key={chapterIdx} className="soft-scroll -mx-4 mt-4 flex animate-fade-in snap-x gap-3 overflow-x-auto px-4 pt-3 pb-4 sm:mx-0 sm:px-1">
+      {/* มีปุ่ม ◀ ▶ + ลากเมาส์ได้ (key = รีเซ็ตตำแหน่งเลื่อนเมื่อเปลี่ยนบท) */}
+      <div key={chapterIdx} className="mt-4 animate-fade-in">
+        <HScroller className="soft-scroll -mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pt-3 pb-4 sm:mx-0 sm:scroll-px-1 sm:px-1">
         {chapter.levels.map((l) => (
           <TierCard
             key={l.tier}
@@ -139,6 +142,7 @@ export default function PassViewer({ chapters }: { chapters: PassChapter[] }) {
             ))}
           </>
         )}
+        </HScroller>
       </div>
     </div>
   )

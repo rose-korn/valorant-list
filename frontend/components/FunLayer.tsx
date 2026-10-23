@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { setFavicon } from '@/lib/favicon'
 import { useBarePath, useI18n } from './LangProvider'
 import { FUN_LINKS, NAV_LINKS } from './brand'
 
@@ -51,7 +52,7 @@ export function FxToggle() {
   )
 }
 
-/** ลูกเล่นทั้งเว็บ: แถบ spike ตาม scroll, kill feed ตอนเปลี่ยนหน้า, hit marker ตอนคลิก, easter egg ACE */
+/** ลูกเล่นทั้งเว็บ: แถบ spike ตาม scroll, kill feed ตอนเปลี่ยนหน้า, hit marker ตอนคลิก, ไอคอนแท็บกะพริบตอนออกไป, easter egg ACE */
 export default function FunLayer() {
   const on = useFx()
   const reduced = useSyncExternalStore(
@@ -72,6 +73,7 @@ export default function FunLayer() {
     <>
       <SpikeBar />
       <KillFeed />
+      <TabSpike />
       {!reduced && <HitMarkers />}
       <AceEgg reduced={reduced} />
     </>
@@ -167,6 +169,61 @@ function KillFeed() {
   )
 }
 
+// ================= แท็บ: ออกจากแท็บ = spike ถูกวาง (ไอคอน+ชื่อแท็บกะพริบ) กลับมา = defused =================
+function TabSpike() {
+  const { t } = useI18n()
+
+  useEffect(() => {
+    const ours = [t.fx.tabPlanted, t.fx.tabComeBack, t.fx.tabBack]
+    let saved = ''
+    let blink = 0
+    let back = 0
+
+    const restore = () => {
+      setFavicon(null)
+      if (saved && ours.includes(document.title)) document.title = saved
+      saved = ''
+    }
+    const onVisibility = () => {
+      if (document.hidden) {
+        // ถ้ายังอยู่ในช่วงโชว์ defused อยู่ ชื่อแท็บตอนนี้เป็นของเรา ใช้ชื่อเดิมที่จำไว้ต่อ
+        window.clearTimeout(back)
+        back = 0
+        if (!saved) saved = document.title
+        let frame = 0
+        const tick = () => {
+          frame += 1
+          const lit = frame % 2 === 1
+          setFavicon(lit ? 'planted' : 'default')
+          document.title = lit ? t.fx.tabPlanted : t.fx.tabComeBack
+        }
+        tick()
+        window.clearInterval(blink)
+        blink = window.setInterval(tick, 1000)
+      } else if (blink) {
+        window.clearInterval(blink)
+        blink = 0
+        setFavicon('defused')
+        document.title = t.fx.tabBack
+        back = window.setTimeout(() => {
+          back = 0
+          restore()
+        }, 2500)
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.clearInterval(blink)
+      window.clearTimeout(back)
+      restore()
+    }
+  }, [t])
+
+  return null
+}
+
 // ================= hit marker ตอนคลิก =================
 function HitMarkers() {
   useEffect(() => {
@@ -219,8 +276,13 @@ function AceEgg({ reduced }: { reduced: boolean }) {
 
   useEffect(() => {
     if (!show) return
+    // ไอคอนแท็บกลายเป็นดาวทองช่วงโชว์ ACE
+    setFavicon('ace')
     const timer = window.setTimeout(() => setShow(0), 2200)
-    return () => window.clearTimeout(timer)
+    return () => {
+      window.clearTimeout(timer)
+      setFavicon(null)
+    }
   }, [show])
 
   if (!show) return null

@@ -1,5 +1,7 @@
 // ใช้ร่วมกันทั้ง server และ client component
 
+import { markSvg } from '@/lib/mark'
+
 // label ดึงจาก dict.nav ตามภาษา
 export const NAV_LINKS = [
   { href: '/agents', key: 'agents', emoji: '🦸' },
@@ -17,12 +19,17 @@ export const FUN_LINKS = [
   { href: '/play', key: 'play', emoji: '🎯' },
 ] as const
 
+const MARK = markSvg()
+
 export function Logo({ className = '' }: { className?: string }) {
   return (
-    <span className={`flex items-center gap-2 ${className}`}>
-      <span className="flex h-9 w-9 -rotate-6 items-center justify-center rounded-lg border-2 border-ink bg-red font-display text-lg font-bold text-white shadow-[2px_3px_0_var(--color-ink)]">
-        V
-      </span>
+    <span className={`group flex items-center gap-2 ${className}`}>
+      {/* สติกเกอร์ตัวเดียวกับ favicon — ชี้แล้วมุมเผยอขึ้นเหมือนจะลอกออก */}
+      <span
+        aria-hidden
+        className="block h-10 w-10 origin-bottom-left transition-transform duration-300 ease-[cubic-bezier(.3,1.6,.5,1)] group-hover:-translate-y-0.5 group-hover:rotate-[8deg] group-hover:scale-110 [&>svg]:h-full [&>svg]:w-full"
+        dangerouslySetInnerHTML={{ __html: MARK }}
+      />
       <span className="font-display text-xl leading-none font-bold text-ink">
         valo<span className="text-red-ink">list</span>
       </span>
