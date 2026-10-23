@@ -82,7 +82,7 @@ Cloudflare dashboard (Workers Builds, connected to this repo): root directory `f
 
 * The data is baked in at build time. `.github/workflows/rebuild.yml` rebuilds and deploys every day once the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets are set.
 * If valorant-api.com is down during a build, the build fails on purpose so the last good deploy stays online.
-* Optional image proxy for the 3D viewer and share card (only used when an image fails to load because of CORS): deploy `workers/media-proxy` with `npx wrangler deploy`, then set `NEXT_PUBLIC_MEDIA_PROXY` to its URL as a build variable.
+* Image proxy: `frontend/worker/index.ts` serves `/api/media` from the same Worker. The share card and 3D viewer use it only when an image from media.valorant-api.com fails to load because of CORS. Real files are served straight from static assets and never run the Worker.
 
 ---
 

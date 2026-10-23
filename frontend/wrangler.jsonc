@@ -1,10 +1,13 @@
-// Cloudflare Workers: เสิร์ฟไฟล์ static จาก out/ (ได้จาก `npm run build`) ไม่มีโค้ดฝั่ง server
-// static asset ไม่นับโควตา request ของ Worker ในแผนฟรี
+// Cloudflare Workers: เสิร์ฟไฟล์ static จาก out/ (ได้จาก `npm run build`)
+// ไฟล์ที่มีอยู่จริงเสิร์ฟจาก asset ตรง ๆ ไม่นับโควตา request ของ Worker
+// worker/index.ts ทำงานเฉพาะ /api/media (proxy รูป) กับ path ที่ไม่มีไฟล์ (หน้า 404)
 {
   "name": "valorant-list",
   "compatibility_date": "2026-10-01",
+  "main": "worker/index.ts",
   "assets": {
     "directory": "./out",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
   }
 }

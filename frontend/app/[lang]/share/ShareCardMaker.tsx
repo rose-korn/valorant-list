@@ -25,23 +25,31 @@ const STYLES = [
   { key: 'pink', bg: '#ffd3d6', fg: '#1d1f24' },
 ] as const
 
-const imageCache = new Map<string, Promise<HTMLImageElement | null>>()
+// clean = รูปโหลดแบบ CORS ผ่าน → วาดลง canvas แล้วยัง export เป็น PNG ได้
+type Loaded = { img: HTMLImageElement; clean: boolean }
+const imageCache = new Map<string, Promise<Loaded | null>>()
 
-function loadOne(src: string) {
+function loadOne(src: string, cors = true) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
     const img = new Image()
-    img.crossOrigin = 'anonymous'
+    if (cors) img.crossOrigin = 'anonymous'
     img.onload = () => resolve(img)
     img.onerror = reject
     img.src = src
   })
 }
 
-/** โหลดรูปแบบไม่ทำให้ canvas ติด CORS — ลองตรงก่อน แล้วค่อยผ่าน media proxy (ถ้าตั้งไว้) */
+/**
+ * โหลดรูปเอเจนท์: ตรงแบบ CORS → ผ่าน proxy /api/media → สุดท้ายโหลดแบบธรรมดา
+ * (ทางสุดท้ายรูปขึ้นในพรีวิวแน่ ๆ แต่ทำให้ canvas export ไม่ได้ ตอนกดเซฟจะวาดใหม่แบบไม่มีรูปแทน)
+ */
 function loadImage(src: string) {
   let p = imageCache.get(src)
   if (!p) {
-    p = withProxyFallback(src, loadOne).catch(() => null)
+    p = withProxyFallback(src, (u) => loadOne(u))
+      .then((img): Loaded => ({ img, clean: true }))
+      .catch(() => loadOne(src, false).then((img): Loaded => ({ img, clean: false })))
+      .catch(() => null)
     imageCache.set(src, p)
   }
   return p
@@ -87,12 +95,14 @@ async function drawCard(
   canvas: HTMLCanvasElement,
   opts: { agent: ShareAgent; quote: string; player: string; style: (typeof STYLES)[number]; label: string; footer: string; lang: string },
   isStale: () => boolean,
+  cleanOnly = false,
 ) {
   const ctx = canvas.getContext('2d')
   if (!ctx) return
   // โหลดของให้ครบก่อนแล้วค่อยวาดรวดเดียว กันการวาดเก่าทับของใหม่
-  const [, img] = await Promise.all([document.fonts?.ready, loadImage(opts.agent.portrait)])
+  const [, loaded] = await Promise.all([document.fonts?.ready, loadImage(opts.agent.portrait)])
   if (isStale()) return
+  const img = loaded && (loaded.clean || !cleanOnly) ? loaded.img : null
   const display = cssFont('--font-chakra', 'sans-serif')
   const hand = cssFont('--font-itim', 'cursive')
   const ink = '#1d1f24'
@@ -260,7 +270,22 @@ export default function ShareCardMaker({ agents }: { agents: ShareAgent[] }) {
     }
   }, [agent, quote, player, style, s.myMain, s.fanmade, lang])
 
-  const toBlob = () => new Promise<Blob | null>((resolve) => canvasRef.current?.toBlob(resolve, 'image/png'))
+  const cardOpts = { agent, quote, player, style, label: s.myMain, footer: `valolist · ${s.fanmade}`, lang }
+  const toBlob = async () => {
+    const canvas = canvasRef.current
+    if (!canvas) return null
+    const grab = (c: HTMLCanvasElement) => new Promise<Blob | null>((resolve) => c.toBlob(resolve, 'image/png'))
+    try {
+      return await grab(canvas)
+    } catch {
+      // รูปเอเจนท์มาแบบไม่มี CORS ทำให้ canvas นี้ export ไม่ได้ถาวร → วาดใบใหม่บน canvas ใหม่แบบไม่ใส่รูปนั้นแล้วเซฟแทน
+      const fresh = document.createElement('canvas')
+      fresh.width = W
+      fresh.height = H
+      await drawCard(fresh, cardOpts, () => false, true)
+      return grab(fresh).catch(() => null)
+    }
+  }
 
   const download = async () => {
     setBusy(true)

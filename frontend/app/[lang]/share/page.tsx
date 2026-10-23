@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Suspense } from 'react'
+import { Bone } from '@/components/Skeleton'
 import { Container, EmptyState, PageHero } from '@/components/ui'
 import { getAgents } from '@/lib/api'
 import { getI18n } from '@/lib/i18n-server'
@@ -29,7 +30,8 @@ export default async function SharePage({ params }: PageProps<'/[lang]/share'>) 
       <PageHero en="Share card" title={t.share.title} description={t.share.desc} note={t.share.note} />
       <Container className="py-10 md:py-14">
         {slim.length ? (
-          <Suspense>
+          // ระหว่างรอ JS โหลด (ตัวทำการ์ดอ่านค่าจาก URL ฝั่ง browser) โชว์โครงการ์ดไว้ ไม่ให้หน้าว่าง
+          <Suspense fallback={<Bone className="ml-auto aspect-[4/5] w-full max-w-[420px] !rounded-2xl" />}>
             <ShareCardMaker agents={slim} />
           </Suspense>
         ) : (
