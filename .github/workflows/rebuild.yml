@@ -1,12 +1,22 @@
-# เว็บเป็น static: ข้อมูลจาก valorant-api จะอัปเดตก็ต่อเมื่อ build ใหม่ ไฟล์นี้ build แล้ว deploy ขึ้น Cloudflare ทุกวัน
+# เว็บเป็น static: ข้อมูลจาก valorant-api จะอัปเดตก็ต่อเมื่อ build ใหม่
+# ไฟล์นี้เช็กทุก 3 ชั่วโมงว่า valorant-api มีเวอร์ชันเกมใหม่กว่าที่เว็บ build ไว้ไหม (เทียบกับ /build-version.json บนเว็บ)
+# ถ้ามี patch ใหม่ค่อย build แล้ว deploy ขึ้น Cloudflare ถ้าไม่มีก็จบในไม่กี่วินาที
+# และ build ให้อีกรอบทุกเช้าวันพฤหัส (หลัง Riot ออก patch วันอังคาร/พุธตามเวลาอเมริกา) เผื่อ valorant-api เพิ่มข้อมูลทีหลังโดยเวอร์ชันเกมไม่เปลี่ยน
 # ต้องตั้ง repository secret 2 ตัว: CLOUDFLARE_API_TOKEN (สิทธิ์ "Edit Cloudflare Workers") และ CLOUDFLARE_ACCOUNT_ID
 # ถ้ายังไม่ตั้ง จะข้ามไปเฉย ๆ (เว็บยังอัปเดตตามปกติทุกครั้งที่ push เข้า main)
-name: Daily rebuild
+# ถ้าเว็บย้ายโดเมน ตั้ง repository variable SITE_URL ได้
+name: Rebuild on new patch
 
 on:
   schedule:
-    - cron: '17 21 * * *' # ทุกวัน 04:17 เวลาไทย (หลัง patch ใหม่มักออกตอนกลางคืน)
+    - cron: '7 */3 * * *' # เช็กเวอร์ชันทุก 3 ชั่วโมง
+    - cron: '17 21 * * 3' # build เสมอ ทุกวันพฤหัส 04:17 เวลาไทย
   workflow_dispatch:
+    inputs:
+      force:
+        description: build เลยแม้เวอร์ชันไม่เปลี่ยน
+        type: boolean
+        default: true
 
 jobs:
   rebuild:
@@ -17,24 +27,40 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      SITE_URL: ${{ vars.SITE_URL || 'https://valo-thai.rosekorn.com' }}
     steps:
       - name: Check secrets
         id: check
         working-directory: .
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "Cloudflare secrets are not set, skipping"
+            echo "::warning::Cloudflare secrets are not set, skipping"
             echo "skip=true" >> "$GITHUB_OUTPUT"
           fi
+      - name: Compare game version
+        id: version
+        if: steps.check.outputs.skip != 'true'
+        working-directory: .
+        env:
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.force || github.event.schedule == '17 21 * * 3' }}
+        run: |
+          latest=$(curl -fsS https://valorant-api.com/v1/version | jq -r '.data.version')
+          live=$(curl -fsS "$SITE_URL/build-version.json" | jq -r '.version' || echo none)
+          echo "valorant-api: $latest, site: $live, force: $FORCE"
+          if [ "$FORCE" = "true" ] || [ "$latest" != "$live" ]; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Site is already on $latest, nothing to do"
+          fi
       - uses: actions/checkout@v4
-        if: steps.check.outputs.skip != 'true'
+        if: steps.version.outputs.build == 'true'
       - uses: actions/setup-node@v4
-        if: steps.check.outputs.skip != 'true'
+        if: steps.version.outputs.build == 'true'
         with:
           node-version: 22
           cache: npm
           cache-dependency-path: frontend/package-lock.json
-      - if: steps.check.outputs.skip != 'true'
+      - if: steps.version.outputs.build == 'true'
         run: npm ci && npm run build
-      - if: steps.check.outputs.skip != 'true'
+      - if: steps.version.outputs.build == 'true'
         run: npx wrangler deploy

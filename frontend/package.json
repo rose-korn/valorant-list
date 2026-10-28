@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node scripts/write-build-version.mjs",
     "start": "npx serve out",
     "lint": "eslint"
   },
