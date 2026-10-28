@@ -34,6 +34,56 @@ export function textureAspect(tex: THREE.Texture) {
   return img?.width && img?.height ? img.width / img.height : 1
 }
 
+/** ขอบเขตส่วนที่ทึบของภาพ เป็นค่า UV (v นับจากล่าง ตาม flipY ของ texture) */
+export interface UvBounds {
+  u0: number
+  v0: number
+  u1: number
+  v1: number
+}
+
+const FULL: UvBounds = { u0: 0, v0: 0, u1: 1, v1: 1 }
+const boundsCache = new WeakMap<object, UvBounds>()
+
+/**
+ * หาขอบของส่วนที่ทึบในภาพ — ภาพเต็มตัวของเอเจนท์แต่ละตัวเว้นขอบใสไม่เท่ากัน
+ * ถ้าไม่ตัดออก บางตัวจะดูเล็ก/ไกลกว่าตัวอื่น (อ่าน pixel ไม่ได้ก็คืนทั้งภาพ)
+ */
+export function opaqueBounds(tex: THREE.Texture, alphaMin = 0.45): UvBounds {
+  const img = tex.image as CanvasImageSource & { width: number; height: number }
+  if (!img?.width || !img?.height) return FULL
+  const cached = boundsCache.get(img)
+  if (cached) return cached
+
+  let found = FULL
+  try {
+    const scale = Math.min(1, 256 / Math.max(img.width, img.height))
+    const w = Math.max(1, Math.round(img.width * scale))
+    const h = Math.max(1, Math.round(img.height * scale))
+    const ctx = Object.assign(document.createElement('canvas'), { width: w, height: h }).getContext('2d', { willReadFrequently: true })
+    if (ctx) {
+      ctx.drawImage(img, 0, 0, w, h)
+      const data = ctx.getImageData(0, 0, w, h).data
+      const min = alphaMin * 255
+      let x0 = w, y0 = h, x1 = -1, y1 = -1
+      for (let y = 0; y < h; y++) {
+        for (let x = 0; x < w; x++) {
+          if (data[(y * w + x) * 4 + 3] < min) continue
+          if (x < x0) x0 = x
+          if (x > x1) x1 = x
+          if (y < y0) y0 = y
+          if (y > y1) y1 = y
+        }
+      }
+      if (x1 >= x0 && y1 >= y0) found = { u0: x0 / w, u1: (x1 + 1) / w, v0: 1 - (y1 + 1) / h, v1: 1 - y0 / h }
+    }
+  } catch {
+    // canvas ติด CORS → ใช้ทั้งภาพ
+  }
+  boundsCache.set(img, found)
+  return found
+}
+
 let webglSupport: boolean | null = null
 
 export function hasWebGL() {
