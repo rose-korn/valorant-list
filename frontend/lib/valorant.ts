@@ -13,6 +13,8 @@ export interface Agent {
   displayName: string
   description: string
   developerName: string
+  /** ตัวเก่า ๆ API ใส่เป็น 1970-01-01 */
+  releaseDate: string
   characterTags: string[] | null
   displayIcon: string
   displayIconSmall: string
@@ -412,4 +414,12 @@ export function actLabel(contract: Contract, seasons: Season[]) {
 
 export function formatDuration(seconds: number) {
   return `${seconds.toFixed(seconds < 1 ? 2 : 1)}s`
+}
+
+/** เอเจนท์ที่เปิดตัวมาไม่เกินกี่วันถึงนับว่า "ใหม่" (ติดป้าย + ดันขึ้นบนสุด) */
+export const NEW_AGENT_DAYS = 30
+
+export function isNewAgent(releaseDate: string | null | undefined, now: number) {
+  const t = releaseDate ? Date.parse(releaseDate) : NaN
+  return Number.isFinite(t) && t <= now && now - t < NEW_AGENT_DAYS * 86_400_000
 }

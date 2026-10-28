@@ -6,6 +6,9 @@ import { getAgents } from '@/lib/api'
 import { getI18n } from '@/lib/i18n-server'
 import { SLOT_ORDER, groupByRole } from '@/lib/valorant'
 
+// เวลาตอน build — ใช้เช็คป้าย "ใหม่" ใน HTML รอบแรกก่อนฝั่ง client จะใช้เวลาจริง
+const BUILT_AT = Date.now()
+
 export async function generateMetadata({ params }: PageProps<'/[lang]/agents'>): Promise<Metadata> {
   const { t } = await getI18n(params)
   return { title: t.agents.title }
@@ -22,6 +25,7 @@ export default async function AgentsPage({ params }: PageProps<'/[lang]/agents'>
       uuid: a.uuid,
       displayName: a.displayName,
       developerName: a.developerName,
+      releaseDate: a.releaseDate,
       description: a.description,
       bustPortrait: a.bustPortrait,
       displayIcon: a.displayIcon,
@@ -47,7 +51,7 @@ export default async function AgentsPage({ params }: PageProps<'/[lang]/agents'>
       <Container className="py-10 md:py-14">
         {slim.length ? (
           <Suspense>
-            <AgentsClient agents={slim} roles={groups.map((g) => ({ uuid: g.uuid, name: g.role.displayName, icon: g.role.displayIcon }))} />
+            <AgentsClient agents={slim} builtAt={BUILT_AT} roles={groups.map((g) => ({ uuid: g.uuid, name: g.role.displayName, icon: g.role.displayIcon }))} />
           </Suspense>
         ) : (
           <EmptyState text={t.common.empty} />
