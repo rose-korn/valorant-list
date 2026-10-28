@@ -27,6 +27,8 @@ const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build'
 
 // JSON บางตัว (weapons, playercards, sprays) ใหญ่เกินเพดาน cache 2MB ของ Next
 // เลยจำ promise ไว้เองในหน่วยความจำ ทุกหน้าที่ build ใน process เดียวกันจะใช้ผลเดียวกัน ไม่ยิง API ซ้ำ
+// ส่วน force-cache ของ Next จะเก็บผลลง .next/cache/fetch-cache แบบไม่มีวันหมดอายุ และ Cloudflare Workers Builds เก็บ .next/cache ข้าม build
+// ถ้าไม่ลบ build ใหม่จะได้ข้อมูลเก่า (เช่น agent ใหม่ไม่ขึ้น) เลยให้ `prebuild` ใน package.json ลบโฟลเดอร์นี้ทิ้งทุกครั้ง
 const memo = new Map<string, Promise<unknown>>()
 
 async function fetchJson(url: string) {
