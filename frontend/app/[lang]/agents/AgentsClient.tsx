@@ -1,15 +1,17 @@
 'use client'
 
 import Link from '@/components/Link'
-import { useMemo, useState } from 'react'
+import { useMemo, useState, useSyncExternalStore } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { FilterBar, FilterButton, SearchInput } from '@/components/Filters'
 import { useI18n } from '@/components/LangProvider'
+import { isNewAgent } from '@/lib/valorant'
 
 export interface AgentCard {
   uuid: string
   displayName: string
   developerName: string
+  releaseDate: string
   description: string
   bustPortrait: string | null
   displayIcon: string
@@ -23,13 +25,17 @@ export interface AgentCard {
 type View = 'grid' | 'list'
 
 const hex = (raw: string | undefined, fallback: string) => (raw ? `#${raw.slice(0, 6)}` : fallback)
+const LOADED_AT = Date.now()
+const noop = () => () => {}
 const tilt = ['-rotate-1', 'rotate-1', 'rotate-0', '-rotate-[0.5deg]', 'rotate-[1.5deg]']
 
 export default function AgentsClient({
   agents,
+  builtAt,
   roles,
 }: {
   agents: AgentCard[]
+  builtAt: number
   roles: { uuid: string; name: string; icon: string }[]
 }) {
   const { t } = useI18n()
@@ -43,6 +49,9 @@ export default function AgentsClient({
   const [view, setView] = useState<View>(() => (params.get('view') === 'list' ? 'list' : 'grid'))
   const [query, setQuery] = useState('')
 
+  // เว็บเป็น static — เริ่มจากเวลาตอน build (ให้ตรงกับ HTML) แล้วค่อยใช้เวลาจริง ป้ายใหม่จะได้หมดอายุเองโดยไม่ต้อง build ใหม่
+  const now = useSyncExternalStore(noop, () => LOADED_AT, () => builtAt)
+
   const changeView = (v: View) => {
     setView(v)
     const next = new URLSearchParams(params.toString())
@@ -54,12 +63,16 @@ export default function AgentsClient({
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return agents.filter(
-      (a) =>
-        (role === 'ALL' || a.roleUuid === role) &&
-        (!q || a.displayName.toLowerCase().includes(q) || a.developerName?.toLowerCase().includes(q)),
-    )
-  }, [agents, role, query])
+    return agents
+      .filter(
+        (a) =>
+          (role === 'ALL' || a.roleUuid === role) &&
+          (!q || a.displayName.toLowerCase().includes(q) || a.developerName?.toLowerCase().includes(q)),
+      )
+      .map((a) => ({ ...a, isNew: isNewAgent(a.releaseDate, now) }))
+      // ตัวใหม่ขึ้นก่อน (ใหม่สุดก่อน) ที่เหลือคง A–Z ตามเดิม
+      .sort((a, b) => (a.isNew && b.isNew ? b.releaseDate.localeCompare(a.releaseDate) : +b.isNew - +a.isNew))
+  }, [agents, role, query, now])
 
   return (
     <>
@@ -110,6 +123,7 @@ export default function AgentsClient({
                   style={{ background: `linear-gradient(160deg, ${hex(a.backgroundGradientColors?.[0], '#ff4654')}, ${hex(a.backgroundGradientColors?.[2], '#ebe3d4')})` }}
                 >
                   <img src={a.bustPortrait ?? a.displayIcon} alt={a.displayName} loading="lazy" className="absolute inset-0 h-full w-full object-cover object-top" />
+                  {a.isNew && <NewBadge label={t.agents.newBadge} className="absolute left-2 top-2" />}
                 </div>
                 <div className="flex items-center justify-between gap-2 px-1 pt-2">
                   <p className="truncate font-display text-lg font-bold">{a.displayName}</p>
@@ -135,6 +149,7 @@ export default function AgentsClient({
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-display text-xl font-bold">{a.displayName}</p>
+                    {a.isNew && <NewBadge label={t.agents.newBadge} />}
                     <span className="chip !py-0 text-xs">
                       <span className="flex h-4 w-4 items-center justify-center rounded-full bg-ink">
                         <img src={a.roleIcon} alt="" className="h-2.5 w-2.5" />
@@ -160,6 +175,16 @@ export default function AgentsClient({
 
       {list.length === 0 && <p className="hand py-16 text-center text-xl">{t.common.noResult}</p>}
     </>
+  )
+}
+
+function NewBadge({ label, className = '' }: { label: string; className?: string }) {
+  return (
+    <span
+      className={`-rotate-6 rounded-md border-2 border-ink bg-red px-2 py-0.5 font-display text-sm font-bold uppercase tracking-wide text-white shadow-[2px_3px_0_var(--color-ink)] ${className}`}
+    >
+      {label}
+    </span>
   )
 }
 
