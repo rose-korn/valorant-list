@@ -8,6 +8,7 @@ import {
   disposeObject,
   loadTexture,
   onResize,
+  opaqueBounds,
   prefersReducedMotion,
   runLoop,
   textureAspect,
@@ -27,12 +28,12 @@ interface Props {
   controls?: boolean
 }
 
-// size = ความกว้าง/สูงสุดของชิ้นงาน, depth = ความหนาหลอก, sway = มุมโยกซ้ายขวา (เรเดียน)
+// size = ความกว้าง/สูงสุดของชิ้นงาน, depth = ความหนาหลอก, sway = มุมโยกซ้ายขวา (เรเดียน), trim = ตัดขอบใสของภาพออกก่อนจัดกล้อง
 const VARIANT = {
-  weapon: { size: 6, depth: 0.14, layers: 10, sway: 0.38 },
-  card: { size: 5, depth: 0.05, layers: 4, sway: 0.42 },
-  emblem: { size: 4, depth: 0.3, layers: 14, sway: 0.5 },
-} satisfies Record<Variant, { size: number; depth: number; layers: number; sway: number }>
+  weapon: { size: 6, depth: 0.14, layers: 10, sway: 0.38, trim: false },
+  card: { size: 5, depth: 0.05, layers: 4, sway: 0.42, trim: true },
+  emblem: { size: 4, depth: 0.3, layers: 14, sway: 0.5, trim: false },
+} satisfies Record<Variant, { size: number; depth: number; layers: number; sway: number; trim: boolean }>
 
 // จำกัดมุมกล้อง ไม่ให้หมุนไปเห็นด้านข้าง/ด้านหลังจนชิ้นงานดูแบนหรือทะลุกัน
 const AZIMUTH_LIMIT = 0.75
@@ -152,10 +153,15 @@ export default function Viewer3D({ src, accent = '#ff4654', variant = 'weapon', 
     const build = (tex: THREE.Texture) => {
       disposeObject(object)
       object.clear()
-      const aspect = textureAspect(tex)
+      const b = cfg.trim ? opaqueBounds(tex) : null
+      const aspect = textureAspect(tex) * (b ? (b.u1 - b.u0) / (b.v1 - b.v0) : 1)
       objW = aspect >= 1 ? cfg.size : cfg.size * aspect
       objH = objW / aspect
       const geo = new THREE.PlaneGeometry(objW, objH)
+      if (b) {
+        const uv = geo.attributes.uv
+        for (let i = 0; i < uv.count; i++) uv.setXY(i, b.u0 + uv.getX(i) * (b.u1 - b.u0), b.v0 + uv.getY(i) * (b.v1 - b.v0))
+      }
       const uniforms = (edge: number) => ({ map: { value: tex }, uTime: time, uEdge: { value: edge }, uAccent: { value: accentColor } })
       const face = new THREE.ShaderMaterial({ uniforms: uniforms(0), vertexShader, fragmentShader, side: THREE.DoubleSide })
       const edge = new THREE.ShaderMaterial({ uniforms: uniforms(1), vertexShader, fragmentShader, side: THREE.DoubleSide })
