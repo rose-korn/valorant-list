@@ -2,7 +2,7 @@
 
 import Link from '@/components/Link'
 import { useEffect, useState } from 'react'
-import { FUN_LINKS, Logo, NAV_LINKS } from './brand'
+import { FUN_LINKS, Logo, NAV_LINKS, isLinkActive } from './brand'
 import { LangSwitch, useBarePath, useI18n } from './LangProvider'
 
 export default function Navbar() {
@@ -26,7 +26,7 @@ export default function Navbar() {
     }
   }, [open])
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
+  const isActive = (href: string) => isLinkActive(pathname, href)
 
   return (
     <>

@@ -177,16 +177,26 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
           <SectionHeading title={h.funTitle} note={h.funNote} />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <DailyShareCard plan={daily} />
-            <Link href="/play" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-night p-6 text-paper">
+            <Link href="/play/beat" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-night p-6 text-paper">
               <span className="font-mono text-xs font-bold tracking-[0.2em] text-mustard uppercase">Admit one · Game A</span>
               <h3 className="mt-2 text-3xl font-bold">{h.playTitle}</h3>
               <p className="mt-2 max-w-md text-paper/75">{h.playDesc}</p>
               <span className="btn mt-auto self-start">{h.playCta}</span>
-              <svg viewBox="0 0 100 100" className="pointer-events-none absolute -right-6 -bottom-6 h-44 w-44 animate-bob opacity-90" aria-hidden>
-                <circle cx="50" cy="50" r="44" fill="var(--color-card)" stroke="var(--color-ink)" strokeWidth="4" />
-                <circle cx="50" cy="50" r="30" fill="var(--color-red)" stroke="var(--color-ink)" strokeWidth="4" />
-                <circle cx="50" cy="50" r="14" fill="var(--color-mustard)" stroke="var(--color-ink)" strokeWidth="4" />
-                <circle cx="50" cy="50" r="5" fill="var(--color-red)" />
+              {/* ปุ่ม W A S D แบบคีย์แคป */}
+              <svg viewBox="0 0 100 70" className="pointer-events-none absolute -right-3 -bottom-3 h-32 w-44 animate-bob opacity-90" aria-hidden>
+                {[
+                  ['W', 35, 4],
+                  ['A', 4, 36],
+                  ['S', 35, 36],
+                  ['D', 66, 36],
+                ].map(([k, x, y]) => (
+                  <g key={k as string} transform={`translate(${x} ${y})`}>
+                    <rect width="30" height="30" rx="5" fill="var(--color-card)" stroke="var(--color-ink)" strokeWidth="3" />
+                    <text x="15" y="21" textAnchor="middle" fontSize="16" fontWeight="700" fill="var(--color-red)">
+                      {k}
+                    </text>
+                  </g>
+                ))}
               </svg>
             </Link>
             <Link href="/random" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-mustard p-6 md:col-span-2 lg:col-span-1">
