@@ -2,12 +2,13 @@ import type { Metadata } from 'next'
 import Link from '@/components/Link'
 import Reveal from '@/components/Reveal'
 import { Container, PageHero } from '@/components/ui'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { type CollectionKind, KINDS, getCollection } from './data'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/collection'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.collection.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/collection', { title: seoTitles[lang].collection, description: t.collection.desc })
 }
 
 const BG: Record<CollectionKind, string> = { cards: '!bg-card', sprays: '!bg-pink', buddies: '!bg-sky', titles: '!bg-paper-2' }

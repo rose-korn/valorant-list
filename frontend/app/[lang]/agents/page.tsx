@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import AgentsClient from './AgentsClient'
 import { Container, EmptyState, PageHero } from '@/components/ui'
 import { getAgents } from '@/lib/api'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { SLOT_ORDER, groupByRole } from '@/lib/valorant'
 import { stripTags } from '@/components/RichText'
@@ -11,8 +12,8 @@ import { stripTags } from '@/components/RichText'
 const BUILT_AT = Date.now()
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/agents'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.agents.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/agents', { title: seoTitles[lang].agents, description: t.agents.desc })
 }
 
 export default async function AgentsPage({ params }: PageProps<'/[lang]/agents'>) {

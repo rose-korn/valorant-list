@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { BackLink, Container } from '@/components/ui'
 import { getContract, getContracts, getSeasons } from '@/lib/api'
 import { dateLocale } from '@/lib/i18n'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n, toLang } from '@/lib/i18n-server'
 import { buildPassChapters, buildRewardIndex } from '@/lib/rewards'
 import { actLabel } from '@/lib/valorant'
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/battlepass
   const { lang } = await getI18n(params)
   const { uuid } = await params
   const c = await getContract(lang, uuid)
-  return { title: c?.displayName ?? 'Battle Pass' }
+  return pageMeta(lang, `/battlepass/${uuid}`, { title: seoTitles[lang].pass(c?.displayName ?? 'Battle Pass') })
 }
 
 export default async function PassPage({ params }: PageProps<'/[lang]/battlepass/[uuid]'>) {

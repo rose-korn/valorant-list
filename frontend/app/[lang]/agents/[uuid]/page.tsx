@@ -7,6 +7,8 @@ import { BackLink, Container, SectionHeading } from '@/components/ui'
 import PassViewer from '@/components/PassViewer'
 import { getAgent, getAgents, getContracts } from '@/lib/api'
 import { buildPassChapters, buildRewardIndex } from '@/lib/rewards'
+import { pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
+import JsonLd from '@/components/JsonLd'
 import { getI18n, toLang } from '@/lib/i18n-server'
 import { SLOT_ORDER, agentColor } from '@/lib/valorant'
 import AbilityPanel from './AbilityPanel'
@@ -23,7 +25,8 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/agents/[uu
   const { lang } = await getI18n(params)
   const { uuid } = await params
   const agent = await getAgent(lang, uuid)
-  return { title: agent?.displayName ?? 'Agent', description: stripTags(agent?.description) }
+  const name = agent?.displayName ?? 'Agent'
+  return pageMeta(lang, `/agents/${uuid}`, { title: seoTitles[lang].agent(name), description: clip(stripTags(agent?.description)) })
 }
 
 export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[uuid]'>) {
@@ -50,6 +53,13 @@ export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[u
 
   return (
     <>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: t.nav.home, path: `/${lang}` },
+          { name: t.nav.agents, path: `/${lang}/agents` },
+          { name: agent.displayName, path: `/${lang}/agents/${agent.uuid}` },
+        ])}
+      />
       {/* ================= HERO ================= */}
       <section className="dotted-bg border-b-2 border-ink">
         <Container className="grid gap-10 py-8 md:py-12 lg:grid-cols-[1fr_1.1fr] lg:items-center">

@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getGear, getWeapons } from '@/lib/api'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { WEAPON_CATEGORIES, isRealSkin } from '@/lib/valorant'
 import ArsenalClient, { type WeaponCard } from './ArsenalClient'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/weapons'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.weapons.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/weapons', { title: seoTitles[lang].weapons, description: t.weapons.desc })
 }
 
 export default async function WeaponsPage({ params }: PageProps<'/[lang]/weapons'>) {

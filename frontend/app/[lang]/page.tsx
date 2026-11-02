@@ -1,4 +1,7 @@
+import type { Metadata } from 'next'
 import Link from '@/components/Link'
+import JsonLd from '@/components/JsonLd'
+import { SITE_NAME, SITE_URL, pageMeta, seoTitles } from '@/lib/seo'
 import PaperScene from '@/components/three/PaperScene'
 import Viewer3D from '@/components/three/Viewer3D'
 import Reveal from '@/components/Reveal'
@@ -26,6 +29,15 @@ import {
 
 // โพลารอยด์เอเจนท์เท่านั้นที่เอียง (เหมือนรูปที่แปะไว้) ส่วนอื่นวางตรง
 const tilt = (i: number) => ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'][i % 4]
+
+export async function generateMetadata({ params }: PageProps<'/[lang]'>): Promise<Metadata> {
+  const { lang } = await getI18n(params)
+  const description =
+    lang === 'en'
+      ? 'A free fan site for Valorant agents, abilities, maps with callouts, weapon stats, skins, ranks and collectibles — with 3D views, share cards and mini games.'
+      : 'เว็บข้อมูล Valorant ภาษาไทย ฟรี รวมเอเจนท์และสกิลทุกตัว แผนที่พร้อม callout ดาเมจปืน สกินทุกลาย แรงค์ และของสะสม ดูแบบ 3D ได้ มีสุ่มเอเจนท์และมินิเกม'
+  return pageMeta(lang, '', { title: seoTitles[lang].home, description, absoluteTitle: true })
+}
 
 export default async function HomePage({ params }: PageProps<'/[lang]'>) {
   const { lang, t } = await getI18n(params)
@@ -58,6 +70,17 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
 
   return (
     <>
+      {/* บอก Google ว่าเว็บชื่ออะไร (โชว์ชื่อเว็บแทนโดเมนในผลค้นหา) */}
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'WebSite',
+          name: SITE_NAME,
+          alternateName: ['Valolist', 'valolist.'],
+          url: `${SITE_URL}/${lang}`,
+          inLanguage: lang === 'en' ? 'en' : 'th',
+        }}
+      />
       {/* ================= HERO: หน้าปกนิตยสาร ================= */}
       <section className="relative overflow-hidden border-b-[1.5px] border-ink">
         <PaperScene />

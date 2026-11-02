@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import Link from '@/components/Link'
 import { notFound } from 'next/navigation'
 import { BackLink, Container, EmptyState, PageHero } from '@/components/ui'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { KINDS, getCollection, isKind } from '../data'
 import { BUILT_AT } from '@/lib/first-seen'
@@ -12,9 +13,11 @@ export const generateStaticParams = () => KINDS.map((type) => ({ type }))
 export const dynamicParams = false
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/collection/[type]'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
+  const { lang, t } = await getI18n(params)
   const { type } = await params
-  return { title: isKind(type) ? t.collection.kinds[type][0] : t.collection.title }
+  if (!isKind(type)) return { title: t.collection.title }
+  const [name, desc] = t.collection.kinds[type]
+  return pageMeta(lang, `/collection/${type}`, { title: seoTitles[lang].collectionKind(name), description: `${name}: ${desc}` })
 }
 
 export default async function CollectionTypePage({ params }: PageProps<'/[lang]/collection/[type]'>) {

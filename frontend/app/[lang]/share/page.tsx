@@ -3,12 +3,13 @@ import { Suspense } from 'react'
 import { Bone } from '@/components/Skeleton'
 import { Container, EmptyState, PageHero } from '@/components/ui'
 import { getAgents } from '@/lib/api'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import ShareCardMaker from './ShareCardMaker'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/share'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.share.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/share', { title: seoTitles[lang].share, description: t.share.desc })
 }
 
 export default async function SharePage({ params }: PageProps<'/[lang]/share'>) {

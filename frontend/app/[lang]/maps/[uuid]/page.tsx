@@ -5,6 +5,8 @@ import HScroller from '@/components/HScroller'
 import MapViewer3D from '@/components/three/MapViewer3D'
 import { BackLink, Container, SectionHeading } from '@/components/ui'
 import { getMap, getMaps } from '@/lib/api'
+import { pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
+import JsonLd from '@/components/JsonLd'
 import { getI18n, toLang } from '@/lib/i18n-server'
 import { isCompetitiveMap, type GameMap } from '@/lib/valorant'
 
@@ -18,7 +20,13 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/maps/[uuid
   const { lang } = await getI18n(params)
   const { uuid } = await params
   const map = await getMap(lang, uuid)
-  return { title: map?.displayName ?? 'Map', description: map?.narrativeDescription ?? undefined }
+  const name = map?.displayName ?? 'Map'
+  return pageMeta(lang, `/maps/${uuid}`, { title: seoTitles[lang].map(name), description:
+      clip(map?.narrativeDescription) ??
+      (lang === 'en'
+        ? `${name} in Valorant: every callout name on the map, plus a 3D view you can spin.`
+        : `แมพ ${name} ใน Valorant: ชื่อ callout ทุกจุดบนแผนที่ พร้อมแผนที่ 3D หมุนดูได้`),
+     image: map?.splash ?? undefined })
 }
 
 export default async function MapPage({ params }: PageProps<'/[lang]/maps/[uuid]'>) {
@@ -45,6 +53,13 @@ export default async function MapPage({ params }: PageProps<'/[lang]/maps/[uuid]
 
   return (
     <>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: t.nav.home, path: `/${lang}` },
+          { name: t.nav.maps, path: `/${lang}/maps` },
+          { name: map.displayName, path: `/${lang}/maps/${map.uuid}` },
+        ])}
+      />
       {/* ================= HERO ================= */}
       <section className="dotted-bg border-b-2 border-ink">
         <Container className="grid gap-8 py-8 md:py-12 lg:grid-cols-[1fr_1.3fr] lg:items-center">

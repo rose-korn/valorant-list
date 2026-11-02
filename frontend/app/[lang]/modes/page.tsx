@@ -2,12 +2,13 @@ import type { Metadata } from 'next'
 import Reveal from '@/components/Reveal'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getCurrencies, getGameModes } from '@/lib/api'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import RichText from '@/components/RichText'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/modes'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.modes.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/modes', { title: seoTitles[lang].modes, description: t.modes.desc })
 }
 
 export default async function ModesPage({ params }: PageProps<'/[lang]/modes'>) {
