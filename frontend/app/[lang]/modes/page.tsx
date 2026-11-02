@@ -3,6 +3,7 @@ import Reveal from '@/components/Reveal'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getCurrencies, getGameModes } from '@/lib/api'
 import { getI18n } from '@/lib/i18n-server'
+import RichText from '@/components/RichText'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/modes'>): Promise<Metadata> {
   const { t } = await getI18n(params)
@@ -43,7 +44,7 @@ export default async function ModesPage({ params }: PageProps<'/[lang]/modes'>) 
                       {mode.duration && <p className="text-sm text-ink-soft">⏱ {mode.duration}</p>}
                     </div>
                   </div>
-                  <p className="mt-3 text-ink/85">{mode.description}</p>
+                  <p className="mt-3 text-ink/85"><RichText text={mode.description} /></p>
                   <div className="mt-auto flex flex-wrap gap-1.5 pt-4">
                     {mode.roundsPerHalf > 0 && <span className="chip !bg-paper-2 text-sm">{m.rounds(mode.roundsPerHalf)}</span>}
                     {mode.orbCount > 0 && <span className="chip !bg-paper-2 text-sm">{m.orbs(mode.orbCount)}</span>}

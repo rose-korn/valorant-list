@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { Ability } from '@/lib/valorant'
 import { KEYBIND } from '@/lib/valorant'
 import { useI18n } from '@/components/LangProvider'
+import RichText from '@/components/RichText'
 
 /**
  * ไอคอนสกิลจาก API เป็นสีขาวเสมอ จึงวางบนพื้นหมึกเข้มตลอด (ไม่ใช้สีเอเจนท์เป็นพื้น
@@ -81,7 +82,7 @@ export default function AbilityPanel({ abilities, color }: { abilities: Ability[
                   <h3 className="text-3xl font-bold">{a.displayName}</h3>
                 </div>
               </div>
-              <p className="mt-5 text-lg leading-relaxed whitespace-pre-line text-ink/85">{a.description}</p>
+              <p className="mt-5 text-lg leading-relaxed whitespace-pre-line text-ink/85"><RichText text={a.description} /></p>
               {a.slot === 'Ultimate' && <p className="hand mt-4 -rotate-1 text-lg">{t.agents.ultNote}</p>}
             </div>
           )

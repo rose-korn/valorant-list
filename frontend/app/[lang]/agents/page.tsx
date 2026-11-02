@@ -5,6 +5,7 @@ import { Container, EmptyState, PageHero } from '@/components/ui'
 import { getAgents } from '@/lib/api'
 import { getI18n } from '@/lib/i18n-server'
 import { SLOT_ORDER, groupByRole } from '@/lib/valorant'
+import { stripTags } from '@/components/RichText'
 
 // เวลาตอน build — ใช้เช็คป้าย "ใหม่" ใน HTML รอบแรกก่อนฝั่ง client จะใช้เวลาจริง
 const BUILT_AT = Date.now()
@@ -26,7 +27,7 @@ export default async function AgentsPage({ params }: PageProps<'/[lang]/agents'>
       displayName: a.displayName,
       developerName: a.developerName,
       releaseDate: a.releaseDate,
-      description: a.description,
+      description: stripTags(a.description),
       bustPortrait: a.bustPortrait,
       displayIcon: a.displayIcon,
       backgroundGradientColors: a.backgroundGradientColors,

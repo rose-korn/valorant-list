@@ -11,6 +11,7 @@ import { getI18n, toLang } from '@/lib/i18n-server'
 import { SLOT_ORDER, agentColor } from '@/lib/valorant'
 import AbilityPanel from './AbilityPanel'
 import VoiceLine from './VoiceLine'
+import RichText, { stripTags } from '@/components/RichText'
 
 // build ทุกหน้าไว้ล่วงหน้า (static export) อันที่ไม่อยู่ในลิสต์ = 404
 export async function generateStaticParams({ params }: { params: { lang: string } }) {
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/agents/[uu
   const { lang } = await getI18n(params)
   const { uuid } = await params
   const agent = await getAgent(lang, uuid)
-  return { title: agent?.displayName ?? 'Agent', description: agent?.description }
+  return { title: agent?.displayName ?? 'Agent', description: stripTags(agent?.description) }
 }
 
 export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[uuid]'>) {
@@ -66,7 +67,7 @@ export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[u
               </span>
             </div>
             <h1 className="mt-4 animate-fade-up text-6xl font-bold sm:text-7xl">{agent.displayName}</h1>
-            <p className="mt-4 max-w-xl animate-fade-up text-lg text-ink-soft [animation-delay:100ms]">{agent.description}</p>
+            <p className="mt-4 max-w-xl animate-fade-up text-lg text-ink-soft [animation-delay:100ms]"><RichText text={agent.description} /></p>
             {agent.characterTags && agent.characterTags.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {agent.characterTags.map((t) => (
@@ -128,7 +129,7 @@ export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[u
             <div>
               <p className="hand text-lg">{t.agents.roleOf(agent.displayName)}</p>
               <h2 className="text-3xl font-bold sm:text-4xl">{agent.role.displayName}</h2>
-              <p className="mt-2 max-w-2xl text-ink-soft">{agent.role.description}</p>
+              <p className="mt-2 max-w-2xl text-ink-soft"><RichText text={agent.role.description} /></p>
               {sameRole.length > 0 && (
                 <>
                   <p className="mt-6 mb-2 font-display font-semibold">{t.agents.sameRole}</p>
