@@ -419,6 +419,12 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
 
   const roleOf = (uuid: string) => roles.find((x) => x.uuid === uuid)
   const enough = pool.length >= TEAM
+  // ตำแหน่งของการ์ดเปล่าแต่ละช่อง: ทีมมาตรฐาน = Duelist 2 แล้วตำแหน่งละ 1 ถ้าไม่จัดทีมก็ไม่บอกตำแหน่ง
+  const duelist = roles.find((x) => x.uuid === DUELIST_ROLE_UUID)
+  const slotRoles: (Role | undefined)[] = balanced
+    ? [duelist, duelist, ...roles.filter((x) => x.uuid !== DUELIST_ROLE_UUID)].slice(0, TEAM)
+    : Array.from({ length: TEAM }, () => undefined)
+  while (slotRoles.length < TEAM) slotRoles.push(undefined)
 
   return (
     <div className="space-y-6">
@@ -433,35 +439,48 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
       </div>
       {!enough && <p className="hand text-center text-xl">{r.tooFew(TEAM)}</p>}
 
-      {team.length > 0 && (
-        <div>
-          <p className="hand mb-3 text-center text-xl">{r.teamResult}</p>
-          <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
-            {team.map((a, i) => {
-              const done = i < stopped
-              const shown = done ? a : pool[(tick * 7 + i * 5) % pool.length] ?? a
-              const role = roleOf(shown.roleUuid)
-              return (
-                <li key={i} className={i === 4 ? 'col-span-2 mx-auto w-1/2 sm:col-span-1 sm:w-full' : ''}>
-                  <Link
-                    href={`/agents/${a.uuid}`}
-                    aria-disabled={!done}
-                    className={`card block p-2 ${done ? 'card-hover animate-fade-in' : 'pointer-events-none'} ${['-rotate-1', 'rotate-1', '-rotate-2', 'rotate-2', 'rotate-0'][i]}`}
-                  >
-                    <div className="relative aspect-square overflow-hidden rounded-md" style={{ background: shown.color }}>
-                      <img src={shown.icon} alt={done ? a.name : ''} className={`h-full w-full object-cover ${done ? '' : 'blur-[1px]'}`} />
-                    </div>
-                    <div className="flex items-center gap-1.5 px-1 pt-2">
-                      {role && <img src={role.icon} alt={role.name} title={role.name} className="h-4 w-4 invert" />}
-                      <p className="truncate py-0.5 font-display text-lg leading-normal font-bold">{done ? a.name : '???'}</p>
-                    </div>
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
-      )}
+      <div>
+        <p className="hand mb-3 text-center text-xl">{r.teamResult}</p>
+        <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
+          {/* ยังไม่ได้สุ่ม: การ์ดเปล่า 5 ใบรอไว้ (ทีมมาตรฐานบอกตำแหน่งของแต่ละช่องด้วย) */}
+          {team.length === 0 &&
+            slotRoles.map((role, i) => (
+              <li key={i} className={i === 4 ? 'col-span-2 mx-auto w-1/2 sm:col-span-1 sm:w-full' : ''}>
+                <div className={`card block p-2 ${['-rotate-1', 'rotate-1', '-rotate-2', 'rotate-2', 'rotate-0'][i]}`}>
+                  <div className="skeleton relative flex aspect-square items-center justify-center overflow-hidden rounded-md">
+                    <span className="font-display text-5xl font-bold text-ink/25">?</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-1 pt-2">
+                    {role && <img src={role.icon} alt={role.name} title={role.name} className="h-4 w-4 invert" />}
+                    <p className="truncate py-0.5 font-display text-lg leading-normal font-bold text-ink-soft">{role?.name ?? '???'}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          {team.map((a, i) => {
+            const done = i < stopped
+            const shown = done ? a : pool[(tick * 7 + i * 5) % pool.length] ?? a
+            const role = roleOf(shown.roleUuid)
+            return (
+              <li key={i} className={i === 4 ? 'col-span-2 mx-auto w-1/2 sm:col-span-1 sm:w-full' : ''}>
+                <Link
+                  href={`/agents/${a.uuid}`}
+                  aria-disabled={!done}
+                  className={`card block p-2 ${done ? 'card-hover animate-fade-in' : 'pointer-events-none'} ${['-rotate-1', 'rotate-1', '-rotate-2', 'rotate-2', 'rotate-0'][i]}`}
+                >
+                  <div className="relative aspect-square overflow-hidden rounded-md" style={{ background: shown.color }}>
+                    <img src={shown.icon} alt={done ? a.name : ''} className={`h-full w-full object-cover ${done ? '' : 'blur-[1px]'}`} />
+                  </div>
+                  <div className="flex items-center gap-1.5 px-1 pt-2">
+                    {role && <img src={role.icon} alt={role.name} title={role.name} className="h-4 w-4 invert" />}
+                    <p className="truncate py-0.5 font-display text-lg leading-normal font-bold">{done ? a.name : '???'}</p>
+                  </div>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
     </div>
   )
 }
