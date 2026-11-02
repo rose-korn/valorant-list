@@ -135,7 +135,7 @@ export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles:
                     <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${on ? '' : 'bg-ink'}`}>
                       <img src={role.icon} alt="" className="h-4 w-4" />
                     </span>
-                    <span className="truncate">{role.name}</span>
+                    <span className="truncate py-0.5 leading-normal">{role.name}</span>
                   </button>
                 )
               })}
@@ -273,7 +273,7 @@ function Wheel({ pool, onChange }: { pool: Agent[]; onChange: (s: { result: Agen
         {pointed ? (
           <div className="flex max-w-xs items-center gap-2 rounded-xl border-2 border-ink bg-night px-4 py-1.5 text-paper shadow-[3px_4px_0_var(--color-ink)]">
             <img src={pointed.icon} alt="" className="h-9 w-9 rounded-md" style={{ background: pointed.color }} />
-            <span className={`truncate font-display text-2xl font-bold ${spinning ? '' : 'text-mustard'}`}>{pointed.name}</span>
+            <span className={`truncate py-0.5 font-display text-2xl leading-normal font-bold ${spinning ? '' : 'text-mustard'}`}>{pointed.name}</span>
           </div>
         ) : (
           !pool.length && <p className="hand text-xl">{r.tooFew(1)}</p>
@@ -357,7 +357,7 @@ function ResultSlot({ result, spinning }: { result: Agent | null; spinning: bool
       </div>
       <div className="min-w-0">
         <p className="hand text-lg">{r.youGot}</p>
-        <p className="truncate font-display text-3xl font-bold">{done ? result.name : spinning ? r.spinning : '???'}</p>
+        <p className="truncate py-0.5 font-display text-3xl leading-normal font-bold">{done ? result.name : spinning ? r.spinning : '???'}</p>
         {done && (
           <Link href={`/agents/${result.uuid}`} className="mt-1 inline-block text-sm font-semibold text-ink-soft underline decoration-2 underline-offset-4 hover:text-ink">
             {r.view}
@@ -453,7 +453,7 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
                     </div>
                     <div className="flex items-center gap-1.5 px-1 pt-2">
                       {role && <img src={role.icon} alt={role.name} title={role.name} className="h-4 w-4 invert" />}
-                      <p className="truncate font-display text-lg font-bold">{done ? a.name : '???'}</p>
+                      <p className="truncate py-0.5 font-display text-lg leading-normal font-bold">{done ? a.name : '???'}</p>
                     </div>
                   </Link>
                 </li>
