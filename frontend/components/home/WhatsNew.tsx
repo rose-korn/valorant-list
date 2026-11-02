@@ -69,7 +69,7 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
           <div>
             <h2 className="flex flex-wrap items-center gap-3 font-display text-3xl font-bold sm:text-4xl">
               {h.newTitle}
-              <NewBadge label={t.agents.newBadge} className="text-base" />
+              <NewBadge label="NEW" className="text-base" />
             </h2>
             <p className="hand mt-1 -rotate-1 text-lg">{h.newNote}</p>
           </div>
