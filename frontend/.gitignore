@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# สร้างตอน build (scripts/first-seen.mjs)
+/public/first-seen.json

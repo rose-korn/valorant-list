@@ -1,10 +1,12 @@
 'use client'
 
 import Link from '@/components/Link'
-import { useMemo, useState, useSyncExternalStore } from 'react'
+import { useMemo, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { FilterBar, FilterButton, SearchInput } from '@/components/Filters'
 import { useI18n } from '@/components/LangProvider'
+import { NewBadge } from '@/components/ui'
+import { useNow } from '@/components/useNow'
 import { isNewAgent } from '@/lib/valorant'
 
 export interface AgentCard {
@@ -25,8 +27,6 @@ export interface AgentCard {
 type View = 'grid' | 'list'
 
 const hex = (raw: string | undefined, fallback: string) => (raw ? `#${raw.slice(0, 6)}` : fallback)
-const LOADED_AT = Date.now()
-const noop = () => () => {}
 const tilt = ['-rotate-1', 'rotate-1', 'rotate-0', '-rotate-[0.5deg]', 'rotate-[1.5deg]']
 
 export default function AgentsClient({
@@ -50,7 +50,7 @@ export default function AgentsClient({
   const [query, setQuery] = useState('')
 
   // เว็บเป็น static — เริ่มจากเวลาตอน build (ให้ตรงกับ HTML) แล้วค่อยใช้เวลาจริง ป้ายใหม่จะได้หมดอายุเองโดยไม่ต้อง build ใหม่
-  const now = useSyncExternalStore(noop, () => LOADED_AT, () => builtAt)
+  const now = useNow(builtAt)
 
   const changeView = (v: View) => {
     setView(v)
@@ -175,16 +175,6 @@ export default function AgentsClient({
 
       {list.length === 0 && <p className="hand py-16 text-center text-xl">{t.common.noResult}</p>}
     </>
-  )
-}
-
-function NewBadge({ label, className = '' }: { label: string; className?: string }) {
-  return (
-    <span
-      className={`-rotate-6 rounded-md border-2 border-ink bg-red px-2 py-0.5 font-display text-sm font-bold uppercase tracking-wide text-white shadow-[2px_3px_0_var(--color-ink)] ${className}`}
-    >
-      {label}
-    </span>
   )
 }
 

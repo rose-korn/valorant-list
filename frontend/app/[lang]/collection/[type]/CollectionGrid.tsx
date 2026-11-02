@@ -5,11 +5,14 @@ import { SearchInput, SortSwitch } from '@/components/Filters'
 import Modal from '@/components/Modal'
 import Viewer3D from '@/components/three/Viewer3D'
 import { useI18n } from '@/components/LangProvider'
+import { NewBadge } from '@/components/ui'
+import { useNow } from '@/components/useNow'
+import { isNewDay } from '@/lib/valorant'
 import type { CollectionItem, CollectionKind } from '../data'
 
 const PAGE = 48
 
-export default function CollectionGrid({ kind, items }: { kind: CollectionKind; items: CollectionItem[] }) {
+export default function CollectionGrid({ kind, items, builtAt }: { kind: CollectionKind; items: CollectionItem[]; builtAt: number }) {
   const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<'new' | 'old' | 'az'>('new')
@@ -17,6 +20,7 @@ export default function CollectionGrid({ kind, items }: { kind: CollectionKind; 
   const [open, setOpen] = useState<CollectionItem | null>(null)
   const [mode, setMode] = useState<'3d' | '2d'>('3d')
   const close = useCallback(() => setOpen(null), [])
+  const now = useNow(builtAt)
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -69,7 +73,8 @@ export default function CollectionGrid({ kind, items }: { kind: CollectionKind; 
       ) : (
         <ul className={`grid gap-3 ${kind === 'cards' ? 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8' : 'grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8'}`}>
           {list.slice(0, shown).map((item) => (
-            <li key={item.uuid}>
+            <li key={item.uuid} className="relative">
+              {isNewDay(item.seen, now) && <NewBadge label={t.agents.newBadge} className="pointer-events-none absolute -top-2 -left-1 z-10 !px-1.5 !text-xs" />}
               <button
                 onClick={() => {
                   setOpen(item)

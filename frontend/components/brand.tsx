@@ -17,6 +17,7 @@ export const NAV_LINKS = [
 export const FUN_LINKS = [
   { href: '/share', key: 'share', emoji: '✨' },
   { href: '/play', key: 'play', emoji: '🎯' },
+  { href: '/random', key: 'random', emoji: '🎲' },
 ] as const
 
 const MARK = markSvg()

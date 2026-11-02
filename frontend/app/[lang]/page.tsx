@@ -3,15 +3,20 @@ import PaperScene from '@/components/three/PaperScene'
 import Viewer3D from '@/components/three/Viewer3D'
 import Reveal from '@/components/Reveal'
 import HScroller from '@/components/HScroller'
-import { Arrow, Scribble, Star } from '@/components/brand'
+import { Scribble, Star } from '@/components/brand'
 import { Container, SectionHeading } from '@/components/ui'
 import { getI18n } from '@/lib/i18n-server'
-import { agentColor, dayIndex, groupByRole, isCompetitiveMap, isRealSkin, latestTiers } from '@/lib/valorant'
+import { agentColor, groupByRole, isCompetitiveMap, isRealSkin, latestTiers } from '@/lib/valorant'
+import { DailyAgentCard, DailyPicks, DailyShareCard } from '@/components/home/Daily'
+import WhatsNew from '@/components/home/WhatsNew'
+import { BUILT_AT } from '@/lib/first-seen'
+import { dailyPlan, newItems } from '@/lib/home-data'
 import {
   getAgents,
   getBundles,
   getBuddies,
   getCompetitiveTiers,
+  getContentTiers,
   getMaps,
   getPlayerCards,
   getSprays,
@@ -24,7 +29,7 @@ const tilt = (i: number) => ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'][i
 export default async function HomePage({ params }: PageProps<'/[lang]'>) {
   const { lang, t } = await getI18n(params)
   const h = t.home
-  const [agents, maps, weapons, bundles, tiers, cards, sprays, buddies, version] = await Promise.all([
+  const [agents, maps, weapons, bundles, tiers, cards, sprays, buddies, version, contentTiers] = await Promise.all([
     getAgents(lang),
     getMaps(lang),
     getWeapons(lang),
@@ -34,10 +39,13 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
     getSprays(lang),
     getBuddies(lang),
     getVersion(lang),
+    getContentTiers(lang),
   ])
 
-  // เปลี่ยนเอเจนท์เด่นทุกวัน
-  const featured = agents.length ? agents[dayIndex() % agents.length] : null
+  // ของประจำวัน: คำนวณล่วงหน้าไว้หลายวัน ฝั่ง client เลือกของวันนี้เอง (เปลี่ยนทุกเที่ยงคืนเวลาไทยโดยไม่ต้อง build ใหม่)
+  const daily = dailyPlan({ agents, weapons, maps, cards, tiers: contentTiers })
+  const fresh = newItems({ agents, weapons, maps, bundles, cards, sprays, buddies })
+  const patch = version ? version.version.split('.').slice(0, 2).join('.') : null
   const compMaps = maps.filter(isCompetitiveMap)
   const skinCount = weapons.reduce((n, w) => n + w.skins.filter(isRealSkin).length, 0)
   const vandal = weapons.find((w) => w.displayName.toLowerCase() === 'vandal') ?? weapons.find((w) => w.category.endsWith('Rifle'))
@@ -55,7 +63,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
         <Container className="relative grid items-center gap-14 py-12 md:py-20 lg:grid-cols-[1.15fr_1fr]">
           <div>
             <span className="chip animate-fade-up">
-              🛠️ {h.chip}{version ? ` · patch ${version.version.split('.').slice(0, 2).join('.')}` : ''}
+              🛠️ {h.chip}{patch ? ` · patch ${patch}` : ''}
             </span>
             <h1 className="mt-5 animate-fade-up text-5xl leading-[1.1] font-bold [animation-delay:80ms] sm:text-6xl lg:text-7xl">
               {h.titleA}{' '}
@@ -85,32 +93,18 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
             </div>
           </div>
 
-          {featured && (
-            <Link href={`/agents/${featured.uuid}`} className="group relative mx-auto block w-full max-w-xs animate-fade-up [animation-delay:200ms] sm:max-w-sm">
-              <div className="card tape relative rotate-2 p-3 transition-transform group-hover:rotate-0">
-                <div className="relative aspect-[4/5] overflow-hidden rounded-lg" style={{ background: agentColor(featured) }}>
-                  {featured.background && (
-                    <img src={featured.background} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30 mix-blend-multiply" />
-                  )}
-                  {featured.fullPortrait && (
-                    <img
-                      src={featured.fullPortrait}
-                      alt={featured.displayName}
-                      className="absolute inset-0 h-full w-full scale-125 object-cover object-top transition-transform duration-500 group-hover:scale-[1.3]"
-                    />
-                  )}
-                </div>
-                <div className="flex items-baseline justify-between px-1 pt-3">
-                  <p className="font-display text-2xl font-bold">{featured.displayName}</p>
-                  <p className="text-sm text-ink-soft">{featured.role?.displayName}</p>
-                </div>
-              </div>
-              <p className="hand absolute -top-11 left-0 flex -rotate-6 items-end gap-1 text-xl sm:-left-10">
-                {h.agentOfDay}
-                <Arrow className="h-8 w-10 rotate-[25deg]" />
-              </p>
-            </Link>
-          )}
+          <DailyAgentCard plan={daily} />
+        </Container>
+      </section>
+
+      {/* ================= มีอะไรใหม่ ================= */}
+      <WhatsNew items={fresh} builtAt={BUILT_AT} patch={patch} />
+
+      {/* ================= ของประจำวัน ================= */}
+      <section className="pt-16 md:pt-20">
+        <Container>
+          <SectionHeading title={h.dailyTitle} note={h.dailyNote} />
+          <DailyPicks plan={daily} />
         </Container>
       </section>
 
@@ -164,16 +158,8 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       <section className="pb-16 md:pb-20">
         <Container>
           <SectionHeading title={h.funTitle} note={h.funNote} />
-          <div className="grid gap-6 md:grid-cols-2">
-            <Link href={featured ? `/share?a=${featured.uuid}` : '/share'} className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-[#ffd3d6] p-6 -rotate-1">
-              <span className="text-4xl">✨</span>
-              <h3 className="mt-2 max-w-[60%] text-3xl font-bold">{h.shareTitle}</h3>
-              <p className="mt-2 max-w-[60%] text-ink/75">{h.shareDesc}</p>
-              <span className="btn mt-auto self-start">{h.shareCta}</span>
-              {featured?.fullPortrait && (
-                <img src={featured.fullPortrait} alt="" className="pointer-events-none absolute -right-10 -bottom-6 h-[115%] w-auto rotate-6 object-contain sticker" />
-              )}
-            </Link>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <DailyShareCard plan={daily} />
             <Link href="/play" className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-night p-6 text-paper rotate-1">
               <span className="text-4xl">🎯</span>
               <h3 className="mt-2 text-3xl font-bold">{h.playTitle}</h3>
@@ -185,6 +171,21 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
                 <circle cx="50" cy="50" r="14" fill="#ece8e1" stroke="#1d1f24" strokeWidth="4" />
                 <circle cx="50" cy="50" r="5" fill="#ff4654" />
               </svg>
+            </Link>
+            <Link href="/random" className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-sky p-6 -rotate-1 md:col-span-2 lg:col-span-1">
+              <span className="text-4xl">🎲</span>
+              <h3 className="mt-2 text-3xl font-bold">{h.randomTitle}</h3>
+              <p className="mt-2 max-w-[70%] text-ink/75">{h.randomDesc}</p>
+              <span className="btn mt-auto self-start">{h.randomCta}</span>
+              <div className="pointer-events-none absolute -right-8 -bottom-8 h-40 w-40 animate-[spin_14s_linear_infinite]" aria-hidden>
+                <div className="grid h-full w-full grid-cols-2 overflow-hidden rounded-full border-4 border-ink">
+                  {agents.slice(0, 4).map((a) => (
+                    <div key={a.uuid} style={{ background: agentColor(a) }}>
+                      <img src={a.displayIcon} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </Link>
           </div>
         </Container>
