@@ -14,8 +14,7 @@ export default function AbilityPanel({ abilities, color }: { abilities: Ability[
   const { t } = useI18n()
   const SLOT_LABEL = t.agents.slot
   const [active, setActive] = useState(0)
-  const current = abilities[active]
-  if (!current) return null
+  if (!abilities.length) return null
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
@@ -51,29 +50,42 @@ export default function AbilityPanel({ abilities, color }: { abilities: Ability[
         })}
       </div>
 
-      <div key={current.slot} className="card relative flex animate-fade-in flex-col overflow-hidden p-6 pt-8 md:p-8 md:pt-10">
+      {/* วางคำอธิบายทุกสกิลซ้อนกันในช่องเดียว (grid-area 1/1) แล้วโชว์แค่อันที่เลือก
+          กล่องจะสูงเท่าคำอธิบายที่ยาวที่สุดตลอด กดสลับสกินแล้วหน้าไม่ยืด ๆ หด ๆ */}
+      <div className="card relative grid overflow-hidden p-6 pt-8 md:p-8 md:pt-10">
         {/* แถบสีเอเจนท์ด้านบน — ตกแต่งอย่างเดียว ไม่มีตัวหนังสือทับ */}
         <span aria-hidden className="absolute inset-x-0 top-0 h-2.5 border-b-2 border-ink" style={{ background: color }} />
-        <div className="flex items-center gap-4">
-          <span className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-ink">
-            {current.displayIcon ? (
-              <img src={current.displayIcon} alt="" className="h-10 w-10 object-contain" />
-            ) : (
-              <span className="font-display text-2xl font-bold text-paper">P</span>
-            )}
-            <kbd className="absolute -right-2 -bottom-2 flex h-7 min-w-7 items-center justify-center rounded-lg border-2 border-ink bg-mustard px-1.5 font-display text-base font-bold text-ink">
-              {KEYBIND[current.slot] ?? '—'}
-            </kbd>
-          </span>
-          <div>
-            <p className="text-sm text-ink-soft">
-              {t.agents.key} {KEYBIND[current.slot] ?? '—'} · {SLOT_LABEL[current.slot] ?? current.slot}
-            </p>
-            <h3 className="text-3xl font-bold">{current.displayName}</h3>
-          </div>
-        </div>
-        <p className="mt-5 text-lg leading-relaxed whitespace-pre-line text-ink/85">{current.description}</p>
-        {current.slot === 'Ultimate' && <p className="hand mt-4 -rotate-1 text-lg">{t.agents.ultNote}</p>}
+        {abilities.map((a, i) => {
+          const on = i === active
+          return (
+            <div
+              key={a.slot}
+              aria-hidden={!on}
+              className={`[grid-area:1/1] flex flex-col transition-opacity duration-200 ${on ? 'opacity-100' : 'invisible opacity-0'}`}
+            >
+              <div className="flex items-center gap-4">
+                <span className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-ink">
+                  {a.displayIcon ? (
+                    <img src={a.displayIcon} alt="" className="h-10 w-10 object-contain" />
+                  ) : (
+                    <span className="font-display text-2xl font-bold text-paper">P</span>
+                  )}
+                  <kbd className="absolute -right-2 -bottom-2 flex h-7 min-w-7 items-center justify-center rounded-lg border-2 border-ink bg-mustard px-1.5 font-display text-base font-bold text-ink">
+                    {KEYBIND[a.slot] ?? '—'}
+                  </kbd>
+                </span>
+                <div>
+                  <p className="text-sm text-ink-soft">
+                    {t.agents.key} {KEYBIND[a.slot] ?? '—'} · {SLOT_LABEL[a.slot] ?? a.slot}
+                  </p>
+                  <h3 className="text-3xl font-bold">{a.displayName}</h3>
+                </div>
+              </div>
+              <p className="mt-5 text-lg leading-relaxed whitespace-pre-line text-ink/85">{a.description}</p>
+              {a.slot === 'Ultimate' && <p className="hand mt-4 -rotate-1 text-lg">{t.agents.ultNote}</p>}
+            </div>
+          )
+        })}
       </div>
     </div>
   )
