@@ -9,6 +9,7 @@ const STYLE: Record<string, string> = {
   whitebold: 'font-semibold text-ink',
   bold: 'font-semibold text-ink',
   teal: 'font-semibold text-blue',
+  debuffred: 'font-semibold text-red-ink',
   blue: 'font-semibold text-blue',
   red: 'font-semibold text-red-ink',
   yellow: 'font-semibold text-red-ink',
