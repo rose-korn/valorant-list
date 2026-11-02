@@ -338,29 +338,28 @@ function Wheel({ pool, onChange }: { pool: Agent[]; onChange: (s: { result: Agen
   )
 }
 
-/** กรอบรูปเอเจนท์บนแผงขวา: ก่อนหมุนเป็น "?" ระหว่างหมุนกะพริบรอ หมุนเสร็จโชว์ตัวที่ได้แบบใหญ่ */
+/** กรอบผลลัพธ์บนแผงขวา: รูปอยู่ซ้าย ชื่อ + ลิงก์ดูสกิลอยู่ขวา ก่อนหมุนเป็น "?" ระหว่างหมุนกะพริบรอ */
 function ResultSlot({ result, spinning }: { result: Agent | null; spinning: boolean }) {
   const { t } = useI18n()
   const r = t.random
+  const done = result && !spinning
   return (
-    <div aria-live="polite" className="card tape relative -rotate-1 p-3">
-      <p className="hand px-1 text-xl">{r.youGot}</p>
+    <div aria-live="polite" className="card flex items-center gap-4 p-3">
       <div
-        className="relative mt-2 aspect-[4/3] overflow-hidden rounded-lg border-2 border-ink bg-night"
-        style={result && !spinning ? { background: result.color } : undefined}
+        className="relative h-28 w-28 shrink-0 overflow-hidden rounded-lg border-2 border-ink bg-night sm:h-32 sm:w-32"
+        style={done ? { background: result.color } : undefined}
       >
-        {result && !spinning ? (
-          result.portrait && (
-            <img key={result.uuid} src={result.portrait} alt={result.name} className="absolute inset-0 h-full w-full animate-fade-in scale-[1.6] object-cover object-[50%_18%]" />
-          )
+        {done ? (
+          <img key={result.uuid} src={result.icon} alt={result.name} className="h-full w-full animate-fade-in object-cover" />
         ) : (
-          <span className={`absolute inset-0 flex items-center justify-center font-display text-8xl font-bold text-paper/80 ${spinning ? 'animate-pulse' : ''}`}>?</span>
+          <span className={`absolute inset-0 flex items-center justify-center font-display text-6xl font-bold text-paper/80 ${spinning ? 'animate-pulse' : ''}`}>?</span>
         )}
       </div>
-      <div className="flex min-h-[3.25rem] flex-wrap items-center justify-between gap-2 px-1 pt-3">
-        <p className="font-display text-3xl font-bold">{result && !spinning ? result.name : spinning ? r.spinning : '???'}</p>
-        {result && !spinning && (
-          <Link href={`/agents/${result.uuid}`} className="btn btn-paper !py-1.5 text-sm">
+      <div className="min-w-0">
+        <p className="hand text-lg">{r.youGot}</p>
+        <p className="truncate font-display text-3xl font-bold">{done ? result.name : spinning ? r.spinning : '???'}</p>
+        {done && (
+          <Link href={`/agents/${result.uuid}`} className="mt-1 inline-block text-sm font-semibold text-ink-soft underline decoration-2 underline-offset-4 hover:text-ink">
             {r.view}
           </Link>
         )}
