@@ -59,6 +59,18 @@ function subscribe(l: () => void) {
   }
 }
 
+// ผลสุ่มล่าสุด เก็บไว้ในหน่วยความจำของหน้าเว็บ (ไม่ใช่ localStorage)
+// เปลี่ยนไปหน้าอื่นในเว็บแล้วกลับมาผลยังอยู่ รีเฟรชหน้าเมื่อไหร่ก็หายเอง
+const memory: {
+  mode: 'single' | 'team'
+  roleOn: string[] | null
+  single: Agent | null
+  angle: number
+  team: Agent[]
+  balanced: boolean
+} = { mode: 'single', roleOn: null, single: null, angle: 0, team: [], balanced: true }
+const remember = (patch: Partial<typeof memory>) => Object.assign(memory, patch)
+
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const randInt = (n: number) => Math.floor(Math.random() * n)
 
@@ -74,10 +86,20 @@ function shuffle<T>(list: T[]) {
 export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles: Role[] }) {
   const { t } = useI18n()
   const r = t.random
-  const [mode, setMode] = useState<'single' | 'team'>('single')
+  const [mode, setModeState] = useState<'single' | 'team'>(() => memory.mode)
+  const setMode = (m: 'single' | 'team') => {
+    remember({ mode: m })
+    setModeState(m)
+  }
   // ผลของวงล้อ (โชว์ในช่องรูปใหญ่บนแผงขวา)
-  const [spin, setSpin] = useState<{ result: Agent | null; spinning: boolean }>({ result: null, spinning: false })
-  const [roleOn, setRoleOn] = useState<string[]>(() => roles.map((x) => x.uuid))
+  const [spin, setSpin] = useState<{ result: Agent | null; spinning: boolean }>(() => ({ result: memory.single, spinning: false }))
+  const [roleOn, setRoleOnState] = useState<string[]>(() => memory.roleOn ?? roles.map((x) => x.uuid))
+  const setRoleOn = (f: (on: string[]) => string[]) =>
+    setRoleOnState((on) => {
+      const next = f(on)
+      remember({ roleOn: next })
+      return next
+    })
 
   const excludedRaw = useSyncExternalStore(subscribe, readExcluded, () => '')
   const excluded = useMemo(() => new Set(excludedRaw.split(',').filter(Boolean)), [excludedRaw])
@@ -196,10 +218,11 @@ function currentAngle(el: Element) {
 function Wheel({ pool, onChange }: { pool: Agent[]; onChange: (s: { result: Agent | null; spinning: boolean }) => void }) {
   const { t } = useI18n()
   const r = t.random
-  const [angle, setAngle] = useState(0)
-  const [duration, setDuration] = useState(SPIN_MS)
+  // กลับมาหน้านี้อีกรอบ: วงล้อหยุดค้างที่ผลเดิม (ไม่ต้องหมุนให้ดู)
+  const [angle, setAngle] = useState(() => memory.angle)
+  const [duration, setDuration] = useState(0)
   const [spinning, setSpinning] = useState(false)
-  const [result, setResult] = useState<Agent | null>(null)
+  const [result, setResult] = useState<Agent | null>(() => memory.single)
   // ช่องที่อยู่ใต้เข็มตอนนี้ (อัปเดตทุกเฟรมระหว่างหมุน) ไว้โชว์ชื่อตัวที่กำลังผ่าน
   const [under, setUnder] = useState<number | null>(null)
   // วงล้อที่โชว์อยู่: ล็อกไว้ระหว่างหมุน (กันวงล้อเปลี่ยนกลางทาง)
@@ -239,6 +262,8 @@ function Wheel({ pool, onChange }: { pool: Agent[]; onChange: (s: { result: Agen
     setSpinning(true)
     setResult(null)
     onChange({ result: null, spinning: true })
+    remember({ single: list[idx] })
+    remember({ angle: base + (360 - center) })
     clearTimeout(timer.current)
     cancelAnimationFrame(frame.current)
 
@@ -338,6 +363,30 @@ function Wheel({ pool, onChange }: { pool: Agent[]; onChange: (s: { result: Agen
   )
 }
 
+/** ปุ่มแชร์ผลสุ่ม: มือถือเปิดเมนูแชร์ของเครื่อง คอมคัดลอกข้อความ + ลิงก์ */
+function ShareButton({ text, className = '' }: { text: string; className?: string }) {
+  const { lang, t } = useI18n()
+  const [copied, setCopied] = useState(false)
+  const share = async () => {
+    const url = `${window.location.origin}/${lang}/random`
+    try {
+      if (navigator.share) await navigator.share({ text, url })
+      else {
+        await navigator.clipboard.writeText(`${text} ${url}`)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 1800)
+      }
+    } catch {
+      // ยกเลิกการแชร์ / clipboard ใช้ไม่ได้
+    }
+  }
+  return (
+    <button onClick={share} className={`btn btn-paper !py-1.5 text-sm ${className}`}>
+      📤 {copied ? t.random.copied : t.random.share}
+    </button>
+  )
+}
+
 /** กรอบผลลัพธ์บนแผงขวา: รูปอยู่ซ้าย ชื่อ + ลิงก์ดูสกิลอยู่ขวา ก่อนหมุนเป็น "?" ระหว่างหมุนกะพริบรอ */
 function ResultSlot({ result, spinning }: { result: Agent | null; spinning: boolean }) {
   const { t } = useI18n()
@@ -359,9 +408,12 @@ function ResultSlot({ result, spinning }: { result: Agent | null; spinning: bool
         <p className="hand text-lg">{r.youGot}</p>
         <p className="truncate py-0.5 font-display text-3xl leading-normal font-bold">{done ? result.name : spinning ? r.spinning : '???'}</p>
         {done && (
-          <Link href={`/agents/${result.uuid}`} className="mt-1 inline-block text-sm font-semibold text-ink-soft underline decoration-2 underline-offset-4 hover:text-ink">
-            {r.view}
-          </Link>
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <Link href={`/agents/${result.uuid}`} className="text-sm font-semibold text-ink-soft underline decoration-2 underline-offset-4 hover:text-ink">
+              {r.view}
+            </Link>
+            <ShareButton text={r.shareSingle(result.name)} />
+          </div>
         )}
       </div>
     </div>
@@ -373,8 +425,12 @@ function ResultSlot({ result, spinning }: { result: Agent | null; spinning: bool
 function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleOn: string[] }) {
   const { t } = useI18n()
   const r = t.random
-  const [balanced, setBalanced] = useState(true)
-  const [team, setTeam] = useState<Agent[]>([])
+  const [balanced, setBalancedState] = useState(() => memory.balanced)
+  const setBalanced = (v: boolean) => {
+    remember({ balanced: v })
+    setBalancedState(v)
+  }
+  const [team, setTeam] = useState<Agent[]>(() => memory.team)
   // จำนวนช่องที่หยุดหมุนแล้ว (ช่องที่ยังไม่หยุดจะสลับรูปไปเรื่อย ๆ)
   const [stopped, setStopped] = useState(TEAM)
   const [tick, setTick] = useState(0)
@@ -409,6 +465,7 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
     }
     timers.current.forEach(clearTimeout)
     setTeam(picked)
+    remember({ team: picked })
     if (reducedMotion()) {
       setStopped(TEAM)
       return
@@ -480,6 +537,11 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
             )
           })}
         </ul>
+        {team.length > 0 && !rolling && (
+          <div className="mt-5 flex justify-center">
+            <ShareButton text={r.shareTeam(team.map((a) => a.name))} />
+          </div>
+        )}
       </div>
     </div>
   )

@@ -447,6 +447,10 @@ const th = {
     teamResult: 'ทีมของคุณ',
     view: 'ดูสกิลตัวนี้ →',
     tooFew: (n: number) => `ต้องเหลืออย่างน้อย ${n} ตัวให้สุ่ม`,
+    share: 'แชร์ให้เพื่อน',
+    copied: 'คัดลอกลิงก์แล้ว!',
+    shareSingle: (name: string) => `สุ่มได้ ${name} 🎲 ตาหน้าเล่นตัวนี้แหละ ใครจะสุ่มบ้าง`,
+    shareTeam: (names: string[]) => `ทีมที่สุ่มได้ 🎲 ${names.join(' / ')} ใครเอาตัวไหน`,
   },
   beat: {
     tab: 'Spike Beat',
@@ -916,6 +920,10 @@ const en: Dict = {
     teamResult: 'Your team',
     view: 'See abilities →',
     tooFew: (n: number) => `Need at least ${n} agents in the draw`,
+    share: 'Share with friends',
+    copied: 'Link copied!',
+    shareSingle: (name: string) => `Rolled ${name} 🎲 playing this one next. Your turn`,
+    shareTeam: (names: string[]) => `Our random team 🎲 ${names.join(' / ')} who takes who?`,
   },
   beat: {
     tab: 'Spike Beat',
