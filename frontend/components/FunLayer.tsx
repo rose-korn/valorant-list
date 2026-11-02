@@ -47,7 +47,7 @@ export function FxToggle() {
       aria-pressed={on}
       className="inline-flex items-center gap-2 rounded-full border-2 border-paper/25 px-3 py-1 text-sm text-paper/80 transition-colors hover:border-mustard hover:text-mustard"
     >
-      ✨ {t.fx.toggle}: <b>{on ? t.fx.on : t.fx.off}</b>
+      {t.fx.toggle}: <b>{on ? t.fx.on : t.fx.off}</b>
     </button>
   )
 }
@@ -130,7 +130,7 @@ function KillFeed() {
   const { t } = useI18n()
   const pathname = useBarePath()
   const [prev, setPrev] = useState({ path: pathname, seq: 0 })
-  const [feed, setFeed] = useState<{ id: number; to: string; emoji: string }[]>([])
+  const [feed, setFeed] = useState<{ id: number; to: string }[]>([])
 
   // เปลี่ยนหน้าเมื่อไหร่ เพิ่มรายการใหม่ (ปรับ state ระหว่าง render ตามแนวทางของ React แทนการใช้ effect)
   if (prev.path !== pathname) {
@@ -138,7 +138,7 @@ function KillFeed() {
     setPrev({ path: pathname, seq })
     const link = LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`))
     const to = link ? t.nav[link.key] : t.nav.home
-    setFeed((f) => [...f.slice(-2), { id: seq, to, emoji: link?.emoji ?? '🏠' }])
+    setFeed((f) => [...f.slice(-2), { id: seq, to }])
   }
 
   // ลบรายการเก่าทีละอันหลังโชว์ ~2.8 วิ
@@ -155,12 +155,12 @@ function KillFeed() {
           key={f.id}
           className="flex animate-[feed-in_.35s_cubic-bezier(.2,.7,.2,1)_both] items-center gap-2 rounded-md border-2 border-red bg-night/90 px-2.5 py-1 text-sm text-paper shadow-[2px_3px_0_var(--color-ink)]"
         >
-          <span className="font-display font-bold text-teal">{t.fx.you}</span>
+          <span className="font-display font-bold text-mustard">{t.fx.you}</span>
           <svg viewBox="0 0 40 16" className="h-3.5 w-9 fill-paper" aria-hidden>
             <path d="M2 6h24l4-3h8v4h-6l-2 3h-6l-1 4h-4l1-4H2z" />
           </svg>
           <span className="font-display font-bold">
-            {f.emoji} {f.to}
+            {f.to}
           </span>
         </div>
       ))}

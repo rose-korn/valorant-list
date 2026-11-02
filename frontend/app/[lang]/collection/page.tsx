@@ -10,8 +10,7 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/collection
   return { title: t.collection.title }
 }
 
-const EMOJI: Record<CollectionKind, string> = { cards: '🃏', sprays: '🎨', buddies: '🔑', titles: '🏷️' }
-const BG: Record<CollectionKind, string> = { cards: '!bg-card', sprays: '!bg-mustard', buddies: '!bg-[#bfe8df]', titles: '!bg-[#ffd3d6]' }
+const BG: Record<CollectionKind, string> = { cards: '!bg-card', sprays: '!bg-pink', buddies: '!bg-sky', titles: '!bg-paper-2' }
 
 export default async function CollectionPage({ params }: PageProps<'/[lang]/collection'>) {
   const { lang, t } = await getI18n(params)
@@ -36,7 +35,7 @@ export default async function CollectionPage({ params }: PageProps<'/[lang]/coll
             return (
               <Reveal key={k} delay={i * 70}>
                 <Link href={`/collection/${k}`} className={`card card-hover relative flex h-full min-h-56 flex-col overflow-hidden p-6 ${BG[k]} ${i % 2 ? 'rotate-[0.6deg]' : '-rotate-[0.6deg]'}`}>
-                  <span className="text-4xl">{EMOJI[k]}</span>
+                  <span className="font-poster text-4xl text-blue">{String(i + 1).padStart(2, '0')}</span>
                   <h2 className="mt-3 text-3xl font-bold">{c.kinds[k][0]}</h2>
                   <p className="mt-1 max-w-[16rem] text-ink-soft">{c.kinds[k][1]}</p>
                   <p className="mt-auto pt-4 font-display font-bold">{c.items(items.length)}</p>

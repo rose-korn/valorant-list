@@ -4,20 +4,20 @@ import { markSvg } from '@/lib/mark'
 
 // label ดึงจาก dict.nav ตามภาษา
 export const NAV_LINKS = [
-  { href: '/agents', key: 'agents', emoji: '🦸' },
-  { href: '/maps', key: 'maps', emoji: '🗺️' },
-  { href: '/weapons', key: 'weapons', emoji: '🔫' },
-  { href: '/ranks', key: 'ranks', emoji: '🏆' },
-  { href: '/battlepass', key: 'battlepass', emoji: '🎟️' },
-  { href: '/bundles', key: 'bundles', emoji: '🛍️' },
-  { href: '/collection', key: 'collection', emoji: '🃏' },
-  { href: '/modes', key: 'modes', emoji: '🎮' },
+  { href: '/agents', key: 'agents' },
+  { href: '/maps', key: 'maps' },
+  { href: '/weapons', key: 'weapons' },
+  { href: '/ranks', key: 'ranks' },
+  { href: '/battlepass', key: 'battlepass' },
+  { href: '/bundles', key: 'bundles' },
+  { href: '/collection', key: 'collection' },
+  { href: '/modes', key: 'modes' },
 ] as const
 
 export const FUN_LINKS = [
-  { href: '/share', key: 'share', emoji: '✨' },
-  { href: '/play', key: 'play', emoji: '🎯' },
-  { href: '/random', key: 'random', emoji: '🎲' },
+  { href: '/share', key: 'share' },
+  { href: '/play', key: 'play' },
+  { href: '/random', key: 'random' },
 ] as const
 
 const MARK = markSvg()
@@ -31,8 +31,8 @@ export function Logo({ className = '' }: { className?: string }) {
         className="block h-10 w-10 origin-bottom-left transition-transform duration-300 ease-[cubic-bezier(.3,1.6,.5,1)] group-hover:-translate-y-0.5 group-hover:rotate-[8deg] group-hover:scale-110 [&>svg]:h-full [&>svg]:w-full"
         dangerouslySetInnerHTML={{ __html: MARK }}
       />
-      <span className="font-display text-xl leading-none font-bold text-ink">
-        valo<span className="text-red-ink">list</span>
+      <span className="font-display text-xl leading-none font-extrabold tracking-tight text-ink">
+        valo<span className="riso">list.</span>
       </span>
     </span>
   )
@@ -70,6 +70,28 @@ export function Star({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 40 40" className={`pointer-events-none ${className}`} fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" aria-hidden>
       <path d="M20 4 L24 15 L36 16 L27 24 L30 36 L20 29 L10 36 L13 24 L4 16 L16 15 Z" />
+    </svg>
+  )
+}
+
+/** เป้าเล็งวาดเส้นหมึก (แบบบนโปสเตอร์) ใช้แทนอีโมจิ */
+export function Crosshair({ className = '', dot = 'var(--color-red)' }: { className?: string; dot?: string }) {
+  return (
+    <svg viewBox="0 0 100 100" className={`pointer-events-none ${className}`} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" aria-hidden>
+      <circle cx="50" cy="50" r="30" />
+      <circle cx="50" cy="50" r="16" strokeDasharray="7 6" />
+      <path d="M50 4v24M50 72v24M4 50h24M72 50h24" />
+      <circle cx="50" cy="50" r="4" fill={dot} stroke="none" />
+    </svg>
+  )
+}
+
+/** เครื่องหมายตัดกระดาษ (registration mark) ไว้ประดับมุม */
+export function RegMark({ className = '' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" className={`pointer-events-none ${className}`} fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
+      <circle cx="20" cy="20" r="9" />
+      <path d="M20 2v36M2 20h36" />
     </svg>
   )
 }

@@ -27,8 +27,8 @@ export default async function RandomPage({ params }: PageProps<'/[lang]/random'>
     .sort((a, b) => a.name.localeCompare(b.name))
 
   return (
-    <>
-      <PageHero en="Random agent" title={t.random.title} description={t.random.desc} note={t.random.note} />
+    <div className="fair">
+      <PageHero edition="fair" en="Random agent" title={t.random.title} description={t.random.desc} note={t.random.note} />
       <Container className="py-8 md:py-12">
         {slim.length ? (
           <RandomAgent agents={slim} roles={groups.map((g) => ({ uuid: g.uuid, name: g.role.displayName, icon: g.role.displayIcon }))} />
@@ -36,6 +36,6 @@ export default async function RandomPage({ params }: PageProps<'/[lang]/random'>
           <EmptyState text={t.common.empty} />
         )}
       </Container>
-    </>
+    </div>
   )
 }

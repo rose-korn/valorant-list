@@ -126,7 +126,7 @@ export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles:
             aria-pressed={mode === m}
             className={`px-4 py-2 font-display font-semibold transition-colors sm:px-6 ${mode === m ? 'bg-ink text-paper' : 'hover:bg-mustard/40'}`}
           >
-            {m === 'single' ? `🎡 ${r.single}` : `👥 ${r.team}`}
+            {m === 'single' ? r.single : r.team}
           </button>
         ))}
       </div>
@@ -382,7 +382,7 @@ function ShareButton({ text, className = '' }: { text: string; className?: strin
   }
   return (
     <button onClick={share} className={`btn btn-paper !py-1.5 text-sm ${className}`}>
-      📤 {copied ? t.random.copied : t.random.share}
+      {copied ? t.random.copied : t.random.share}
     </button>
   )
 }
@@ -487,7 +487,7 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-center gap-4">
         <button onClick={roll} disabled={rolling || !enough} className="btn text-lg disabled:cursor-not-allowed disabled:opacity-60">
-          🎲 {team.length ? r.again : r.roll}
+          {team.length ? r.again : r.roll}
         </button>
         <label className="flex cursor-pointer items-center gap-2 font-display font-semibold">
           <input type="checkbox" checked={balanced} onChange={(e) => setBalanced(e.target.checked)} className="h-5 w-5 accent-[#ff4654]" />

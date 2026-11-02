@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useI18n } from '@/components/LangProvider'
+import { Crosshair } from '@/components/brand'
 
 type Stage = 'easy' | 'normal' | 'hard'
 type Phase = 'idle' | 'countdown' | 'playing' | 'over'
@@ -420,7 +421,7 @@ export default function SpikeBeat({ ranks, agents }: { ranks: BeatRank[]; agents
           {b.best}: <b className="font-display">{best.toLocaleString()}</b>
         </span>
         <button onClick={toggleMute} className="chip ml-auto text-base hover:!bg-mustard/50">
-          {muted ? `🔇 ${b.unmute}` : `🔊 ${b.mute}`}
+          {muted ? b.unmute : b.mute}
         </button>
       </div>
 
@@ -481,8 +482,8 @@ export default function SpikeBeat({ ranks, agents }: { ranks: BeatRank[]; agents
 
         {phase === 'idle' && (
           <div className="absolute inset-0 flex overflow-y-auto p-3">
-            <div className="card m-auto w-full max-w-md -rotate-1 p-5 text-center">
-              <p className="text-5xl">🎹</p>
+            <div className="card m-auto w-full max-w-md p-5 text-center">
+              <Crosshair className="mx-auto h-14 w-14 text-ink" />
               <h2 className="mt-2 text-3xl font-bold">{b.title}</h2>
               <ul className="mt-3 space-y-1 text-left text-ink-soft">
                 {b.howTo.map((line) => (

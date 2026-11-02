@@ -14,12 +14,12 @@ export default async function PlayPage({ params }: PageProps<'/[lang]/play'>) {
   const ranks = await getRanks(lang)
 
   return (
-    <>
-      <PageHero en="Mini game" title={t.play.title} description={t.play.desc} note={t.play.note} />
+    <div className="fair">
+      <PageHero edition="fair" en="Mini game" title={t.play.title} description={t.play.desc} note={t.play.note} />
       <Container className="py-8 md:py-12">
         <GameTabs active="aim" t={t} />
         <AimRush ranks={ranks} />
       </Container>
-    </>
+    </div>
   )
 }
