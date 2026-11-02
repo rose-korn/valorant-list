@@ -16,9 +16,16 @@ export const NAV_LINKS = [
 
 export const FUN_LINKS = [
   { href: '/share', key: 'share' },
-  { href: '/play', key: 'play' },
+  // มินิเกมเปิดที่ Spike Beat ก่อน (Aim Rush อยู่แท็บที่สองที่ /play)
+  { href: '/play/beat', key: 'play' },
   { href: '/random', key: 'random' },
 ] as const
+
+/** ลิงก์นี้คือหน้าปัจจุบันไหม — มินิเกมนับทั้ง /play และ /play/beat */
+export function isLinkActive(pathname: string, href: string) {
+  const base = href.startsWith('/play') ? '/play' : href
+  return pathname === base || pathname.startsWith(`${base}/`)
+}
 
 const MARK = markSvg()
 

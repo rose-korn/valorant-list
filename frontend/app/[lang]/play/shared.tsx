@@ -24,8 +24,8 @@ export async function getStageAgents(lang: Lang) {
 /** แท็บสลับเกม — แต่ละเกมเป็นหน้าแยก (/play กับ /play/beat) */
 export function GameTabs({ active, t }: { active: 'aim' | 'beat'; t: Dict }) {
   const tabs = [
-    { key: 'aim', href: '/play', label: t.play.title, no: 'A' },
-    { key: 'beat', href: '/play/beat', label: t.beat.tab, no: 'B' },
+    { key: 'beat', href: '/play/beat', label: t.beat.tab, no: 'A' },
+    { key: 'aim', href: '/play', label: t.play.title, no: 'B' },
   ] as const
   return (
     <nav className="mx-auto mb-5 flex max-w-5xl gap-2" aria-label="games">

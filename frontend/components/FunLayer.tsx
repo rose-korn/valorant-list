@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { setFavicon } from '@/lib/favicon'
 import { useBarePath, useI18n } from './LangProvider'
-import { FUN_LINKS, NAV_LINKS } from './brand'
+import { FUN_LINKS, NAV_LINKS, isLinkActive } from './brand'
 
 // ================= เปิด/ปิดลูกเล่น (เก็บใน localStorage) =================
 const FX_KEY = 'valolist:fx'
@@ -136,7 +136,7 @@ function KillFeed() {
   if (prev.path !== pathname) {
     const seq = prev.seq + 1
     setPrev({ path: pathname, seq })
-    const link = LINKS.find((l) => pathname === l.href || pathname.startsWith(`${l.href}/`))
+    const link = LINKS.find((l) => isLinkActive(pathname, l.href))
     const to = link ? t.nav[link.key] : t.nav.home
     setFeed((f) => [...f.slice(-2), { id: seq, to }])
   }
