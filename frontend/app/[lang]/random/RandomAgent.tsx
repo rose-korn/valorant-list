@@ -5,7 +5,6 @@
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Link from '@/components/Link'
-import { FilterButton } from '@/components/Filters'
 import { useI18n } from '@/components/LangProvider'
 import { DUELIST_ROLE_UUID } from '@/lib/valorant'
 
@@ -76,6 +75,8 @@ export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles:
   const { t } = useI18n()
   const r = t.random
   const [mode, setMode] = useState<'single' | 'team'>('single')
+  // ผลของวงล้อ (โชว์ในช่องรูปใหญ่บนแผงขวา)
+  const [spin, setSpin] = useState<{ result: Agent | null; spinning: boolean }>({ result: null, spinning: false })
   const [roleOn, setRoleOn] = useState<string[]>(() => roles.map((x) => x.uuid))
 
   const excludedRaw = useSyncExternalStore(subscribe, readExcluded, () => '')
@@ -109,52 +110,67 @@ export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles:
       </div>
 
       {/* จอใหญ่: วงล้ออยู่ซ้าย แผงเลือกตัวอยู่ขวาติดกัน ปรับแล้วเห็นผลบนวงล้อทันทีไม่ต้องเลื่อนหา */}
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div>{mode === 'single' ? <Wheel pool={pool} /> : <TeamRoll pool={pool} roles={roles} roleOn={roleOn} />}</div>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)]">
+        <div>{mode === 'single' ? <Wheel pool={pool} onChange={setSpin} /> : <TeamRoll pool={pool} roles={roles} roleOn={roleOn} />}</div>
 
-        {/* ตั้งค่าการสุ่ม */}
-        <aside className="card p-4 sm:p-5 lg:sticky lg:top-24">
-          <p className="mb-2 font-display text-lg font-bold">{r.roles}</p>
-          <div className="flex flex-wrap gap-1.5">
-            {roles.map((role) => (
-              <FilterButton key={role.uuid} active={roleOn.includes(role.uuid)} onClick={() => toggleRole(role.uuid)}>
-                <span className={`flex h-5 w-5 items-center justify-center rounded-full ${roleOn.includes(role.uuid) ? '' : 'bg-ink'}`}>
-                  <img src={role.icon} alt="" className="h-3 w-3" />
-                </span>
-                {role.name}
-              </FilterButton>
-            ))}
-          </div>
-  
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm text-ink-soft">{r.pool(pool.length, inRoles.length)}</p>
-            {excluded.size > 0 && (
-              <button onClick={() => writeExcluded([])} className="btn btn-paper !px-3 !py-1 text-sm">
-                {r.selectAll}
-              </button>
-            )}
-          </div>
-          <ul className="mt-3 grid grid-cols-6 gap-1.5 sm:grid-cols-10 lg:grid-cols-6">
-            {inRoles.map((a) => {
-              const off = excluded.has(a.uuid)
-              return (
-                <li key={a.uuid}>
+        <aside className="space-y-4">
+          {/* ช่องผลลัพธ์: เตรียมกรอบรูปไว้ก่อน หมุนเสร็จแล้วเอเจนท์ที่ได้มาโผล่ในกรอบนี้ */}
+          {mode === 'single' && <ResultSlot result={spin.result} spinning={spin.spinning} />}
+
+          {/* ตั้งค่าการสุ่ม */}
+          <div className="card p-4 sm:p-5">
+            <p className="mb-2 font-display text-lg font-bold">{r.roles}</p>
+            <div className="grid grid-cols-2 gap-2">
+              {roles.map((role) => {
+                const on = roleOn.includes(role.uuid)
+                return (
                   <button
-                    onClick={() => toggleAgent(a.uuid)}
-                    aria-pressed={!off}
-                    title={a.name}
-                    className={`relative block aspect-square w-full overflow-hidden rounded-lg border-2 border-ink transition ${
-                      off ? 'opacity-35 grayscale' : 'hover:-translate-y-0.5 hover:-rotate-3'
+                    key={role.uuid}
+                    onClick={() => toggleRole(role.uuid)}
+                    aria-pressed={on}
+                    className={`flex items-center gap-2 rounded-xl border-2 border-ink px-3 py-2.5 font-display text-base font-bold transition-all ${
+                      on ? 'bg-ink text-paper' : 'bg-card text-ink-soft hover:-translate-y-0.5 hover:bg-mustard/40'
                     }`}
-                    style={{ background: a.color }}
                   >
-                    <img src={a.icon} alt={a.name} loading="lazy" className="h-full w-full object-cover" />
-                    {off && <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-ink">✕</span>}
+                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${on ? '' : 'bg-ink'}`}>
+                      <img src={role.icon} alt="" className="h-4 w-4" />
+                    </span>
+                    <span className="truncate">{role.name}</span>
                   </button>
-                </li>
-              )
-            })}
-          </ul>
+                )
+              })}
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm text-ink-soft">{r.pool(pool.length, inRoles.length)}</p>
+              {excluded.size > 0 && (
+                <button onClick={() => writeExcluded([])} className="btn btn-paper !px-3 !py-1 text-sm">
+                  {r.selectAll}
+                </button>
+              )}
+            </div>
+            <ul className="mt-3 grid grid-cols-5 gap-2 sm:grid-cols-8 lg:grid-cols-6">
+              {inRoles.map((a) => {
+                const off = excluded.has(a.uuid)
+                return (
+                  <li key={a.uuid}>
+                    <button
+                      onClick={() => toggleAgent(a.uuid)}
+                      aria-pressed={!off}
+                      title={a.name}
+                      className={`relative block aspect-square w-full overflow-hidden rounded-lg border-2 border-ink transition ${
+                        off ? 'opacity-35 grayscale' : 'hover:-translate-y-0.5 hover:-rotate-3'
+                      }`}
+                      style={{ background: a.color }}
+                    >
+                      <img src={a.icon} alt={a.name} loading="lazy" className="h-full w-full object-cover" />
+                      {off && <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-ink">✕</span>}
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          </div>
         </aside>
       </div>
     </div>
@@ -177,7 +193,7 @@ function currentAngle(el: Element) {
   return (Math.atan2(b, a) * 180) / Math.PI
 }
 
-function Wheel({ pool }: { pool: Agent[] }) {
+function Wheel({ pool, onChange }: { pool: Agent[]; onChange: (s: { result: Agent | null; spinning: boolean }) => void }) {
   const { t } = useI18n()
   const r = t.random
   const [angle, setAngle] = useState(0)
@@ -222,6 +238,7 @@ function Wheel({ pool }: { pool: Agent[] }) {
     setAngle(base + (360 - center))
     setSpinning(true)
     setResult(null)
+    onChange({ result: null, spinning: true })
     clearTimeout(timer.current)
     cancelAnimationFrame(frame.current)
 
@@ -241,6 +258,7 @@ function Wheel({ pool }: { pool: Agent[] }) {
         cancelAnimationFrame(frame.current)
         setSpinning(false)
         setResult(list[idx])
+        onChange({ result: list[idx], spinning: false })
         setUnder(null)
         setFrozen(null)
       },
@@ -316,25 +334,35 @@ function Wheel({ pool }: { pool: Agent[] }) {
         </button>
       </div>
 
-      <div aria-live="polite">
+    </div>
+  )
+}
+
+/** กรอบรูปเอเจนท์บนแผงขวา: ก่อนหมุนเป็น "?" ระหว่างหมุนกะพริบรอ หมุนเสร็จโชว์ตัวที่ได้แบบใหญ่ */
+function ResultSlot({ result, spinning }: { result: Agent | null; spinning: boolean }) {
+  const { t } = useI18n()
+  const r = t.random
+  return (
+    <div aria-live="polite" className="card tape relative -rotate-1 p-3">
+      <p className="hand px-1 text-xl">{r.youGot}</p>
+      <div
+        className="relative mt-2 aspect-[4/3] overflow-hidden rounded-lg border-2 border-ink bg-night"
+        style={result && !spinning ? { background: result.color } : undefined}
+      >
+        {result && !spinning ? (
+          result.portrait && (
+            <img key={result.uuid} src={result.portrait} alt={result.name} className="absolute inset-0 h-full w-full animate-fade-in scale-[1.6] object-cover object-[50%_18%]" />
+          )
+        ) : (
+          <span className={`absolute inset-0 flex items-center justify-center font-display text-8xl font-bold text-paper/80 ${spinning ? 'animate-pulse' : ''}`}>?</span>
+        )}
+      </div>
+      <div className="flex min-h-[3.25rem] flex-wrap items-center justify-between gap-2 px-1 pt-3">
+        <p className="font-display text-3xl font-bold">{result && !spinning ? result.name : spinning ? r.spinning : '???'}</p>
         {result && !spinning && (
-          <div key={`${result.uuid}-${angle}`} className="card mx-auto flex max-w-lg animate-fade-up items-center gap-4 p-3 -rotate-1">
-            <div className="relative h-32 w-24 shrink-0 overflow-hidden rounded-lg sm:h-40 sm:w-32" style={{ background: result.color }}>
-              {result.portrait && <img src={result.portrait} alt={result.name} className="absolute inset-0 h-full w-full scale-150 object-cover object-top" />}
-            </div>
-            <div className="min-w-0">
-              <p className="hand text-xl">{r.youGot}</p>
-              <p className="font-display text-3xl font-bold">{result.name}</p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={spin} className="btn !py-1.5 text-sm">
-                  🎲 {r.again}
-                </button>
-                <Link href={`/agents/${result.uuid}`} className="btn btn-paper !py-1.5 text-sm">
-                  {r.view}
-                </Link>
-              </div>
-            </div>
-          </div>
+          <Link href={`/agents/${result.uuid}`} className="btn btn-paper !py-1.5 text-sm">
+            {r.view}
+          </Link>
         )}
       </div>
     </div>
