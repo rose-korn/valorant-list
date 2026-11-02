@@ -268,15 +268,15 @@ function Wheel({ pool, onChange }: { pool: Agent[]; onChange: (s: { result: Agen
 
   return (
     <div className="space-y-5">
-      {/* ป้ายชื่อตัวที่เข็มชี้อยู่ */}
-      <div className="mx-auto flex h-14 max-w-xs items-center justify-center gap-2 rounded-xl border-2 border-ink bg-night px-4 text-paper shadow-[3px_4px_0_var(--color-ink)]">
+      {/* ป้ายชื่อตัวที่เข็มชี้อยู่ — โผล่ตอนหมุน/หมุนเสร็จเท่านั้น ก่อนหมุนเว้นที่ไว้เฉย ๆ (ไม่ให้คนนึกว่าเป็นปุ่ม) */}
+      <div className="flex h-14 items-center justify-center">
         {pointed ? (
-          <>
+          <div className="flex max-w-xs items-center gap-2 rounded-xl border-2 border-ink bg-night px-4 py-1.5 text-paper shadow-[3px_4px_0_var(--color-ink)]">
             <img src={pointed.icon} alt="" className="h-9 w-9 rounded-md" style={{ background: pointed.color }} />
             <span className={`truncate font-display text-2xl font-bold ${spinning ? '' : 'text-mustard'}`}>{pointed.name}</span>
-          </>
+          </div>
         ) : (
-          <span className="font-display text-lg text-paper/70">{pool.length ? `${r.spin} 👇` : r.tooFew(1)}</span>
+          !pool.length && <p className="hand text-xl">{r.tooFew(1)}</p>
         )}
       </div>
 
