@@ -2,6 +2,7 @@
 // เว็บ build เป็นไฟล์ static: ทุก fetch เกิดตอน `next build` ครั้งเดียว แล้วเสิร์ฟเป็นไฟล์ธรรมดา
 
 import { type Lang, apiLang } from './i18n'
+import { applyThAbilityOverrides } from './th-abilities'
 import type {
   Agent,
   Bundle,
@@ -65,7 +66,14 @@ function request<T>(lang: Lang, path: string, fallback: T, query: Record<string,
 
 const byUuid = <T extends { uuid: string }>(list: T[], uuid: string) => list.find((x) => x.uuid === uuid) ?? null
 
-export const getAgents = (lang: Lang) => request<Agent[]>(lang, '/agents', [], { isPlayableCharacter: 'true' })
+const fetchAgents = (lang: Lang) => request<Agent[]>(lang, '/agents', [], { isPlayableCharacter: 'true' })
+// ภาษาไทยใช้คำอธิบายสกิลที่เขียนใหม่ใน lib/th-abilities.ts แทนคำแปลจาก API (ถ้าสกิลยังเป็นเวอร์ชันเดิม)
+// ทั้งสองภาษาถูก memo ไว้ใน request แล้ว ตรงนี้แค่ map ทับ ไม่ยิง API เพิ่ม
+export const getAgents = async (lang: Lang): Promise<Agent[]> => {
+  if (lang === 'en') return fetchAgents(lang)
+  const [th, en] = await Promise.all([fetchAgents(lang), fetchAgents('en')])
+  return applyThAbilityOverrides(th, en)
+}
 export const getAgent = async (lang: Lang, uuid: string) => byUuid(await getAgents(lang), uuid)
 export const getMaps = (lang: Lang) => request<GameMap[]>(lang, '/maps', [])
 export const getMap = async (lang: Lang, uuid: string) => byUuid(await getMaps(lang), uuid)
