@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useI18n } from '@/components/LangProvider'
+import { Crosshair } from '@/components/brand'
 
 type Difficulty = 'easy' | 'normal' | 'hard'
 type Phase = 'idle' | 'countdown' | 'playing' | 'over'
@@ -373,7 +374,7 @@ export default function AimRush({ ranks }: { ranks: Rank[] }) {
 
     const bigText = (text: string, size: number, color: string, y = h / 2) => {
       ctx.save()
-      ctx.font = `700 ${size}px ${getComputedStyle(document.documentElement).getPropertyValue('--font-chakra') || 'sans-serif'}`
+      ctx.font = `700 ${size}px ${getComputedStyle(document.documentElement).getPropertyValue('--font-kanit') || 'sans-serif'}`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
       ctx.lineWidth = 10
@@ -461,7 +462,7 @@ export default function AimRush({ ranks }: { ranks: Rank[] }) {
         const age = time - f.born
         ctx.save()
         ctx.globalAlpha = 1 - age / 0.8
-        ctx.font = `700 ${f.text.length > 6 ? 22 : 26}px ${getComputedStyle(document.documentElement).getPropertyValue('--font-chakra') || 'sans-serif'}`
+        ctx.font = `700 ${f.text.length > 6 ? 22 : 26}px ${getComputedStyle(document.documentElement).getPropertyValue('--font-kanit') || 'sans-serif'}`
         ctx.textAlign = 'center'
         ctx.lineWidth = 5
         ctx.strokeStyle = '#1d1f24'
@@ -531,7 +532,7 @@ export default function AimRush({ ranks }: { ranks: Rank[] }) {
           {p.best}: <b className="font-display">{best.toLocaleString()}</b>
         </span>
         <button onClick={toggleMute} className="chip ml-auto text-base hover:!bg-mustard/50">
-          {muted ? `🔇 ${p.unmute}` : `🔊 ${p.mute}`}
+          {muted ? p.unmute : p.mute}
         </button>
       </div>
       <div className="mb-3 h-3 overflow-hidden rounded-full border-2 border-ink bg-card">
@@ -546,8 +547,8 @@ export default function AimRush({ ranks }: { ranks: Rank[] }) {
 
         {phase === 'idle' && (
           <div className="absolute inset-0 flex overflow-y-auto p-3">
-            <div className="card m-auto w-full max-w-md -rotate-1 p-5 text-center">
-              <p className="text-5xl">🎯</p>
+            <div className="card m-auto w-full max-w-md p-5 text-center">
+              <Crosshair className="mx-auto h-14 w-14 text-ink" />
               <h2 className="mt-2 text-3xl font-bold">{p.title}</h2>
               <ul className="mt-3 space-y-1 text-left text-ink-soft">
                 {p.howTo.map((line) => (

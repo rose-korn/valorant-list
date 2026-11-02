@@ -81,7 +81,7 @@ export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[u
                 {t.agents.seeAbilities}
               </a>
               {voice && <VoiceLine src={voice} />}
-              <Link href={`/share?a=${agent.uuid}`} className="btn btn-paper !bg-[#ffd3d6]">
+              <Link href={`/share?a=${agent.uuid}`} className="btn btn-paper !bg-pink">
                 {t.agents.makeCard}
               </Link>
             </div>

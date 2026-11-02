@@ -192,7 +192,7 @@ export default function SkinExplorer({
               </h2>
               {(selected.chromas.length > 1 || selected.levels.length > 1) && (
                 <button onClick={() => setDetails(true)} className="btn btn-paper shrink-0 !px-3 !py-1 text-sm">
-                  📋 {w.details}
+                  {w.details}
                 </button>
               )}
             </div>
@@ -481,7 +481,7 @@ export default function SkinExplorer({
               onVolumeChange={(e) => saveVolume(e.currentTarget)}
               className="aspect-video w-full rounded-lg bg-black"
             />
-            <p className="mt-2 px-1 text-sm text-ink-soft">🔉 {w.volumeNote}</p>
+            <p className="mt-2 px-1 text-sm text-ink-soft">{w.volumeNote}</p>
           </div>
         </div>
       )}

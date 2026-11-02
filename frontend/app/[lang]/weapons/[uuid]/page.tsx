@@ -86,11 +86,11 @@ export default async function WeaponPage({ params }: PageProps<'/[lang]/weapons/
             <div className="flex gap-2">
               {weapon.shopData?.cost != null && (
                 <span className="chip text-base">
-                  💰 {weapon.shopData.cost.toLocaleString()} {t.common.credits}
+                  {weapon.shopData.cost.toLocaleString()} {t.common.credits}
                 </span>
               )}
               <span className="chip text-base">
-                🎨 {skins.length - 1} {w.skins}
+                {skins.length - 1} {w.skins}
               </span>
             </div>
           </div>

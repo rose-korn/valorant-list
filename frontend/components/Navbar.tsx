@@ -2,7 +2,7 @@
 
 import Link from '@/components/Link'
 import { useEffect, useState } from 'react'
-import { FUN_LINKS, Logo, NAV_LINKS, Scribble } from './brand'
+import { FUN_LINKS, Logo, NAV_LINKS } from './brand'
 import { LangSwitch, useBarePath, useI18n } from './LangProvider'
 
 export default function Navbar() {
@@ -31,8 +31,8 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed inset-x-0 top-0 z-50 border-b-2 bg-paper/95 backdrop-blur transition-[border-color] ${
-          scrolled || open ? 'border-ink' : 'border-transparent'
+        className={`fixed inset-x-0 top-0 z-50 border-b-[1.5px] bg-paper/95 backdrop-blur transition-[border-color] ${
+          scrolled || open ? 'border-blue' : 'border-transparent'
         }`}
       >
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6">
@@ -49,11 +49,8 @@ export default function Navbar() {
                     isActive(link.href) ? 'text-ink' : 'text-ink-soft hover:text-ink'
                   }`}
                 >
-                  {/* เส้นใต้กว้างเท่าตัวหนังสือพอดี ไม่รวม padding */}
-                  <span className="relative">
-                    {t.nav[link.key]}
-                    {isActive(link.href) && <Scribble className="absolute -bottom-1.5 left-0 h-2 w-full" />}
-                  </span>
+                  {/* หน้าปัจจุบัน: ไฮไลต์ปากกาแดงจาง ๆ แบบขีดในสมุด */}
+                  <span className={isActive(link.href) ? 'mark' : ''}>{t.nav[link.key]}</span>
                 </Link>
               </li>
             ))}
@@ -64,11 +61,11 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`hidden rounded-full border-2 border-ink px-3 py-1 font-display text-sm font-semibold whitespace-nowrap transition-transform hover:-rotate-2 xl:block ${
-                  isActive(link.href) ? 'bg-ink text-paper' : link.key === 'play' ? 'bg-mustard' : link.key === 'random' ? 'bg-sky' : 'bg-[#ffd3d6]'
+                className={`hidden border-[1.5px] border-ink px-3 py-1 font-display text-sm font-semibold whitespace-nowrap transition-[transform,box-shadow] hover:-translate-y-px hover:shadow-[2px_2px_0_var(--color-blue)] xl:block ${
+                  isActive(link.href) ? 'bg-ink text-paper' : link.key === 'share' ? 'bg-card' : 'bg-pink'
                 }`}
               >
-                {link.emoji} {t.nav[link.key]}
+                {t.nav[link.key]}
               </Link>
             ))}
             <LangSwitch />
@@ -89,7 +86,8 @@ export default function Navbar() {
         className={`fixed inset-0 z-40 bg-paper transition-opacity duration-300 xl:hidden ${open ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       >
         <div className="dotted-bg flex h-full flex-col overflow-y-auto px-6 pt-24 pb-10">
-          <p className="hand mb-4 -rotate-2 text-xl">{t.nav.menuNote}</p>
+          <p className="kicker mb-1">Contents</p>
+          <p className="mb-5 text-ink-soft">{t.nav.menuNote}</p>
           <ul className="grid grid-cols-2 gap-3">
             {[...FUN_LINKS, ...NAV_LINKS].map((link, i) => (
               <li
@@ -98,15 +96,15 @@ export default function Navbar() {
                   transition: 'opacity .35s, transform .35s',
                   transitionDelay: open ? `${40 + i * 35}ms` : '0ms',
                   opacity: open ? 1 : 0,
-                  transform: open ? `rotate(${i % 2 ? 1 : -1}deg)` : 'translateY(12px)',
+                  transform: open ? 'none' : 'translateY(12px)',
                 }}
               >
                 <Link
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className={`card flex h-full items-center gap-2 p-4 ${isActive(link.href) ? '!bg-mustard' : ''}`}
+                  className={`card flex h-full items-baseline gap-2.5 p-4 ${isActive(link.href) ? '!bg-pink' : ''}`}
                 >
-                  <span className="text-2xl">{link.emoji}</span>
+                  <span className="font-mono text-sm font-bold text-blue">{String(i + 1).padStart(2, '0')}</span>
                   <span className="font-display text-xl font-bold">{t.nav[link.key]}</span>
                 </Link>
               </li>

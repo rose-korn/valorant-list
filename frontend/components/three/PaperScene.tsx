@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 import { createRenderer, disposeObject, onResize, prefersReducedMotion, runLoop, useWebGLSupport } from './utils'
 
-const COLORS = ['#ff4654', '#ff4654', '#2bb5a0', '#f2b84b', '#8ec5ff']
+const COLORS = ['#ff4654', '#ff4654', '#3255a4', '#ffb8b3', '#c6d1ef']
 
 /** เศษกระดาษสี ๆ ค่อย ๆ ปลิวลง — พื้นหลังหน้าแรกแบบทำมือ */
 export default function PaperScene() {

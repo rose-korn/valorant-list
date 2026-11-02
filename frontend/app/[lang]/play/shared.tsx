@@ -24,8 +24,8 @@ export async function getStageAgents(lang: Lang) {
 /** แท็บสลับเกม — แต่ละเกมเป็นหน้าแยก (/play กับ /play/beat) */
 export function GameTabs({ active, t }: { active: 'aim' | 'beat'; t: Dict }) {
   const tabs = [
-    { key: 'aim', href: '/play', label: t.play.title, emoji: '🎯' },
-    { key: 'beat', href: '/play/beat', label: t.beat.tab, emoji: '🎹' },
+    { key: 'aim', href: '/play', label: t.play.title, no: 'A' },
+    { key: 'beat', href: '/play/beat', label: t.beat.tab, no: 'B' },
   ] as const
   return (
     <nav className="mx-auto mb-5 flex max-w-5xl gap-2" aria-label="games">
@@ -35,11 +35,12 @@ export function GameTabs({ active, t }: { active: 'aim' | 'beat'; t: Dict }) {
           href={tab.href}
           scroll={false}
           aria-current={active === tab.key ? 'page' : undefined}
-          className={`rounded-full border-2 border-ink px-4 py-1.5 font-display font-bold transition-transform ${
-            active === tab.key ? 'bg-ink text-paper' : 'bg-card hover:-rotate-2 hover:bg-mustard/50'
+          className={`ticket px-6 py-1.5 font-display font-bold transition-transform ${
+            active === tab.key ? '!bg-red text-white' : 'hover:-translate-y-0.5'
           }`}
         >
-          {tab.emoji} {tab.label}
+          <span className="mr-1.5 font-mono text-xs tracking-widest opacity-75">GAME {tab.no}</span>
+          {tab.label}
         </Link>
       ))}
     </nav>

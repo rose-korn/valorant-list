@@ -7,6 +7,7 @@ import { dateLocale } from '@/lib/i18n'
 import { getI18n } from '@/lib/i18n-server'
 import { buildRewardIndex } from '@/lib/rewards'
 import { type Contract, actLabel } from '@/lib/valorant'
+import { Crosshair } from '@/components/brand'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/battlepass'>): Promise<Metadata> {
   const { t } = await getI18n(params)
@@ -70,7 +71,7 @@ function PassCard({ c, sub, i, img, tiers }: { c: Contract; sub: string; i: numb
   return (
     <Link href={`/battlepass/${c.uuid}`} className={`card card-hover block p-2.5 ${tilt[i % tilt.length]}`}>
       <div className="skeleton-dark flex aspect-[16/9] items-center justify-center overflow-hidden rounded-md px-4">
-        {img ? <img src={img} alt="" loading="lazy" className="max-h-[75%] max-w-full object-contain" /> : <span className="text-4xl">🎟️</span>}
+        {img ? <img src={img} alt="" loading="lazy" className="max-h-[75%] max-w-full object-contain" /> : <Crosshair className="h-12 w-12 text-paper/60" />}
       </div>
       <div className="px-1 pt-2">
         <p className="font-display text-lg leading-tight font-bold">{c.displayName}</p>

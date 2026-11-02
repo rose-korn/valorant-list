@@ -14,12 +14,12 @@ export default async function SpikeBeatPage({ params }: PageProps<'/[lang]/play/
   const [ranks, agents] = await Promise.all([getRanks(lang), getStageAgents(lang)])
 
   return (
-    <>
-      <PageHero en="Mini game" title={t.beat.title} description={t.beat.desc} note={t.beat.note} />
+    <div className="fair">
+      <PageHero edition="fair" en="Mini game" title={t.beat.title} description={t.beat.desc} note={t.beat.note} />
       <Container className="py-8 md:py-12">
         <GameTabs active="beat" t={t} />
         <SpikeBeat ranks={ranks} agents={agents} />
       </Container>
-    </>
+    </div>
   )
 }

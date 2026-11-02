@@ -103,7 +103,7 @@ async function drawCard(
   const [, loaded] = await Promise.all([document.fonts?.ready, loadImage(opts.agent.portrait)])
   if (isStale()) return
   const img = loaded && (loaded.clean || !cleanOnly) ? loaded.img : null
-  const display = cssFont('--font-chakra', 'sans-serif')
+  const display = cssFont('--font-kanit', 'sans-serif')
   const hand = cssFont('--font-itim', 'cursive')
   const ink = '#1d1f24'
   const { agent, style } = opts
@@ -433,13 +433,13 @@ export default function ShareCardMaker({ agents }: { agents: ShareAgent[] }) {
         <canvas ref={canvasRef} width={W} height={H} className="mx-auto block w-full max-w-[420px] rounded-2xl" aria-label={`${agent.name} — ${quote}`} />
         <div className="mx-auto mt-4 flex max-w-[420px] flex-wrap gap-2">
           <button onClick={share} disabled={busy} className="btn flex-1">
-            📤 {s.shareBtn}
+            {s.shareBtn}
           </button>
           <button onClick={download} disabled={busy} className="btn btn-paper flex-1">
             ⬇️ {s.download}
           </button>
           <button onClick={copyLink} className="btn btn-paper w-full">
-            🔗 {copied ? s.copied : s.copyLink}
+            {copied ? s.copied : s.copyLink}
           </button>
         </div>
       </div>

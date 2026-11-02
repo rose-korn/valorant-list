@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Bai_Jamjuree, Chakra_Petch, Itim } from 'next/font/google'
+import { Anton, Bai_Jamjuree, Chonburi, Courier_Prime, Itim, Kanit, Rye } from 'next/font/google'
 import '../globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -7,11 +7,38 @@ import { LangProvider } from '@/components/LangProvider'
 import FunLayer from '@/components/FunLayer'
 import { getI18n, langParams } from '@/lib/i18n-server'
 
-// ฟอนต์ไทยจาก Cadson Demak — หัวข้อเหลี่ยม ๆ เข้ากับเกม, เนื้อหาอ่านง่าย
-const chakra = Chakra_Petch({
+// ธีม "นิตยสารแฟนเมดพิมพ์ riso" — ชุดฟอนต์เดียวกับโปสเตอร์ Valolist
+// หัวข้อ: Kanit หนา ๆ แบบหัวนิตยสาร
+const kanit = Kanit({
   subsets: ['thai', 'latin'],
-  weight: ['500', '600', '700'],
-  variable: '--font-chakra',
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-kanit',
+})
+
+// ตัวเลข/โลโก้ใหญ่ ๆ แบบตัวพาดหัว (ละตินอย่างเดียว)
+const anton = Anton({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-anton',
+})
+
+// ตัวพิมพ์ดีด สำหรับเลขฉบับ ป้ายเล็ก ๆ
+const courier = Courier_Prime({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-courier',
+})
+
+// ฉบับพิเศษงานวัด (มินิเกม / สุ่มเอเจนท์)
+const rye = Rye({
+  subsets: ['latin'],
+  weight: ['400'],
+  variable: '--font-rye',
+})
+const chonburi = Chonburi({
+  subsets: ['thai', 'latin'],
+  weight: ['400'],
+  variable: '--font-chonburi',
 })
 
 const bai = Bai_Jamjuree({
@@ -47,7 +74,7 @@ export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Prom
 }
 
 export const viewport: Viewport = {
-  themeColor: '#f4efe6',
+  themeColor: '#efe8da',
   width: 'device-width',
   initialScale: 1,
 }
@@ -55,7 +82,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children, params }: LayoutProps<'/[lang]'>) {
   const { lang } = await getI18n(params)
   return (
-    <html lang={lang} className={`${chakra.variable} ${bai.variable} ${itim.variable}`}>
+    <html lang={lang} className={`${kanit.variable} ${anton.variable} ${courier.variable} ${rye.variable} ${chonburi.variable} ${bai.variable} ${itim.variable}`}>
       <body suppressHydrationWarning className="font-body text-ink antialiased">
         <LangProvider lang={lang}>
           <Navbar />

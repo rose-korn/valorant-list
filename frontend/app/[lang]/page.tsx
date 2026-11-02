@@ -3,7 +3,7 @@ import PaperScene from '@/components/three/PaperScene'
 import Viewer3D from '@/components/three/Viewer3D'
 import Reveal from '@/components/Reveal'
 import HScroller from '@/components/HScroller'
-import { Scribble, Star } from '@/components/brand'
+import { Crosshair, RegMark } from '@/components/brand'
 import { Container, SectionHeading } from '@/components/ui'
 import { getI18n } from '@/lib/i18n-server'
 import { agentColor, groupByRole, isCompetitiveMap, isRealSkin, latestTiers } from '@/lib/valorant'
@@ -24,6 +24,7 @@ import {
   getWeapons,
 } from '@/lib/api'
 
+// โพลารอยด์เอเจนท์เท่านั้นที่เอียง (เหมือนรูปที่แปะไว้) ส่วนอื่นวางตรง
 const tilt = (i: number) => ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'][i % 4]
 
 export default async function HomePage({ params }: PageProps<'/[lang]'>) {
@@ -57,43 +58,59 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
 
   return (
     <>
-      {/* ================= HERO ================= */}
-      <section className="relative overflow-hidden border-b-2 border-ink">
+      {/* ================= HERO: หน้าปกนิตยสาร ================= */}
+      <section className="relative overflow-hidden border-b-[1.5px] border-ink">
         <PaperScene />
-        <Container className="relative grid items-center gap-14 py-12 md:py-20 lg:grid-cols-[1.15fr_1fr]">
-          <div>
-            <span className="chip animate-fade-up">
-              🛠️ {h.chip}{patch ? ` · patch ${patch}` : ''}
-            </span>
-            <h1 className="mt-5 animate-fade-up text-5xl leading-[1.1] font-bold [animation-delay:80ms] sm:text-6xl lg:text-7xl">
-              {h.titleA}{' '}
-              <span className="relative inline-block text-red-ink">
-                Valorant
-                <Scribble className="absolute -bottom-2 left-0 h-3 w-full" color="var(--color-mustard)" />
-              </span>
-              <br />
-              {h.titleB}
-            </h1>
-            <p className="mt-6 max-w-lg animate-fade-up text-lg text-ink-soft [animation-delay:160ms]">
-              {h.desc}
-            </p>
-            <div className="mt-8 flex animate-fade-up flex-wrap gap-3 [animation-delay:240ms]">
-              <Link href="/agents" className="btn">
-                {h.ctaAgents}
-              </Link>
-              <Link href="/weapons" className="btn btn-paper">
-                {h.ctaSkins}
-              </Link>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-2">
-              <span className="chip">{agents.length} {h.agents}</span>
-              <span className="chip">{maps.length} {h.maps}</span>
-              <span className="chip">{skinCount.toLocaleString()} {h.skins}</span>
-              <span className="chip">{(cards.length + sprays.length + buddies.length).toLocaleString()} {h.collectibles}</span>
-            </div>
+        <RegMark className="absolute top-3 left-3 h-7 w-7 text-blue max-sm:hidden" />
+        <RegMark className="absolute top-3 right-3 h-7 w-7 text-blue max-sm:hidden" />
+        <Container className="relative pt-8 pb-12 md:pt-10 md:pb-16">
+          {/* หัวนิตยสาร: เลขฉบับ = แพตช์ปัจจุบัน */}
+          <div className="rule-double animate-fade-up" aria-hidden />
+          <div className="flex animate-fade-up items-center justify-between gap-3 py-1.5 font-mono text-xs font-bold tracking-[0.18em] text-blue uppercase sm:text-sm">
+            <span>Issue № {patch ?? '—'}</span>
+            <span className="tracking-normal max-sm:hidden">{h.chip}</span>
+            <span>valo-thai</span>
           </div>
+          <div className="rule-double animate-fade-up" aria-hidden />
 
-          <DailyAgentCard plan={daily} />
+          <div className="relative mt-10 grid items-center gap-14 lg:grid-cols-[1.15fr_1fr]">
+            {/* เม็ดสกรีนอยู่หลังรูปเอเจนท์ประจำวัน ไม่ทับตัวหนังสือ */}
+            <div aria-hidden className="halftone pointer-events-none absolute top-1/2 right-0 h-[34rem] w-[34rem] -translate-y-1/2 max-lg:hidden" />
+            <div className="relative">
+              <Crosshair className="absolute -top-6 right-0 h-16 w-16 text-ink sm:h-20 sm:w-20 lg:hidden" />
+              <h1 className="relative animate-fade-up text-5xl leading-[1.08] font-extrabold [animation-delay:80ms] sm:text-6xl lg:text-7xl">
+                <span className="mark">{h.titleA}</span>{' '}
+                <span className="riso">Valorant</span>
+                <br />
+                {h.titleB}
+              </h1>
+              <p className="relative mt-6 max-w-lg animate-fade-up text-lg text-ink-soft [animation-delay:160ms]">{h.desc}</p>
+              <div className="relative mt-8 flex animate-fade-up flex-wrap gap-3 [animation-delay:240ms]">
+                <Link href="/agents" className="btn">
+                  {h.ctaAgents}
+                </Link>
+                <Link href="/weapons" className="btn btn-paper">
+                  {h.ctaSkins}
+                </Link>
+              </div>
+              {/* กล่องตัวเลขแบบบนโปสเตอร์ */}
+              <dl className="stat-table relative mt-9 grid-cols-2 sm:grid-cols-4 [&>*:nth-child(3)]:max-sm:border-l-0 [&>*:nth-child(n+3)]:max-sm:border-t-[1.5px] [&>*:nth-child(n+3)]:max-sm:border-ink">
+                {[
+                  [agents.length, h.agents],
+                  [maps.length, h.maps],
+                  [skinCount, h.skins],
+                  [cards.length + sprays.length + buddies.length, h.collectibles],
+                ].map(([n, label]) => (
+                  <div key={String(label)} className="flex flex-col-reverse">
+                    <dt className="text-sm text-ink-soft">{label}</dt>
+                    <dd className="stat-num">{n.toLocaleString()}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <DailyAgentCard plan={daily} />
+          </div>
         </Container>
       </section>
 
@@ -160,25 +177,25 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
           <SectionHeading title={h.funTitle} note={h.funNote} />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <DailyShareCard plan={daily} />
-            <Link href="/play" className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-night p-6 text-paper rotate-1">
-              <span className="text-4xl">🎯</span>
+            <Link href="/play" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-night p-6 text-paper">
+              <span className="font-mono text-xs font-bold tracking-[0.2em] text-mustard uppercase">Admit one · Game A</span>
               <h3 className="mt-2 text-3xl font-bold">{h.playTitle}</h3>
               <p className="mt-2 max-w-md text-paper/75">{h.playDesc}</p>
               <span className="btn mt-auto self-start">{h.playCta}</span>
               <svg viewBox="0 0 100 100" className="pointer-events-none absolute -right-6 -bottom-6 h-44 w-44 animate-bob opacity-90" aria-hidden>
-                <circle cx="50" cy="50" r="44" fill="#ece8e1" stroke="#1d1f24" strokeWidth="4" />
-                <circle cx="50" cy="50" r="30" fill="#ff4654" stroke="#1d1f24" strokeWidth="4" />
-                <circle cx="50" cy="50" r="14" fill="#ece8e1" stroke="#1d1f24" strokeWidth="4" />
-                <circle cx="50" cy="50" r="5" fill="#ff4654" />
+                <circle cx="50" cy="50" r="44" fill="var(--color-card)" stroke="var(--color-ink)" strokeWidth="4" />
+                <circle cx="50" cy="50" r="30" fill="var(--color-red)" stroke="var(--color-ink)" strokeWidth="4" />
+                <circle cx="50" cy="50" r="14" fill="var(--color-mustard)" stroke="var(--color-ink)" strokeWidth="4" />
+                <circle cx="50" cy="50" r="5" fill="var(--color-red)" />
               </svg>
             </Link>
-            <Link href="/random" className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-sky p-6 -rotate-1 md:col-span-2 lg:col-span-1">
-              <span className="text-4xl">🎲</span>
+            <Link href="/random" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-mustard p-6 md:col-span-2 lg:col-span-1">
+              <span className="font-mono text-xs font-bold tracking-[0.2em] uppercase">Admit one · Wheel</span>
               <h3 className="mt-2 text-3xl font-bold">{h.randomTitle}</h3>
               <p className="mt-2 max-w-[70%] text-ink/75">{h.randomDesc}</p>
               <span className="btn mt-auto self-start">{h.randomCta}</span>
               <div className="pointer-events-none absolute -right-8 -bottom-8 h-40 w-40 animate-[spin_14s_linear_infinite]" aria-hidden>
-                <div className="grid h-full w-full grid-cols-2 overflow-hidden rounded-full border-4 border-ink">
+                <div className="grid h-full w-full grid-cols-2 overflow-hidden rounded-full border-4 border-[var(--color-ink)]">
                   {agents.slice(0, 4).map((a) => (
                     <div key={a.uuid} style={{ background: agentColor(a) }}>
                       <img src={a.displayIcon} alt="" className="h-full w-full object-cover" loading="lazy" />
@@ -192,13 +209,13 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       </section>
 
       {/* ================= MAPS ================= */}
-      <section className="border-y-2 border-ink bg-paper-2 py-16 md:py-20">
+      <section className="border-y-[1.5px] border-ink bg-paper-2 py-16 md:py-20">
         <Container>
           <SectionHeading title={h.mapsTitle} note={h.mapsNote} href="/maps" linkLabel={t.common.seeAll} />
           <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
             {compMaps.slice(0, 6).map((m, i) => (
               <Reveal key={m.uuid} delay={(i % 3) * 70}>
-                <Link href={`/maps/${m.uuid}`} className={`card card-hover tape block p-2.5 ${['', 'tape-teal', 'tape-red'][i % 3]} ${tilt(i)}`}>
+                <Link href={`/maps/${m.uuid}`} className="card card-hover block p-2.5">
                   <div className="aspect-video overflow-hidden rounded-md skeleton-dark">
                     {m.splash && <img src={m.splash} alt={m.displayName} loading="lazy" className="h-full w-full object-cover" />}
                   </div>
@@ -223,7 +240,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
                 <Viewer3D src={vandal.displayIcon} alt={vandal.displayName} variant="weapon" className="h-full w-full" />
               </Reveal>
               <Reveal delay={100} className="card flex flex-col p-6">
-                <p className="text-ink-soft">{vandal.shopData?.categoryText ?? 'Rifle'}</p>
+                <p className="kicker">{vandal.shopData?.categoryText ?? 'Rifle'}</p>
                 <h3 className="text-4xl font-bold">{vandal.displayName}</h3>
                 {vandal.weaponStats && (
                   <dl className="mt-5 grid grid-cols-2 gap-3">
@@ -233,14 +250,14 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
                       [h.head, `${vandal.weaponStats.damageRanges[0]?.headDamage ?? '-'}`],
                       [h.cost, `${vandal.shopData?.cost ?? '-'}`],
                     ].map(([k, v]) => (
-                      <div key={k} className="rounded-lg bg-paper-2 px-3 py-2">
-                        <dt className="text-sm text-ink-soft">{k}</dt>
-                        <dd className="font-display text-xl font-bold">{v}</dd>
+                      <div key={k} className="border-l-[1.5px] border-blue px-3 py-1">
+                        <dt className="font-mono text-xs tracking-wider text-blue uppercase">{k}</dt>
+                        <dd className="font-poster text-2xl">{v}</dd>
                       </div>
                     ))}
                   </dl>
                 )}
-                <p className="hand mt-5 -rotate-1 text-lg">{h.skinsToPick(vandal.skins.filter(isRealSkin).length)}</p>
+                <p className="mt-5 font-mono text-sm text-red-ink">{h.skinsToPick(vandal.skins.filter(isRealSkin).length)}</p>
                 <Link href={`/weapons/${vandal.uuid}`} className="btn mt-auto self-start">
                   {h.seeSkins(vandal.displayName)}
                 </Link>
@@ -252,7 +269,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
 
       {/* ================= RANKS ================= */}
       {rankGroups.length > 0 && (
-        <section className="border-y-2 border-ink bg-night py-16 text-paper md:py-20">
+        <section className="border-y-[1.5px] border-ink bg-night py-16 text-paper md:py-20">
           <Container>
             <SectionHeading title={h.ranksTitle} note={h.ranksNote} href="/ranks" linkLabel={t.common.seeAll} dark />
             <div className="soft-scroll -mx-4 flex gap-3 overflow-x-auto px-4 pb-3 sm:mx-0 sm:px-0 lg:justify-between">
@@ -279,8 +296,8 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
             <div>
               <SectionHeading title={h.bundlesTitle} note={h.bundlesNote} href="/bundles" linkLabel={t.common.seeAll} />
               <div className="grid gap-5 sm:grid-cols-2">
-                {latestBundles.map((b, i) => (
-                  <Link key={b.uuid} href="/bundles" className={`card card-hover block p-2.5 ${tilt(i + 1)}`}>
+                {latestBundles.map((b) => (
+                  <Link key={b.uuid} href="/bundles" className="card card-hover block p-2.5">
                     <div className="aspect-video overflow-hidden rounded-md skeleton-dark">
                       <img src={b.displayIcon} alt={b.displayName} loading="lazy" className="h-full w-full object-cover" />
                     </div>
@@ -291,18 +308,18 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
             </div>
           )}
 
-          <Link href="/collection" className="card card-hover relative flex flex-col justify-between overflow-hidden !bg-mustard p-6">
-            <Star className="absolute top-4 right-4 h-10 w-10 animate-wiggle text-ink" />
-            <div>
-              <p className="hand text-xl !text-ink">{h.collectionKicker}</p>
+          <Link href="/collection" className="card card-hover relative flex flex-col justify-between overflow-hidden !bg-pink p-6">
+            <div aria-hidden className="halftone pointer-events-none absolute -right-16 -bottom-16 h-64 w-64" />
+            <div className="relative">
+              <p className="kicker">{h.collectionKicker}</p>
               <h3 className="mt-1 text-3xl font-bold">{h.collectionTitle}</h3>
             </div>
-            <ul className="mt-6 space-y-1 text-ink/80">
-              <li>🃏 {h.cards(cards.length)}</li>
-              <li>🎨 {h.sprays(sprays.length)}</li>
-              <li>🔑 {h.buddies(buddies.length)}</li>
+            <ul className="x-list relative mt-6 space-y-1 text-ink/80">
+              <li>{h.cards(cards.length)}</li>
+              <li>{h.sprays(sprays.length)}</li>
+              <li>{h.buddies(buddies.length)}</li>
             </ul>
-            <span className="btn btn-paper mt-6 self-start">{h.enter}</span>
+            <span className="btn btn-paper relative mt-6 self-start">{h.enter}</span>
           </Link>
         </Container>
       </section>

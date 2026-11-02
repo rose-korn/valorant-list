@@ -3,6 +3,7 @@ import Link from 'next/link'
 import './globals.css'
 import { dict } from '@/lib/i18n'
 import { LANG_REDIRECT_JS } from '@/lib/lang-redirect'
+import { Crosshair } from '@/components/brand'
 
 export const metadata: Metadata = {
   title: '404 · Valorant List',
@@ -19,8 +20,8 @@ export default function GlobalNotFound() {
       </head>
       <body className="font-body text-ink antialiased">
         <section className="dotted-bg flex min-h-dvh items-center justify-center px-4 text-center">
-          <div className="card max-w-md -rotate-1 p-8">
-            <p className="text-6xl">🧭</p>
+          <div className="card max-w-md p-8">
+            <Crosshair className="mx-auto h-16 w-16 text-ink" />
             <h1 className="mt-3 text-4xl font-bold">
               {th.notFound.title} · {en.notFound.title}
             </h1>

@@ -63,7 +63,7 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
   const updated = new Date(builtAt).toLocaleDateString(dateLocale(lang), { day: 'numeric', month: 'short', year: 'numeric' })
 
   return (
-    <section className="border-b-2 border-ink bg-[#fff3c4] py-10 md:py-12">
+    <section className="border-b-[1.5px] border-ink bg-pink/60 py-10 md:py-12">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -71,7 +71,7 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
               {h.newTitle}
               <NewBadge label="NEW" className="text-base" />
             </h2>
-            <p className="hand mt-1 -rotate-1 text-lg">{h.newNote}</p>
+            <p className="mt-1 font-mono text-sm text-blue">— {h.newNote}</p>
           </div>
           <p className="text-sm text-ink-soft">
             {patch && <span className="chip mr-2 !py-0.5 text-xs">patch {patch}</span>}
@@ -82,7 +82,7 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
         <ul className="mt-5 flex flex-wrap gap-2">
           {ORDER.filter((k) => count(k) > 0).map((k) => (
             <li key={k}>
-              <Link href={KIND_HREF[k]} className="chip !bg-card hover:!bg-mustard/50">
+              <Link href={KIND_HREF[k]} className="chip !bg-card hover:!bg-pink">
                 {label[k](count(k))} →
               </Link>
             </li>
@@ -90,11 +90,11 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
         </ul>
 
         <HScroller className="soft-scroll -mx-4 mt-6 flex snap-x scroll-px-4 gap-4 overflow-x-auto scroll-smooth px-4 pt-2 pb-4 sm:-mx-6 sm:scroll-px-6 sm:px-6">
-          {fresh.slice(0, SHOW).map((item, i) => (
+          {fresh.slice(0, SHOW).map((item) => (
             <Link
               key={`${item.kind}:${item.uuid}`}
               href={item.href}
-              className={`card card-hover w-36 shrink-0 snap-start p-2 md:w-40 ${['-rotate-1', 'rotate-1', 'rotate-0'][i % 3]}`}
+              className="card card-hover w-36 shrink-0 snap-start p-2 md:w-40"
             >
               <div
                 className={`flex aspect-square items-center justify-center overflow-hidden rounded-md ${
@@ -115,7 +115,7 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
             </Link>
           ))}
           {fresh.length > SHOW && (
-            <span className="hand flex w-28 shrink-0 items-center justify-center text-center text-lg">+ {h.newMore(fresh.length - SHOW)}</span>
+            <span className="flex w-28 shrink-0 items-center justify-center text-center font-mono text-sm text-blue">+ {h.newMore(fresh.length - SHOW)}</span>
           )}
         </HScroller>
       </div>

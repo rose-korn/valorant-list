@@ -100,8 +100,8 @@ export function DailyShareCard({ plan }: { plan: DailyPlan }) {
   const h = t.home
   const a = plan.agents[useSlot(plan, plan.agents.length)]
   return (
-    <Link href={a ? `/share?a=${a.uuid}` : '/share'} className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-[#ffd3d6] p-6 -rotate-1">
-      <span className="text-4xl">✨</span>
+    <Link href={a ? `/share?a=${a.uuid}` : '/share'} className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-sky p-6">
+      <span className="kicker">Make your own · DIY</span>
       <h3 className="mt-2 max-w-[60%] text-3xl font-bold">{h.shareTitle}</h3>
       <p className="mt-2 max-w-[60%] text-ink/75">{h.shareDesc}</p>
       <span className="btn mt-auto self-start">{h.shareCta}</span>
@@ -129,12 +129,12 @@ export function DailyPicks({ plan }: { plan: DailyPlan }) {
         <Link
           key={skin.uuid}
           href={`/weapons/${skin.weaponUuid}?skin=${skin.uuid}`}
-          className="card card-hover tape tape-red relative block -rotate-1 animate-fade-in p-3 sm:col-span-2 lg:col-span-1"
+          className="card card-hover relative block animate-fade-in p-3 sm:col-span-2 lg:col-span-1"
         >
-          <p className="hand text-lg">{h.skinOfDay}</p>
+          <p className="kicker">{h.skinOfDay}</p>
           <div
             className="mt-2 flex aspect-[16/9] items-center justify-center rounded-lg p-4"
-            style={{ background: `radial-gradient(ellipse at 50% 45%, ${skin.tierColor}55, #1c1e24 75%)` }}
+            style={{ background: `radial-gradient(ellipse at 50% 45%, ${skin.tierColor}55, #1f2a5c 75%)` }}
           >
             <img src={skin.image} alt={skin.name} loading="lazy" className="max-h-full max-w-full object-contain drop-shadow-[0_8px_12px_rgba(0,0,0,.45)]" />
           </div>
@@ -148,8 +148,8 @@ export function DailyPicks({ plan }: { plan: DailyPlan }) {
         </Link>
       )}
       {map && (
-        <Link key={map.uuid} href={`/maps/${map.uuid}`} className="card card-hover tape tape-teal relative block rotate-1 animate-fade-in p-3">
-          <p className="hand text-lg">{h.mapOfDay}</p>
+        <Link key={map.uuid} href={`/maps/${map.uuid}`} className="card card-hover relative block animate-fade-in p-3">
+          <p className="kicker">{h.mapOfDay}</p>
           <div className="relative mt-2 aspect-[16/10] overflow-hidden rounded-lg skeleton-dark">
             <img src={map.image} alt={map.name} loading="lazy" className="h-full w-full object-cover" />
           </div>
@@ -160,8 +160,8 @@ export function DailyPicks({ plan }: { plan: DailyPlan }) {
         </Link>
       )}
       {card && (
-        <Link key={card.uuid} href="/collection/cards" className="card card-hover tape relative block -rotate-2 animate-fade-in p-3">
-          <p className="hand text-lg">{h.cardOfDay}</p>
+        <Link key={card.uuid} href="/collection/cards" className="card card-hover relative block animate-fade-in p-3">
+          <p className="kicker">{h.cardOfDay}</p>
           <div className="mt-2 aspect-[16/10] overflow-hidden rounded-lg border-2 border-ink skeleton lg:aspect-[3/4]">
             {card.wide && <img src={card.wide} alt={card.name} loading="lazy" className="h-full w-full object-cover lg:hidden" />}
             <img src={card.image} alt={card.name} loading="lazy" className={`h-full w-full object-cover object-[50%_20%] ${card.wide ? 'max-lg:hidden' : ''}`} />

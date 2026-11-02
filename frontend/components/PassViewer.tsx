@@ -4,6 +4,7 @@ import { useState } from 'react'
 import HScroller from './HScroller'
 import { useI18n } from './LangProvider'
 import type { PassChapterData, ResolvedReward } from '@/lib/rewards'
+import { Crosshair } from './brand'
 
 
 export type PassChapter = PassChapterData
@@ -50,7 +51,7 @@ export default function PassViewer({ chapters }: { chapters: PassChapter[] }) {
           ) : r.preview ? (
             <img key={r.uuid} src={r.preview} alt={name} className="relative max-h-full max-w-full animate-fade-in object-contain drop-shadow-[0_12px_30px_rgba(0,0,0,.5)]" />
           ) : (
-            <span className="text-6xl">🎁</span>
+            <Crosshair className="h-16 w-16 text-ink-soft" />
           )}
         </div>
 
@@ -58,7 +59,7 @@ export default function PassViewer({ chapters }: { chapters: PassChapter[] }) {
           <div className="flex flex-wrap gap-1.5">
             <span className="chip text-sm">{b.types[r.type] ?? r.type}</span>
             {picked.free ? <span className="chip !bg-teal text-sm">{b.freeReward}</span> : <span className="chip !bg-mustard text-sm">{b.premiumTrack}</span>}
-            {r.isHighlighted && <span className="chip !bg-[#ffd3d6] text-sm">★ {b.highlight}</span>}
+            {r.isHighlighted && <span className="chip !bg-pink text-sm">★ {b.highlight}</span>}
           </div>
           <h2 key={r.uuid} className="mt-3 animate-fade-up text-3xl font-bold">
             {name}
@@ -190,7 +191,7 @@ function TierCard({
             className={reward.type === 'PlayerCard' ? 'absolute inset-0 h-full w-full object-cover' : 'max-h-full max-w-full object-contain'}
           />
         ) : (
-          <span className="text-3xl">🎁</span>
+          <Crosshair className="h-10 w-10 text-ink-soft" />
         )}
         <span
           className={`absolute top-1.5 left-1.5 rounded-md border-2 border-ink px-1.5 font-display text-xs font-bold ${free ? 'bg-teal text-ink' : 'bg-card text-ink'}`}
