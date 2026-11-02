@@ -309,6 +309,9 @@ const ROLE_UUID_ORDER = [
   '5fc02f99-4091-4486-a531-98459a3e95e9',
 ]
 
+/** uuid ของตำแหน่ง Duelist */
+export const DUELIST_ROLE_UUID = ROLE_UUID_ORDER[0]
+
 export type RoleGroup = { uuid: string; role: NonNullable<Agent['role']>; agents: Agent[] }
 
 export function groupByRole(agents: Agent[]): RoleGroup[] {
