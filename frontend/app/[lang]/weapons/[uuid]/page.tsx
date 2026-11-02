@@ -4,6 +4,7 @@ import { BackLink, Container, SectionHeading } from '@/components/ui'
 import { getContentTiers, getWeapon, getWeapons } from '@/lib/api'
 import { getI18n, toLang } from '@/lib/i18n-server'
 import { WALL_PEN, categoryLabel, isRealSkin, rgbaHex, skinImage } from '@/lib/valorant'
+import { BUILT_AT, firstSeen } from '@/lib/first-seen'
 import SkinExplorer, { type SkinItem, type TierInfo } from './SkinExplorer'
 
 // build ทุกหน้าไว้ล่วงหน้า (static export) อันที่ไม่อยู่ในลิสต์ = 404
@@ -33,12 +34,13 @@ export default async function WeaponPage({ params }: PageProps<'/[lang]/weapons/
   )
 
   const skins: SkinItem[] = [
-    { uuid: 'default', order: -1, displayName: w.standard(weapon.displayName), tier: null, image: weapon.displayIcon, wallpaper: null, chromas: [], levels: [] },
+    { uuid: 'default', order: -1, seen: 0, displayName: w.standard(weapon.displayName), tier: null, image: weapon.displayIcon, wallpaper: null, chromas: [], levels: [] },
     ...weapon.skins
       .filter(isRealSkin)
       .map((s, order) => ({
         uuid: s.uuid,
         order,
+        seen: firstSeen('skins', s.uuid),
         displayName: s.displayName,
         tier: s.contentTierUuid,
         image: skinImage(s),
@@ -95,7 +97,7 @@ export default async function WeaponPage({ params }: PageProps<'/[lang]/weapons/
         </Container>
       </section>
 
-      <SkinExplorer weaponName={weapon.displayName} skins={skins} tiers={usedTiers}>
+      <SkinExplorer weaponName={weapon.displayName} skins={skins} tiers={usedTiers} builtAt={BUILT_AT}>
         {stats && (
           <section className="border-y-2 border-ink bg-paper-2 py-12 md:py-16">
             <Container>

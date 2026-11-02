@@ -65,7 +65,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 className={`hidden rounded-full border-2 border-ink px-3 py-1 font-display text-sm font-semibold whitespace-nowrap transition-transform hover:-rotate-2 xl:block ${
-                  isActive(link.href) ? 'bg-ink text-paper' : link.key === 'play' ? 'bg-mustard' : 'bg-[#ffd3d6]'
+                  isActive(link.href) ? 'bg-ink text-paper' : link.key === 'play' ? 'bg-mustard' : link.key === 'random' ? 'bg-sky' : 'bg-[#ffd3d6]'
                 }`}
               >
                 {link.emoji} {t.nav[link.key]}

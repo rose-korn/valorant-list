@@ -97,3 +97,14 @@ export function BackLink({ href, label }: { href: string; label: string }) {
     </Link>
   )
 }
+
+/** ป้าย "ใหม่" สีแดงเอียง ๆ ใช้กับเอเจนท์/สกิน/บันเดิล/ของสะสมที่เพิ่งออก */
+export function NewBadge({ label, className = '' }: { label: string; className?: string }) {
+  return (
+    <span
+      className={`-rotate-6 rounded-md border-2 border-ink bg-red px-2 py-0.5 font-display text-sm font-bold uppercase tracking-wide text-white shadow-[2px_3px_0_var(--color-ink)] ${className}`}
+    >
+      {label}
+    </span>
+  )
+}

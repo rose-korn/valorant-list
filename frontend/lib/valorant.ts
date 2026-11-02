@@ -387,14 +387,9 @@ export function latestTiers(seasons: CompetitiveSeason[]) {
   )
 }
 
-/** เวลาปัจจุบันตอน render (เว็บเป็น static: คือเวลาตอน build ซึ่ง build ใหม่ทุกวัน) */
+/** เวลาปัจจุบันตอน render (เว็บเป็น static: คือเวลาตอน build) */
 export function nowMs() {
   return Date.now()
-}
-
-/** index ของวัน ใช้หมุนเวียนเนื้อหาเด่นรายวัน */
-export function dayIndex() {
-  return Math.floor(nowMs() / 86_400_000)
 }
 
 /** ชื่อสั้นของสิ่งที่ปลดในแต่ละเลเวลสกิน (EEquippableSkinLevelItem::X → X) */
@@ -422,4 +417,50 @@ export const NEW_AGENT_DAYS = 30
 export function isNewAgent(releaseDate: string | null | undefined, now: number) {
   const t = releaseDate ? Date.parse(releaseDate) : NaN
   return Number.isFinite(t) && t <= now && now - t < NEW_AGENT_DAYS * 86_400_000
+}
+
+// ---------- ของใหม่ / ของประจำวัน ----------
+
+/** ของ (สกิน บันเดิล การ์ด ฯลฯ) ที่เพิ่งโผล่มาไม่เกินกี่วันถึงติดป้าย "ใหม่" */
+export const NEW_ITEM_DAYS = 30
+
+/** เลขวันจาก first-seen.json (0 = ของเก่า) ยังนับว่าใหม่อยู่ไหม ณ เวลา now */
+export function isNewDay(day: number | null | undefined, now: number) {
+  if (!day) return false
+  const t = day * 86_400_000
+  return t <= now && now - t < NEW_ITEM_DAYS * 86_400_000
+}
+
+/** เลขวันตามเวลาไทย (เปลี่ยนวันตอนเที่ยงคืนที่ไทย) ใช้หมุนของประจำวัน */
+export function thaiDay(ms: number) {
+  return Math.floor((ms + 7 * 3_600_000) / 86_400_000)
+}
+
+/** สุ่มแบบกำหนด seed ได้ (mulberry32) — ผลเหมือนเดิมทุกครั้งถ้า seed เดิม */
+export function seeded(seed: number) {
+  let a = seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+/**
+ * ของประจำวันที่ `day` จาก `pool` — สลับลำดับใหม่ทุกรอบ (รอบละ pool.length วัน) ภายในรอบเดียวกันไม่ซ้ำกัน
+ * `salt` แยกแต่ละหมวดไม่ให้ลำดับเหมือนกัน
+ */
+export function pickOfDay<T>(pool: T[], day: number, salt: number): T | null {
+  const n = pool.length
+  if (!n) return null
+  const cycle = Math.floor(day / n)
+  const rand = seeded(cycle * 7919 + salt * 104729)
+  const order = pool.map((_, i) => i)
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[order[i], order[j]] = [order[j], order[i]]
+  }
+  return pool[order[((day % n) + n) % n]]
 }

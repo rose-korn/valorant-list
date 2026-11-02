@@ -1,21 +1,32 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SearchInput, SortSwitch } from '@/components/Filters'
 import Modal from '@/components/Modal'
 import { useI18n } from '@/components/LangProvider'
-import type { Bundle } from '@/lib/valorant'
+import { NewBadge } from '@/components/ui'
+import { useNow } from '@/components/useNow'
+import { type Bundle, isNewDay } from '@/lib/valorant'
 
 const PAGE = 18
 const tilt = ['-rotate-1', 'rotate-1', 'rotate-[0.5deg]', '-rotate-[0.5deg]']
 
-export default function BundlesClient({ bundles }: { bundles: Bundle[] }) {
+export default function BundlesClient({ bundles, seen, builtAt }: { bundles: Bundle[]; seen: Record<string, number>; builtAt: number }) {
   const { t } = useI18n()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<'new' | 'old' | 'az'>('new')
   const [limit, setLimit] = useState(PAGE)
   const [open, setOpen] = useState<Bundle | null>(null)
   const close = useCallback(() => setOpen(null), [])
+  const now = useNow(builtAt)
+
+  // ลิงก์ /bundles?b=<uuid> (จากกล่องมีอะไรใหม่) เปิดบันเดิลนั้นเลย
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('b')
+    const found = id ? bundles.find((b) => b.uuid === id) : undefined
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- อ่าน query ได้หลัง hydrate เท่านั้น (หน้า static)
+    if (found) setOpen(found)
+  }, [bundles])
 
   const list = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -58,7 +69,8 @@ export default function BundlesClient({ bundles }: { bundles: Bundle[] }) {
       <ul className="grid gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
         {list.slice(0, limit).map((b, i) => (
           <li key={b.uuid}>
-            <button onClick={() => setOpen(b)} className={`card card-hover block w-full p-2.5 text-left ${tilt[i % tilt.length]}`}>
+            <button onClick={() => setOpen(b)} className={`card card-hover relative block w-full p-2.5 text-left ${tilt[i % tilt.length]}`}>
+              {isNewDay(seen[b.uuid], now) && <NewBadge label={t.agents.newBadge} className="absolute -top-3 -left-2 z-10" />}
               <div className="aspect-video overflow-hidden rounded-md skeleton-dark">
                 <img src={b.displayIcon} alt={b.displayName} loading="lazy" className="h-full w-full object-cover" />
               </div>

@@ -5,7 +5,9 @@ import Viewer3D from '@/components/three/Viewer3D'
 import { Container } from '@/components/ui'
 import { useI18n } from '@/components/LangProvider'
 import Modal from '@/components/Modal'
-import { levelItemKey } from '@/lib/valorant'
+import { NewBadge } from '@/components/ui'
+import { useNow } from '@/components/useNow'
+import { isNewDay, levelItemKey } from '@/lib/valorant'
 
 export interface TierInfo {
   uuid: string
@@ -19,6 +21,8 @@ export interface SkinItem {
   uuid: string
   /** ลำดับใน API (-1 = ปืนเริ่มต้น) ใช้เรียงใหม่ → เก่า */
   order: number
+  /** วันที่เห็นสกินนี้ครั้งแรก (first-seen.json) 0 = ของเก่า */
+  seen: number
   displayName: string
   tier: string | null
   image: string | null
@@ -56,11 +60,13 @@ export default function SkinExplorer({
   weaponName,
   skins,
   tiers,
+  builtAt,
   children,
 }: {
   weaponName: string
   skins: SkinItem[]
   tiers: TierInfo[]
+  builtAt: number
   children?: React.ReactNode
 }) {
   const { t } = useI18n()
@@ -74,6 +80,19 @@ export default function SkinExplorer({
   const [video, setVideo] = useState<{ src: string; title: string } | null>(null)
   const [details, setDetails] = useState(false)
   const closeDetails = useCallback(() => setDetails(false), [])
+  const now = useNow(builtAt)
+
+  // ลิงก์ /weapons/<uuid>?skin=<skin uuid> (จากของประจำวัน / มีอะไรใหม่) เปิดสกินนั้นเลย
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('skin')
+    const found = id ? skins.find((s) => s.uuid === id) : undefined
+    if (!found) return
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- อ่าน query ได้หลัง hydrate เท่านั้น (หน้า static)
+    setSelected(found)
+    setSort('new')
+    const i = [...skins].sort((a, b) => (a.order < 0 ? -1 : b.order < 0 ? 1 : b.order - a.order)).findIndex((s) => s.uuid === id)
+    if (i >= PAGE) setLimit(Math.ceil((i + 1) / PAGE) * PAGE)
+  }, [skins])
 
   const tierOf = (uuid: string | null) => tiers.find((x) => x.uuid === uuid)
   const tierNow = tierOf(selected.tier)
@@ -334,6 +353,7 @@ export default function SkinExplorer({
                               {s.levels.length > 1 && <span className="rounded-full bg-paper-2 px-1.5 text-[11px] font-semibold">{w.badgeLevels(s.levels.length)}</span>}
                             </span>
                           )}
+                          {isNewDay(s.seen, now) && <NewBadge label={t.agents.newBadge} className="absolute -top-2 -left-2 !px-1.5 !text-xs" />}
                           {on && (
                             <span aria-hidden className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full border-2 border-ink bg-red text-xs font-bold text-white">
                               ✓

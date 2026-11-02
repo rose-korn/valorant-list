@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { BackLink, Container, EmptyState, PageHero } from '@/components/ui'
 import { getI18n } from '@/lib/i18n-server'
 import { KINDS, getCollection, isKind } from '../data'
+import { BUILT_AT } from '@/lib/first-seen'
 import CollectionGrid from './CollectionGrid'
 
 // build ทุกหน้าไว้ล่วงหน้า (static export) อันที่ไม่อยู่ในลิสต์ = 404
@@ -36,7 +37,7 @@ export default async function CollectionTypePage({ params }: PageProps<'/[lang]/
           ))}
         </div>
       </PageHero>
-      <Container className="py-10 md:py-14">{items.length ? <CollectionGrid kind={type} items={items} /> : <EmptyState text={t.common.empty} />}</Container>
+      <Container className="py-10 md:py-14">{items.length ? <CollectionGrid kind={type} items={items} builtAt={BUILT_AT} /> : <EmptyState text={t.common.empty} />}</Container>
     </>
   )
 }
