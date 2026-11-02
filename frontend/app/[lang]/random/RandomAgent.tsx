@@ -1,12 +1,13 @@
 'use client'
 
-// วงล้อสุ่มเอเจนท์: เลือกตำแหน่ง กดเอาตัวที่ไม่อยากได้ออก (จำไว้ใน localStorage) แล้วหมุน
+// สุ่มเอเจนท์: เลือกตำแหน่ง กดเอาตัวที่ไม่อยากได้ออก (จำไว้ใน localStorage) แล้วกดสุ่ม (แถบการ์ดเลื่อนแล้วหยุดที่เข็ม)
 // หรือสุ่มทั้งทีม 5 ตัว (เลือกให้มีครบทุกตำแหน่งได้)
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Link from '@/components/Link'
 import { FilterButton } from '@/components/Filters'
 import { useI18n } from '@/components/LangProvider'
+import { DUELIST_ROLE_UUID } from '@/lib/valorant'
 
 interface Agent {
   uuid: string
@@ -26,7 +27,7 @@ interface Role {
 const SPIN_MS = 4200
 const TEAM = 5
 
-// ---------- ตัวที่เอาออกจากวงล้อ (จำไว้ในเครื่อง) ----------
+// ---------- ตัวที่เอาออกจากการสุ่ม (จำไว้ในเครื่อง) ----------
 const KEY = 'valolist:random-excluded'
 const listeners = new Set<() => void>()
 let cache: string | null = null
@@ -102,14 +103,14 @@ export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles:
             aria-pressed={mode === m}
             className={`px-4 py-2 font-display font-semibold transition-colors sm:px-6 ${mode === m ? 'bg-ink text-paper' : 'hover:bg-mustard/40'}`}
           >
-            {m === 'single' ? `🎡 ${r.single}` : `👥 ${r.team}`}
+            {m === 'single' ? `🎲 ${r.single}` : `👥 ${r.team}`}
           </button>
         ))}
       </div>
 
-      {mode === 'single' ? <Wheel pool={pool} /> : <TeamRoll pool={pool} roles={roles} roleOn={roleOn} />}
+      {mode === 'single' ? <Reel pool={pool} /> : <TeamRoll pool={pool} roles={roles} roleOn={roleOn} />}
 
-      {/* ตั้งค่าวงล้อ */}
+      {/* ตั้งค่าการสุ่ม */}
       <div className="card p-4 sm:p-6">
         <p className="mb-3 font-display text-lg font-bold">{r.roles}</p>
         <div className="flex flex-wrap gap-2">
@@ -157,135 +158,146 @@ export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles:
   )
 }
 
-// ---------- วงล้อ ----------
+// ---------- แถบสุ่ม ----------
+// การ์ดเอเจนท์เรียงเป็นแถบยาว เลื่อนผ่านเข็มตรงกลางแล้วค่อย ๆ ช้าลงจนหยุด รูปใหญ่ตั้งตรง อ่านชื่อได้ตลอด
 
-const R = 96
-const point = (deg: number, radius: number) => {
-  const rad = (deg * Math.PI) / 180
-  return [radius * Math.sin(rad), -radius * Math.cos(rad)] as const
-}
+const CARD = 128 // ความกว้างการ์ด (px)
+const GAP = 12
+const STEP = CARD + GAP
+const STRIP = 64 // จำนวนการ์ดในแถบต่อการหมุนหนึ่งรอบ
+const LAND = 56 // index ที่จะหยุด
+const START = 3 // index ที่อยู่ตรงเข็มตอนเริ่ม (ไว้ต่อจากผลรอบก่อน)
 
-function Wheel({ pool }: { pool: Agent[] }) {
+/** translateX ที่ทำให้การ์ด index นี้อยู่กลางเข็มพอดี (แถบเริ่มที่ left: 50%) */
+const offsetFor = (index: number, nudge = 0) => -(index * STEP + CARD / 2) + nudge
+
+function Reel({ pool }: { pool: Agent[] }) {
   const { t } = useI18n()
   const r = t.random
-  const [angle, setAngle] = useState(0)
-  const [duration, setDuration] = useState(SPIN_MS)
+  const [strip, setStrip] = useState<Agent[] | null>(null)
+  const [offset, setOffset] = useState(offsetFor(START))
+  const [duration, setDuration] = useState(0)
   const [spinning, setSpinning] = useState(false)
   const [result, setResult] = useState<Agent | null>(null)
-  // วงล้อที่โชว์อยู่: ล็อกไว้ระหว่างหมุน (กันวงล้อเปลี่ยนกลางทาง)
-  const [frozen, setFrozen] = useState<Agent[] | null>(null)
-  const wheel = frozen ?? pool
+  const [round, setRound] = useState(0)
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  useEffect(() => () => clearTimeout(timer.current), [])
+  const frame = useRef(0)
+  useEffect(
+    () => () => {
+      clearTimeout(timer.current)
+      cancelAnimationFrame(frame.current)
+    },
+    [],
+  )
 
-  const n = wheel.length
-  const seg = n ? 360 / n : 360
-  const iconSize = Math.min(34, n > 1 ? 2 * 64 * Math.sin((seg * Math.PI) / 360) * 0.85 : 60)
+  // ยังไม่เคยสุ่ม: โชว์ตัวที่ลุ้นได้เรียงไปเรื่อย ๆ
+  const shown = strip ?? Array.from({ length: Math.min(STRIP, Math.max(pool.length, 12)) }, (_, i) => pool[i % Math.max(pool.length, 1)]).filter(Boolean)
 
   const spin = () => {
     if (spinning || !pool.length) return
-    const list = pool
-    const idx = randInt(list.length)
-    const s = 360 / list.length
-    const jitter = (Math.random() - 0.5) * s * 0.6
-    const center = (idx + 0.5) * s + jitter
-    // หมุนตามเข็มนาฬิกา 5 รอบขึ้นไป แล้วให้ช่องที่สุ่มได้ไปหยุดใต้เข็มด้านบน
+    const pick = pool[randInt(pool.length)]
+    // แถบใหม่: ช่องเริ่ม = ตัวที่อยู่ตรงเข็มตอนนี้ (ภาพจะต่อเนื่อง) ช่อง LAND = ตัวที่สุ่มได้
+    const current = result ?? shown[START] ?? pick
+    const next = Array.from({ length: STRIP }, () => pool[randInt(pool.length)])
+    next[START] = current
+    next[LAND] = pick
+    // ไม่ให้ตัวข้าง ๆ ช่องที่หยุดเป็นตัวเดียวกับที่สุ่มได้ (ดูงง)
+    if (pool.length > 1) {
+      for (const i of [LAND - 1, LAND + 1]) while (next[i].uuid === pick.uuid) next[i] = pool[randInt(pool.length)]
+    }
     const fast = reducedMotion()
-    const base = Math.ceil(angle / 360) * 360 + (fast ? 0 : 360 * 5)
-    setFrozen(list)
-    setDuration(fast ? 0 : SPIN_MS)
-    setAngle(base + (360 - center))
-    setSpinning(true)
-    setResult(null)
+    const nudge = (Math.random() - 0.5) * CARD * 0.6
+
     clearTimeout(timer.current)
+    cancelAnimationFrame(frame.current)
+    setStrip(next)
+    setResult(null)
+    setSpinning(true)
+    setDuration(0)
+    setOffset(offsetFor(START))
+    // รอให้ browser วางแถบใหม่ที่ตำแหน่งเริ่มก่อน แล้วค่อยใส่ transition เลื่อนไปช่องที่หยุด
+    frame.current = requestAnimationFrame(() => {
+      frame.current = requestAnimationFrame(() => {
+        setDuration(fast ? 0 : SPIN_MS)
+        setOffset(offsetFor(LAND, nudge))
+      })
+    })
     timer.current = setTimeout(
       () => {
         setSpinning(false)
-        setResult(list[idx])
-        setFrozen(null)
+        setResult(pick)
+        setRound((x) => x + 1)
+        // ขยับให้ตรงกลางเป๊ะ ๆ
+        setDuration(250)
+        setOffset(offsetFor(LAND))
       },
-      fast ? 50 : SPIN_MS + 100,
+      fast ? 80 : SPIN_MS + 80,
     )
   }
 
+  const landed = result ? LAND : -1
+
   return (
-    <div className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,0.85fr)]">
-      <div className="relative mx-auto w-full max-w-[460px]">
-        {/* เข็มชี้ */}
-        <svg viewBox="0 0 40 44" className="absolute top-[-14px] left-1/2 z-10 h-11 w-10 -translate-x-1/2 drop-shadow-[2px_3px_0_var(--color-ink)]" aria-hidden>
-          <path d="M20 42L4 8Q2 2 8 2H32Q38 2 36 8Z" fill="#ff4654" stroke="#1d1f24" strokeWidth="3" strokeLinejoin="round" />
+    <div className="space-y-6">
+      <div className="relative -mx-4 overflow-hidden border-y-2 border-ink bg-night py-5 sm:mx-0 sm:rounded-2xl sm:border-2">
+        {/* เข็มบน-ล่าง */}
+        <svg viewBox="0 0 40 24" className="absolute top-0 left-1/2 z-10 h-6 w-10 -translate-x-1/2" aria-hidden>
+          <path d="M4 0H36L20 22Z" fill="#ff4654" stroke="#1d1f24" strokeWidth="3" strokeLinejoin="round" />
         </svg>
-        <div className="rounded-full border-4 border-ink bg-card p-2 shadow-[6px_8px_0_var(--color-ink)]">
-          <svg
-            viewBox="-100 -100 200 200"
-            className="block w-full"
-            style={{ transform: `rotate(${angle}deg)`, transition: `transform ${duration}ms cubic-bezier(0.15, 0.75, 0.1, 1)` }}
-            role="img"
-            aria-label={t.random.title}
+        <svg viewBox="0 0 40 24" className="absolute bottom-0 left-1/2 z-10 h-6 w-10 -translate-x-1/2 rotate-180" aria-hidden>
+          <path d="M4 0H36L20 22Z" fill="#ff4654" stroke="#1d1f24" strokeWidth="3" strokeLinejoin="round" />
+        </svg>
+        <span aria-hidden className="absolute inset-y-0 left-1/2 z-10 w-1 -translate-x-1/2 bg-red/80" />
+        {/* ขอบมืดซ้ายขวา ให้สายตาไปอยู่ตรงกลาง */}
+        <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-1/4 bg-gradient-to-r from-night to-transparent" />
+        <span aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-1/4 bg-gradient-to-l from-night to-transparent" />
+
+        <div className="relative h-[176px]">
+          <ul
+            className="absolute top-0 left-1/2 flex"
+            style={{ gap: GAP, transform: `translateX(${offset}px)`, transition: `transform ${duration}ms cubic-bezier(0.1, 0.7, 0.15, 1)` }}
           >
-            {n === 0 && <circle r={R} fill="#ebe3d4" />}
-            {wheel.map((a, i) => {
-              const a0 = i * seg
-              const a1 = (i + 1) * seg
-              const mid = a0 + seg / 2
-              const [x0, y0] = point(a0, R)
-              const [x1, y1] = point(a1, R)
-              const [ix, iy] = point(mid, 66)
+            {shown.map((a, i) => {
+              const win = i === landed
               return (
-                <g key={a.uuid}>
-                  {n === 1 ? (
-                    <circle r={R} fill={a.color} />
-                  ) : (
-                    <path
-                      d={`M0 0L${x0.toFixed(2)} ${y0.toFixed(2)}A${R} ${R} 0 ${seg > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}Z`}
-                      fill={a.color}
-                      stroke="#1d1f24"
-                      strokeWidth="1.2"
-                    />
-                  )}
-                  <image
-                    href={a.icon}
-                    x={ix - iconSize / 2}
-                    y={iy - iconSize / 2}
-                    width={iconSize}
-                    height={iconSize}
-                    transform={`rotate(${mid} ${ix} ${iy})`}
-                    preserveAspectRatio="xMidYMid slice"
-                  />
-                </g>
+                <li
+                  key={`${round}-${i}`}
+                  className={`shrink-0 rounded-xl border-2 border-ink bg-card p-1.5 transition-transform duration-300 ${win ? 'scale-105 !bg-mustard' : ''}`}
+                  style={{ width: CARD }}
+                >
+                  <div className="aspect-square overflow-hidden rounded-lg" style={{ background: a.color }}>
+                    <img src={a.icon} alt={win ? a.name : ''} className="h-full w-full object-cover" draggable={false} />
+                  </div>
+                  <p className="truncate px-0.5 pt-1 text-center font-display text-sm font-bold">{a.name}</p>
+                </li>
               )
             })}
-            <circle r={R} fill="none" stroke="#1d1f24" strokeWidth="2.5" />
-          </svg>
+          </ul>
         </div>
-        <button
-          onClick={spin}
-          disabled={spinning || !pool.length}
-          className="absolute top-1/2 left-1/2 flex h-24 w-24 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-4 border-ink bg-mustard font-display text-xl font-bold shadow-[3px_4px_0_var(--color-ink)] transition-transform hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:hover:scale-100"
-        >
-          {spinning ? '…' : r.spin}
+      </div>
+
+      <div className="flex justify-center">
+        <button onClick={spin} disabled={spinning || !pool.length} className="btn text-lg disabled:cursor-not-allowed disabled:opacity-60">
+          🎲 {spinning ? r.spinning : result ? r.again : r.spin}
         </button>
       </div>
 
-      <div aria-live="polite" className="min-h-64">
+      <div aria-live="polite">
         {result ? (
-          <div key={`${result.uuid}-${angle}`} className="card mx-auto max-w-sm -rotate-1 animate-fade-up p-3">
-            <p className="hand px-1 text-xl">{r.youGot}</p>
-            <div className="relative mt-2 aspect-[4/5] overflow-hidden rounded-lg" style={{ background: result.color }}>
-              {result.portrait && <img src={result.portrait} alt={result.name} className="absolute inset-0 h-full w-full scale-125 object-cover object-top" />}
+          <div key={`${result.uuid}-${round}`} className="card mx-auto flex max-w-xl animate-fade-up items-center gap-4 p-3 -rotate-1">
+            <div className="relative h-36 w-28 shrink-0 overflow-hidden rounded-lg sm:h-44 sm:w-36" style={{ background: result.color }}>
+              {result.portrait && <img src={result.portrait} alt={result.name} className="absolute inset-0 h-full w-full scale-150 object-cover object-top" />}
             </div>
-            <p className="px-1 pt-3 font-display text-3xl font-bold">{result.name}</p>
-            <div className="mt-3 flex flex-wrap gap-2 px-1 pb-1">
-              <button onClick={spin} className="btn !py-2 text-sm">
-                🎲 {r.again}
-              </button>
-              <Link href={`/agents/${result.uuid}`} className="btn btn-paper !py-2 text-sm">
+            <div className="min-w-0">
+              <p className="hand text-xl">{r.youGot}</p>
+              <p className="font-display text-3xl font-bold sm:text-4xl">{result.name}</p>
+              <Link href={`/agents/${result.uuid}`} className="btn btn-paper mt-3 !py-1.5 text-sm">
                 {r.view}
               </Link>
             </div>
           </div>
         ) : (
-          <p className="hand py-16 text-center text-2xl">{!pool.length ? r.tooFew(1) : spinning ? r.spinning : `${r.spin} 👈`}</p>
+          !pool.length && <p className="hand text-center text-xl">{r.tooFew(1)}</p>
         )}
       </div>
     </div>
@@ -316,12 +328,14 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
     if (rolling || pool.length < TEAM) return
     let picked: Agent[]
     if (balanced) {
-      // ตำแหน่งละตัวก่อน (เฉพาะตำแหน่งที่เปิดอยู่) ที่เหลือสุ่มจากทุกตัว
+      // ทีมมาตรฐาน: Duelist 2 + Initiator 1 + Controller 1 + Sentinel 1 (เฉพาะตำแหน่งที่เปิดอยู่)
+      // ตำแหน่งไหนตัวไม่พอ หรือปิดไว้ ค่อยสุ่มเติมจากทุกตัวที่เหลือ
       picked = []
-      for (const role of shuffle(roles.filter((x) => roleOn.includes(x.uuid)))) {
-        const pick = shuffle(pool.filter((a) => a.roleUuid === role.uuid))[0]
-        if (pick && picked.length < TEAM) picked.push(pick)
+      for (const role of roles.filter((x) => roleOn.includes(x.uuid))) {
+        const want = role.uuid === DUELIST_ROLE_UUID ? 2 : 1
+        picked.push(...shuffle(pool.filter((a) => a.roleUuid === role.uuid)).slice(0, want))
       }
+      picked = picked.slice(0, TEAM)
       const rest = shuffle(pool.filter((a) => !picked.includes(a)))
       picked = [...picked, ...rest].slice(0, TEAM)
       const order = roles.map((x) => x.uuid)
