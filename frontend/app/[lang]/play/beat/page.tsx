@@ -1,12 +1,13 @@
 import type { Metadata } from 'next'
 import { Container, PageHero } from '@/components/ui'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import SpikeBeat from '../SpikeBeat'
 import { GameTabs, getRanks, getStageAgents } from '../shared'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/play/beat'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.beat.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/play/beat', { title: seoTitles[lang].beat, description: t.beat.desc })
 }
 
 export default async function SpikeBeatPage({ params }: PageProps<'/[lang]/play/beat'>) {

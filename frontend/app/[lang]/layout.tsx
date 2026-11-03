@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { LangProvider } from '@/components/LangProvider'
 import FunLayer from '@/components/FunLayer'
+import { SITE_URL } from '@/lib/seo'
 import { getI18n, langParams } from '@/lib/i18n-server'
 
 // ธีม "นิตยสารแฟนเมดพิมพ์ riso" — ชุดฟอนต์เดียวกับโปสเตอร์ Valolist
@@ -61,7 +62,9 @@ export const dynamicParams = false
 export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Promise<Metadata> {
   const { lang } = await getI18n(params)
   return {
-    alternates: { languages: { th: '/th', en: '/en' } },
+    // ให้ canonical / hreflang / og:image กลายเป็น URL เต็ม (Google กับ LINE/FB ต้องการ)
+    // canonical + hreflang ใส่แยกรายหน้าผ่าน pageMeta() ใน lib/seo.ts — ห้ามใส่ตรงนี้ ไม่งั้นทุกหน้าจะชี้ไปหน้าแรก
+    metadataBase: new URL(SITE_URL),
     title: {
       default: lang === 'en' ? 'Valorant List — a fan-made Valorant notebook' : 'Valorant List — สมุดข้อมูล Valorant ฉบับแฟนเมด',
       template: '%s · Valorant List',

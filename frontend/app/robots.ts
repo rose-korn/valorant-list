@@ -1,0 +1,12 @@
+import type { MetadataRoute } from 'next'
+import { SITE_URL } from '@/lib/seo'
+
+// static export: สร้างเป็นไฟล์ out/robots.txt ตอน build
+export const dynamic = 'force-static'
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: { userAgent: '*', allow: '/', disallow: '/api/' },
+    sitemap: `${SITE_URL}/sitemap.xml`,
+  }
+}

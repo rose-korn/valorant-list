@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero } from '@/components/ui'
 import { getBundles } from '@/lib/api'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { BUILT_AT, firstSeen } from '@/lib/first-seen'
 import BundlesClient from './BundlesClient'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/bundles'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.bundles.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/bundles', { title: seoTitles[lang].bundles, description: t.bundles.desc })
 }
 
 export default async function BundlesPage({ params }: PageProps<'/[lang]/bundles'>) {

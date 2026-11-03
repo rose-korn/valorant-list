@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { BackLink, Container, SectionHeading } from '@/components/ui'
 import { getContentTiers, getWeapon, getWeapons } from '@/lib/api'
+import { pageMeta, seoTitles, breadcrumbLd } from '@/lib/seo'
+import JsonLd from '@/components/JsonLd'
 import { getI18n, toLang } from '@/lib/i18n-server'
 import { WALL_PEN, categoryLabel, isRealSkin, rgbaHex, skinImage } from '@/lib/valorant'
 import { BUILT_AT, firstSeen } from '@/lib/first-seen'
@@ -17,7 +19,13 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/weapons/[u
   const { lang } = await getI18n(params)
   const { uuid } = await params
   const weapon = await getWeapon(lang, uuid)
-  return { title: weapon?.displayName ?? 'Weapon' }
+  const name = weapon?.displayName ?? 'Weapon'
+  const skins = weapon?.skins?.length ?? 0
+  const description =
+    lang === 'en'
+      ? `${name} in Valorant: damage by range, fire rate, magazine and price, plus all ${skins} skins with 3D view.`
+      : `${name} ใน Valorant: ดาเมจตามระยะ อัตรายิง แม็ก ราคา และสกินทั้งหมด ${skins} ลาย หมุนดูแบบ 3D ได้`
+  return pageMeta(lang, `/weapons/${uuid}`, { title: seoTitles[lang].weapon(name), description })
 }
 
 const HP = 150
@@ -75,6 +83,13 @@ export default async function WeaponPage({ params }: PageProps<'/[lang]/weapons/
 
   return (
     <>
+      <JsonLd
+        data={breadcrumbLd([
+          { name: t.nav.home, path: `/${lang}` },
+          { name: t.nav.weapons, path: `/${lang}/weapons` },
+          { name: weapon.displayName, path: `/${lang}/weapons/${weapon.uuid}` },
+        ])}
+      />
       <section className="dotted-bg border-b-2 border-ink">
         <Container className="pt-8 pb-6">
           <BackLink href="/weapons" label={w.back} />

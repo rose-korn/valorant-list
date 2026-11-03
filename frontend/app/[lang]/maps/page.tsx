@@ -3,12 +3,13 @@ import Link from '@/components/Link'
 import Reveal from '@/components/Reveal'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getMaps } from '@/lib/api'
+import { pageMeta, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { isCompetitiveMap } from '@/lib/valorant'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/maps'>): Promise<Metadata> {
-  const { t } = await getI18n(params)
-  return { title: t.maps.title }
+  const { lang, t } = await getI18n(params)
+  return pageMeta(lang, '/maps', { title: seoTitles[lang].maps, description: t.maps.desc })
 }
 
 const tilt = (i: number) => ['-rotate-1', 'rotate-1', 'rotate-[0.5deg]', '-rotate-[1.5deg]'][i % 4]
