@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from '@/components/Link'
 import { notFound } from 'next/navigation'
-import Viewer3D from '@/components/three/Viewer3D'
+import { Viewer3D } from '@/components/three/lazy'
 import { Arrow } from '@/components/brand'
 import { BackLink, Container, SectionHeading } from '@/components/ui'
 import PassViewer from '@/components/PassViewer'
