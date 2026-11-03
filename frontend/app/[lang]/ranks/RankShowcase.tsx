@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import Viewer3D from '@/components/three/Viewer3D'
+import { Viewer3D } from '@/components/three/lazy'
 import { useI18n } from '@/components/LangProvider'
 
 interface TierView {

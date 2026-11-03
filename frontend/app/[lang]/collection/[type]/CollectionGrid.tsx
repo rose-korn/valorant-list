@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { SearchInput, SortSwitch } from '@/components/Filters'
 import Modal from '@/components/Modal'
-import Viewer3D from '@/components/three/Viewer3D'
+import { Viewer3D } from '@/components/three/lazy'
 import { useI18n } from '@/components/LangProvider'
 import { NewBadge } from '@/components/ui'
 import { useNow } from '@/components/useNow'

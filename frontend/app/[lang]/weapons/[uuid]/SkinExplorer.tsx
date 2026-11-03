@@ -1,7 +1,7 @@
 'use client'
 
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
-import Viewer3D from '@/components/three/Viewer3D'
+import { Viewer3D } from '@/components/three/lazy'
 import { Container } from '@/components/ui'
 import { useI18n } from '@/components/LangProvider'
 import Modal from '@/components/Modal'
