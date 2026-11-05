@@ -22,6 +22,9 @@ const STATIC_PATHS = [
   '/share',
   '/play',
   '/play/beat',
+  '/legal/terms',
+  '/legal/privacy',
+  '/legal/cookies',
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

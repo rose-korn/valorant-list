@@ -1,12 +1,16 @@
 import Link from '@/components/Link'
 import { getVersion } from '@/lib/api'
 import { type Lang, dateLocale, dict } from '@/lib/i18n'
+import { LEGAL_DOCS, SITE_START_YEAR, legal, legalUi } from '@/lib/legal'
 import { FUN_LINKS, NAV_LINKS } from './brand'
 import { FxToggle } from './FunLayer'
 
 export default async function Footer({ lang }: { lang: Lang }) {
   const version = await getVersion(lang)
   const t = dict[lang]
+  // ปีตอน build: ปีแรก "© 2026" พอข้ามปีจะเป็น "© 2026–2027" เอง
+  const year = new Date().getFullYear()
+  const years = year > SITE_START_YEAR ? `${SITE_START_YEAR}–${year}` : `${SITE_START_YEAR}`
 
   return (
     <footer className="mt-10 border-t-2 border-ink bg-night text-paper">
@@ -54,9 +58,23 @@ export default async function Footer({ lang }: { lang: Lang }) {
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-5 text-sm text-paper/55 sm:px-6">
           {/* ข้อความที่นโยบาย fan content ของ Riot กำหนดให้ใส่ */}
           <p>{t.footer.legal}</p>
-          <a href="https://valorant-api.com" target="_blank" rel="noreferrer" className="hover:text-red">
+          <a href="https://valorant-api.com" target="_blank" rel="noreferrer" className="w-fit hover:text-red">
             {t.footer.data}
           </a>
+          <div className="mt-3 flex flex-col gap-3 border-t border-paper/10 pt-4 md:flex-row md:items-center md:justify-between">
+            <p>© {years} Valorant List</p>
+            <nav aria-label={legalUi[lang].heading}>
+              <ul className="flex flex-wrap gap-x-4 gap-y-1">
+                {LEGAL_DOCS.map((d) => (
+                  <li key={d}>
+                    <Link href={`/legal/${d}`} className="whitespace-nowrap text-paper/75 underline-offset-4 hover:text-red hover:underline">
+                      {legal[lang][d].tab}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
         </div>
       </div>
     </footer>
