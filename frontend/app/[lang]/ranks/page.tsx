@@ -2,14 +2,14 @@ import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getCompetitiveTiers, getSeasons } from '@/lib/api'
 import { dateLocale } from '@/lib/i18n'
-import { pageMeta, seoTitles } from '@/lib/seo'
+import { pageMeta, seoDescriptions, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { latestTiers, nowMs, rgbaHex } from '@/lib/valorant'
 import RankShowcase from './RankShowcase'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/ranks'>): Promise<Metadata> {
-  const { lang, t } = await getI18n(params)
-  return pageMeta(lang, '/ranks', { title: seoTitles[lang].ranks, description: t.ranks.desc })
+  const { lang } = await getI18n(params)
+  return pageMeta(lang, '/ranks', { title: seoTitles[lang].ranks, description: seoDescriptions[lang].ranks })
 }
 
 export default async function RanksPage({ params }: PageProps<'/[lang]/ranks'>) {

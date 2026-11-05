@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from '@/components/Link'
 import JsonLd from '@/components/JsonLd'
-import { SITE_NAME, SITE_URL, pageMeta, seoTitles } from '@/lib/seo'
+import { SEO_UPDATED, SITE_NAME, SITE_URL, pageMeta, seoTitles } from '@/lib/seo'
 import { PaperScene, Viewer3D } from '@/components/three/lazy'
 import Reveal from '@/components/Reveal'
 import HScroller from '@/components/HScroller'
@@ -11,7 +11,7 @@ import { getI18n } from '@/lib/i18n-server'
 import { agentColor, groupByRole, isCompetitiveMap, isRealSkin, latestTiers } from '@/lib/valorant'
 import { DailyAgentCard, DailyPicks, DailyShareCard } from '@/components/home/Daily'
 import WhatsNew from '@/components/home/WhatsNew'
-import { BUILT_AT } from '@/lib/first-seen'
+import { BUILT_AT, firstSeen } from '@/lib/first-seen'
 import { dailyPlan, newItems } from '@/lib/home-data'
 import {
   getAgents,
@@ -31,11 +31,23 @@ const tilt = (i: number) => ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-2'][i
 
 export async function generateMetadata({ params }: PageProps<'/[lang]'>): Promise<Metadata> {
   const { lang } = await getI18n(params)
+  const [agents, version] = await Promise.all([getAgents(lang), getVersion(lang)])
+  // ใส่แพตช์ปัจจุบัน + เอเจนท์ใหม่ล่าสุด + เดือนที่อัปเดต ให้ผลค้นหาดูสด (คิดตอน build ทุกครั้ง)
+  const patch = version ? version.version.split('.').slice(0, 2).join('.') : null
+  const newest = agents.reduce<{ name: string; day: number } | null>((best, a) => {
+    const day = firstSeen('agents', a.uuid)
+    return day > 0 && (!best || day > best.day) ? { name: a.displayName, day } : best
+  }, null)
   const description =
     lang === 'en'
-      ? 'A free fan site for Valorant agents, abilities, maps with callouts, weapon stats, skins, ranks and collectibles — with 3D views, share cards and mini games.'
-      : 'เว็บข้อมูล Valorant ภาษาไทย ฟรี รวมเอเจนท์และสกิลทุกตัว แผนที่พร้อม callout ดาเมจปืน สกินทุกลาย แรงค์ และของสะสม ดูแบบ 3D ได้ มีสุ่มเอเจนท์และมินิเกม'
-  return pageMeta(lang, '', { title: seoTitles[lang].home, description, absoluteTitle: true })
+      ? `Valorant agents, abilities, maps & callouts, weapon damage, skins and ranks — updated ${SEO_UPDATED.en}${patch ? ` for patch ${patch}` : ''}${newest ? `, including new agent ${newest.name}` : ''}. Free, with 3D views and mini games.`
+      : `ข้อมูล Valorant ภาษาไทย อัปเดต ${SEO_UPDATED.th}${patch ? ` แพตช์ ${patch}` : ''}${newest ? ` มีเอเจนท์ใหม่ ${newest.name} แล้ว` : ''} รวมตัวละครและสกิลทุกตัว แมพพร้อม callout ดาเมจปืน สกินปืน แรงค์ โค้ดเป้า ฟรี ดูแบบ 3D ได้`
+  return pageMeta(lang, '', {
+    title: seoTitles[lang].home,
+    description,
+    absoluteTitle: true,
+    keywords: newest ? [newest.name, lang === 'en' ? `${newest.name} Valorant` : `สกิล ${newest.name}`] : undefined,
+  })
 }
 
 export default async function HomePage({ params }: PageProps<'/[lang]'>) {

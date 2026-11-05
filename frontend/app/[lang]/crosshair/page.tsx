@@ -4,13 +4,13 @@ import { Bone } from '@/components/Skeleton'
 import { Container, PageHero } from '@/components/ui'
 import { getMaps } from '@/lib/api'
 import { getI18n } from '@/lib/i18n-server'
-import { pageMeta, seoTitles } from '@/lib/seo'
+import { pageMeta, seoDescriptions, seoTitles } from '@/lib/seo'
 import { isCompetitiveMap } from '@/lib/valorant'
 import CrosshairLab from './CrosshairLab'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/crosshair'>): Promise<Metadata> {
-  const { lang, t } = await getI18n(params)
-  return pageMeta(lang, '/crosshair', { title: seoTitles[lang].crosshair, description: t.crosshair.desc })
+  const { lang } = await getI18n(params)
+  return pageMeta(lang, '/crosshair', { title: seoTitles[lang].crosshair, description: seoDescriptions[lang].crosshair })
 }
 
 export default async function CrosshairPage({ params }: PageProps<'/[lang]/crosshair'>) {

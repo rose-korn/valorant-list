@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero } from '@/components/ui'
 import { getAgents } from '@/lib/api'
-import { pageMeta, seoTitles } from '@/lib/seo'
+import { pageMeta, seoDescriptions, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { agentColor, groupByRole } from '@/lib/valorant'
 import RandomAgent from './RandomAgent'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/random'>): Promise<Metadata> {
-  const { lang, t } = await getI18n(params)
-  return pageMeta(lang, '/random', { title: seoTitles[lang].random, description: t.random.desc })
+  const { lang } = await getI18n(params)
+  return pageMeta(lang, '/random', { title: seoTitles[lang].random, description: seoDescriptions[lang].random })
 }
 
 export default async function RandomPage({ params }: PageProps<'/[lang]/random'>) {

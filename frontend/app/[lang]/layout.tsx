@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { LangProvider } from '@/components/LangProvider'
 import FunLayer from '@/components/FunLayer'
-import { SITE_URL } from '@/lib/seo'
+import { SEO_YEAR, SITE_URL, seoKeywords } from '@/lib/seo'
 import { getI18n, langParams } from '@/lib/i18n-server'
 
 // ธีม "นิตยสารแฟนเมดพิมพ์ riso" — ชุดฟอนต์เดียวกับโปสเตอร์ Valolist
@@ -71,8 +71,9 @@ export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Prom
     },
     description:
       lang === 'en'
-        ? 'A free fan site for Valorant agents, maps, guns, skins, ranks and collectibles — with 3D views, share cards and a mini aim game.'
-        : 'เว็บแฟนเมดฟรี รวมข้อมูลเอเจนท์ แผนที่ ปืน สกิน แรงค์ และของสะสมของ Valorant มีมุมมอง 3D การ์ดแชร์ และมินิเกมฝึกเล็ง',
+        ? `A free fan site for Valorant agents, maps, guns, skins, ranks and collectibles, updated for ${SEO_YEAR} — with 3D views, share cards and a mini aim game.`
+        : `เว็บข้อมูล Valorant ภาษาไทย ฟรี อัปเดต ${SEO_YEAR} รวมตัวละคร สกิล แมพ ปืน สกิน แรงค์ และของสะสม มีมุมมอง 3D การ์ดแชร์ และมินิเกมฝึกเอม`,
+    keywords: seoKeywords[lang],
   }
 }
 
