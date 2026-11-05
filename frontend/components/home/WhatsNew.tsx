@@ -12,6 +12,7 @@ import { NewBadge } from '@/components/ui'
 import { useNow } from '@/components/useNow'
 import { dateLocale } from '@/lib/i18n'
 import { isNewDay } from '@/lib/valorant'
+import { type RecruitItem, RecruitStrip } from '@/components/RecruitCountdown'
 
 export type NewKind = 'agents' | 'maps' | 'skins' | 'bundles' | 'cards' | 'sprays' | 'buddies'
 
@@ -39,7 +40,18 @@ const KIND_HREF: Record<NewKind, string> = {
 }
 const SHOW = 18
 
-export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; builtAt: number; patch: string | null }) {
+export default function WhatsNew({
+  items,
+  recruits = [],
+  builtAt,
+  patch,
+}: {
+  items: NewItem[]
+  /** อีเวนต์ปลดล็อกเอเจนท์ โชว์เป็นแถบบรรทัดเดียวในกล่องนี้ */
+  recruits?: RecruitItem[]
+  builtAt: number
+  patch: string | null
+}) {
   const { lang, t } = useI18n()
   const h = t.home
   const now = useNow(builtAt)
@@ -48,7 +60,16 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
     () => items.filter((i) => isNewDay(i.day, now)).sort((a, b) => b.day - a.day || ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind)),
     [items, now],
   )
-  if (!fresh.length) return null
+  // ไม่มีของใหม่แต่ยังมีอีเวนต์ปลดล็อก: โชว์แค่แถบนับถอยหลัง
+  if (!fresh.length) {
+    return recruits.some((r) => now < r.end) ? (
+      <section className="border-b-[1.5px] border-ink bg-pink/60 py-5">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <RecruitStrip items={recruits} builtAt={builtAt} />
+        </div>
+      </section>
+    ) : null
+  }
 
   const count = (k: NewKind) => fresh.filter((i) => i.kind === k).length
   const label: Record<NewKind, (n: number) => string> = {
@@ -78,6 +99,8 @@ export default function WhatsNew({ items, builtAt, patch }: { items: NewItem[]; 
             {h.updatedAt(updated)}
           </p>
         </div>
+
+        <RecruitStrip items={recruits} builtAt={builtAt} className="mt-5" />
 
         <ul className="mt-5 flex flex-wrap gap-2">
           {ORDER.filter((k) => count(k) > 0).map((k) => (

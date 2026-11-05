@@ -11,7 +11,6 @@ import { getI18n } from '@/lib/i18n-server'
 import { activeRecruitments, agentColor, groupByRole, isCompetitiveMap, isRealSkin, latestTiers } from '@/lib/valorant'
 import { DailyAgentCard, DailyPicks, DailyShareCard } from '@/components/home/Daily'
 import WhatsNew from '@/components/home/WhatsNew'
-import RecruitCountdown from '@/components/RecruitCountdown'
 import { BUILT_AT, firstSeen } from '@/lib/first-seen'
 import { dailyPlan, newItems } from '@/lib/home-data'
 import {
@@ -150,8 +149,7 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
       </section>
 
       {/* ================= มีอะไรใหม่ ================= */}
-      <RecruitCountdown items={activeRecruitments(agents, BUILT_AT)} builtAt={BUILT_AT} />
-      <WhatsNew items={fresh} builtAt={BUILT_AT} patch={patch} />
+      <WhatsNew items={fresh} recruits={activeRecruitments(agents, BUILT_AT)} builtAt={BUILT_AT} patch={patch} />
 
       {/* ================= ของประจำวัน ================= */}
       <section className="pt-16 md:pt-20">

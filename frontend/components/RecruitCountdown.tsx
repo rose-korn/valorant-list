@@ -90,3 +90,43 @@ export default function RecruitCountdown({ items, builtAt, link = true }: { item
   )
 }
 
+
+/** แถบบรรทัดเดียวสำหรับหน้าแรก (อยู่ในกล่อง "มีอะไรใหม่") กดแล้วไปหน้าเอเจนท์ */
+export function RecruitStrip({ items, builtAt, className = '' }: { items: RecruitItem[]; builtAt: number; className?: string }) {
+  const { lang, t } = useI18n()
+  const r = t.recruit
+  const now = useTicking(builtAt)
+  const live = items.filter((i) => now < i.end)
+  if (!live.length) return null
+
+  return (
+    <ul className={`grid gap-2 ${className}`}>
+      {live.map((a) => {
+        const started = now >= a.start
+        const [d, h, m, s] = split((started ? a.end : a.start) - now)
+        const clock = [h, m, s].map((n) => String(n).padStart(2, '0')).join(':')
+        return (
+          <li key={a.uuid}>
+            <Link
+              href={`/agents/${a.uuid}`}
+              className="flex flex-wrap items-center gap-x-3 gap-y-1 border-[1.5px] border-ink bg-night py-1.5 pr-4 pl-1.5 text-paper transition-transform hover:-translate-y-0.5"
+            >
+              <img src={a.icon} alt="" className="h-9 w-9 shrink-0 border border-paper/60 object-cover" style={{ background: a.color }} />
+              <b className="font-display">{r.title(a.name)}</b>
+              <span className="text-sm text-paper/75">{a.xp.toLocaleString()} XP</span>
+              <span className="text-sm leading-normal sm:ml-auto">
+                {started ? r.endsIn : r.startsIn}{' '}
+                <b className="font-mono tabular-nums">
+                  {d}
+                  {lang === 'en' ? '' : ' '}
+                  {r.units[0]} {clock}
+                </b>{' '}
+                →
+              </span>
+            </Link>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
