@@ -4,7 +4,7 @@
 // วันที่มาจาก first-seen.json (จดตอน build) ส่วนเอเจนท์ใช้ releaseDate ของ API
 // ฝั่ง client กรองด้วยเวลาจริงอีกรอบ ของจะหลุดจากกล่องเองเมื่อครบกำหนด ไม่ต้อง build ใหม่
 
-import { useMemo } from 'react'
+import { Fragment, useMemo } from 'react'
 import Link from '@/components/Link'
 import HScroller from '@/components/HScroller'
 import { useI18n } from '@/components/LangProvider'
@@ -12,7 +12,7 @@ import { NewBadge } from '@/components/ui'
 import { useNow } from '@/components/useNow'
 import { dateLocale } from '@/lib/i18n'
 import { isNewDay } from '@/lib/valorant'
-import { type RecruitItem, RecruitStrip } from '@/components/RecruitCountdown'
+import { type RecruitItem, RecruitStrip, RecruitTile } from '@/components/RecruitCountdown'
 
 export type NewKind = 'agents' | 'maps' | 'skins' | 'bundles' | 'cards' | 'sprays' | 'buddies'
 
@@ -56,10 +56,7 @@ export default function WhatsNew({
   const h = t.home
   const now = useNow(builtAt)
 
-  const fresh = useMemo(
-    () => items.filter((i) => isNewDay(i.day, now)).sort((a, b) => b.day - a.day || ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind)),
-    [items, now],
-  )
+  const fresh = useMemo(() => items.filter((i) => isNewDay(i.day, now)).sort((a, b) => b.day - a.day || ORDER.indexOf(a.kind) - ORDER.indexOf(b.kind)), [items, now])
   // ไม่มีของใหม่แต่ยังมีอีเวนต์ปลดล็อก: โชว์แค่แถบนับถอยหลัง
   if (!fresh.length) {
     return recruits.some((r) => now < r.end) ? (
@@ -71,6 +68,7 @@ export default function WhatsNew({
     ) : null
   }
 
+  const shown = fresh.slice(0, SHOW)
   const count = (k: NewKind) => fresh.filter((i) => i.kind === k).length
   const label: Record<NewKind, (n: number) => string> = {
     agents: h.newAgents,
@@ -81,7 +79,11 @@ export default function WhatsNew({
     sprays: h.newSprays,
     buddies: h.newBuddies,
   }
-  const updated = new Date(builtAt).toLocaleDateString(dateLocale(lang), { day: 'numeric', month: 'short', year: 'numeric' })
+  const updated = new Date(builtAt).toLocaleDateString(dateLocale(lang), {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
 
   return (
     <section className="border-b-[1.5px] border-ink bg-pink/60 py-10 md:py-12">
@@ -100,8 +102,6 @@ export default function WhatsNew({
           </p>
         </div>
 
-        <RecruitStrip items={recruits} builtAt={builtAt} className="mt-5" />
-
         <ul className="mt-5 flex flex-wrap gap-2">
           {ORDER.filter((k) => count(k) > 0).map((k) => (
             <li key={k}>
@@ -113,29 +113,38 @@ export default function WhatsNew({
         </ul>
 
         <HScroller className="soft-scroll -mx-4 mt-6 flex snap-x scroll-px-4 gap-4 overflow-x-auto scroll-smooth px-4 pt-2 pb-4 sm:-mx-6 sm:scroll-px-6 sm:px-6">
-          {fresh.slice(0, SHOW).map((item) => (
-            <Link
-              key={`${item.kind}:${item.uuid}`}
-              href={item.href}
-              className="card card-hover w-36 shrink-0 snap-start p-2 md:w-40"
-            >
-              <div
-                className={`flex aspect-square items-center justify-center overflow-hidden rounded-md ${
-                  item.kind === 'skins' || item.kind === 'buddies' || item.kind === 'sprays' ? 'skeleton-dark p-2' : 'skeleton'
-                }`}
-              >
-                {item.image && (
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    loading="lazy"
-                    className={item.kind === 'skins' || item.kind === 'buddies' || item.kind === 'sprays' ? 'max-h-full max-w-full object-contain' : 'h-full w-full object-cover object-top'}
-                  />
-                )}
-              </div>
-              <p className="mt-1.5 line-clamp-2 px-0.5 text-sm leading-snug font-semibold">{item.name}</p>
-              {item.sub && <p className="truncate px-0.5 text-xs text-ink-soft">{item.sub}</p>}
-            </Link>
+          {recruits
+            .filter((r) => !shown.some((i) => i.kind === 'agents' && i.uuid === r.uuid))
+            .map((r) => (
+              <RecruitTile key={`recruit:${r.uuid}`} item={r} builtAt={builtAt} />
+            ))}
+          {shown.map((item) => (
+            <Fragment key={`${item.kind}:${item.uuid}`}>
+              <Link href={item.href} className="card card-hover w-36 shrink-0 snap-start p-2 md:w-40">
+                <div
+                  className={`flex aspect-square items-center justify-center overflow-hidden rounded-md ${
+                    item.kind === 'skins' || item.kind === 'buddies' || item.kind === 'sprays' ? 'skeleton-dark p-2' : 'skeleton'
+                  }`}
+                >
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      loading="lazy"
+                      className={
+                        item.kind === 'skins' || item.kind === 'buddies' || item.kind === 'sprays'
+                          ? 'max-h-full max-w-full object-contain'
+                          : 'h-full w-full object-cover object-top'
+                      }
+                    />
+                  )}
+                </div>
+                <p className="mt-1.5 line-clamp-2 px-0.5 text-sm leading-snug font-semibold">{item.name}</p>
+                {item.sub && <p className="truncate px-0.5 text-xs text-ink-soft">{item.sub}</p>}
+              </Link>
+              {/* อีเวนต์ปลดล็อกวางติดการ์ดเอเจนท์ตัวนั้น */}
+              {item.kind === 'agents' && recruits.filter((r) => r.uuid === item.uuid).map((r) => <RecruitTile key={`recruit:${r.uuid}`} item={r} builtAt={builtAt} />)}
+            </Fragment>
           ))}
           {fresh.length > SHOW && (
             <span className="flex w-28 shrink-0 items-center justify-center text-center font-mono text-sm text-blue">+ {h.newMore(fresh.length - SHOW)}</span>

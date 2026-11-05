@@ -130,3 +130,33 @@ export function RecruitStrip({ items, builtAt, className = '' }: { items: Recrui
     </ul>
   )
 }
+
+/** การ์ดนับถอยหลังขนาดเท่าการ์ดในกล่อง "มีอะไรใหม่" วางต่อจากการ์ดเอเจนท์ตัวนั้น */
+export function RecruitTile({ item: a, builtAt }: { item: RecruitItem; builtAt: number }) {
+  const { t } = useI18n()
+  const r = t.recruit
+  const now = useTicking(builtAt)
+  if (now >= a.end) return null
+  const started = now >= a.start
+  const parts = split((started ? a.end : a.start) - now)
+  const done = started ? Math.min(1, (now - a.start) / (a.end - a.start)) : 0
+
+  return (
+    <Link href={`/agents/${a.uuid}`} className="card card-hover flex w-48 shrink-0 snap-start flex-col !bg-night p-3 text-paper sm:w-64 md:w-72">
+      <p className="font-display text-lg leading-snug font-bold">{r.title(a.name)}</p>
+      <p className="text-sm text-paper/75">{a.xp.toLocaleString()} XP</p>
+      <p className="mt-auto pt-3 text-xs text-paper/70">{started ? r.endsIn : r.startsIn}</p>
+      <div className="mt-1 grid grid-cols-4 gap-1 sm:gap-1.5" role="timer">
+        {parts.map((n, i) => (
+          <span key={i} className="flex flex-col items-center border-[1.5px] border-paper bg-ink py-1">
+            <b className="font-display text-xl tabular-nums">{String(n).padStart(2, '0')}</b>
+            <span className="text-[11px] leading-normal text-paper/70">{r.units[i]}</span>
+          </span>
+        ))}
+      </div>
+      <div className="mt-3 h-1.5 border border-paper/60" aria-hidden>
+        <div className="h-full bg-red" style={{ width: `${done * 100}%` }} />
+      </div>
+    </Link>
+  )
+}
