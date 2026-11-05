@@ -11,6 +11,7 @@ const STATIC_PATHS = [
   '',
   '/agents',
   '/random',
+  '/crosshair',
   '/maps',
   '/weapons',
   '/ranks',

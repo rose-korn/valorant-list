@@ -19,6 +19,7 @@ export const FUN_LINKS = [
   // มินิเกมเปิดที่ Spike Beat ก่อน (Aim Rush อยู่แท็บที่สองที่ /play)
   { href: '/play/beat', key: 'play' },
   { href: '/random', key: 'random' },
+  { href: '/crosshair', key: 'crosshair' },
 ] as const
 
 /** ลิงก์นี้คือหน้าปัจจุบันไหม — มินิเกมนับทั้ง /play และ /play/beat */
