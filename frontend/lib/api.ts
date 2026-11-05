@@ -15,6 +15,7 @@ import type {
   GameMap,
   GameMode,
   Gear,
+  LevelBorder,
   PlayerCard,
   PlayerTitle,
   Season,
@@ -109,4 +110,6 @@ export const getCurrencies = (lang: Lang) => request<Currency[]>(lang, '/currenc
 export const getContracts = (lang: Lang) => request<Contract[]>(lang, '/contracts', [])
 export const getContract = async (lang: Lang, uuid: string) => byUuid(await getContracts(lang), uuid)
 export const getFlex = (lang: Lang) => request<Flex[]>(lang, '/flex', [])
+export const getLevelBorders = async (lang: Lang) =>
+  [...(await request<LevelBorder[]>(lang, '/levelborders', []))].sort((a, b) => a.startingLevel - b.startingLevel)
 export const getVersion = (lang: Lang) => request<VersionInfo | null>(lang, '/version', null)

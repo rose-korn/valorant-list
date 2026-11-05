@@ -15,6 +15,7 @@ const STATIC_PATHS = [
   '/maps',
   '/weapons',
   '/ranks',
+  '/levels',
   '/bundles',
   '/battlepass',
   '/collection',

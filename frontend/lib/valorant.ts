@@ -28,6 +28,28 @@ export interface Agent {
   role: { uuid: string; displayName: string; description: string; displayIcon: string } | null
   abilities: Ability[]
   voiceLine: { mediaList: { id: number; wwise: string; wave: string }[] } | null
+  /** ช่วงอีเวนต์ปลดล็อกเอเจนท์ใหม่ (Recruitment) — milestoneThreshold = XP ที่ต้องเก็บให้ครบเพื่อปลดฟรี */
+  recruitmentData: AgentRecruitment | null
+}
+
+export interface AgentRecruitment {
+  counterId: string
+  milestoneId: string
+  milestoneThreshold: number
+  useLevelVpCostOverride: boolean
+  levelVpCostOverride: number
+  startDate: string
+  endDate: string
+}
+
+/** กรอบเลเวลบัญชี (/levelborders) — ได้กรอบใหม่ทุก 20 เลเวล */
+export interface LevelBorder {
+  uuid: string
+  displayName: string
+  startingLevel: number
+  levelNumber: number
+  levelNumberAppearance: string
+  smallPlayerCardAppearance: string
 }
 
 export interface Callout {
@@ -466,4 +488,17 @@ export function pickOfDay<T>(pool: T[], day: number, salt: number): T | null {
     ;[order[i], order[j]] = [order[j], order[i]]
   }
   return pool[order[((day % n) + n) % n]]
+}
+
+/**
+ * อีเวนต์ปลดล็อกเอเจนท์ (recruitmentData) ที่ยังไม่จบ ณ เวลา `at` สำหรับแถบนับถอยหลัง
+ * ฝั่ง client จะกรองด้วยเวลาจริงอีกรอบ
+ */
+export function activeRecruitments(agents: Agent[], at: number) {
+  return agents.flatMap((a) => {
+    const rd = a.recruitmentData
+    const end = rd ? Date.parse(rd.endDate) : NaN
+    if (!rd || !(end > at)) return []
+    return [{ uuid: a.uuid, name: a.displayName, icon: a.displayIcon, color: agentColor(a), xp: rd.milestoneThreshold, start: Date.parse(rd.startDate), end }]
+  })
 }
