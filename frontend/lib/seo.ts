@@ -29,7 +29,7 @@ const Y = SEO_YEAR
  */
 export const seoTitles = {
   th: {
-    home: `Valorant List — ข้อมูล Valorant ภาษาไทย ${Y} ตัวละคร สกิล แมพ สกินปืน`,
+    home: `วาโลไทย — ข้อมูล Valorant ภาษาไทย ${Y} ตัวละคร สกิล แมพ สกินปืน · Valorant List`,
     agents: `ตัวละคร Valorant ทั้งหมด ${Y} รวมเอเจนท์และสกิลทุกตัว`,
     agent: (name: string) => `สกิล ${name} Valorant ครบทุกท่า อัปเดต ${Y}`,
     maps: `แมพ Valorant ทั้งหมด ${Y} พร้อม callout ทุกจุด`,
@@ -103,7 +103,7 @@ export const seoDescriptions = {
 
 /** meta keywords (Google ไม่ใช้แล้ว แต่ Bing / Naver / Yandex ยังอ่าน) */
 export const seoKeywords = {
-  th: ['Valorant', 'วาโลแรนท์', 'วาโล', 'ตัวละคร Valorant', 'เอเจนท์ Valorant', 'สกิล Valorant', 'แมพ Valorant', 'callout Valorant', 'ปืน Valorant', 'สกินปืน Valorant', 'แรงค์ Valorant', 'โค้ดเป้า Valorant', 'crosshair Valorant', 'ฝึกเอม', `Valorant ${Y}`],
+  th: ['Valorant', 'วาโลไทย', 'Valo Thai', 'วาโลแรนท์', 'วาโลแรนท์ไทย', 'วาโล', 'วาโร', 'วาโรไทย', 'ตัวละคร Valorant', 'เอเจนท์ Valorant', 'สกิล Valorant', 'แมพ Valorant', 'callout Valorant', 'ปืน Valorant', 'สกินปืน Valorant', 'แรงค์ Valorant', 'โค้ดเป้า Valorant', 'crosshair Valorant', 'ฝึกเอม', `Valorant ${Y}`],
   en: ['Valorant', 'Valorant agents', 'Valorant abilities', 'Valorant maps', 'Valorant callouts', 'Valorant weapons', 'Valorant skins', 'Valorant ranks', 'Valorant crosshair codes', 'Valorant aim trainer', `Valorant ${Y}`],
 } satisfies Record<Lang, string[]>
 
