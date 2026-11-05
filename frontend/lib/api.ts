@@ -49,8 +49,9 @@ function parseApiJson(text: string) {
 async function fetchJson(url: string) {
   for (let attempt = 0; ; attempt++) {
     try {
-      // รอบแรกใช้ cache ได้ แต่รอบลองใหม่ต้องยิงสดเสมอ ไม่งั้น Next จะคืนก้อนเสียเดิมจาก cache ทุกรอบ
-      const res = await fetch(url, { cache: attempt === 0 ? 'force-cache' : 'no-store' })
+      // รอบลองใหม่ต้องได้ของสด ไม่งั้น Next จะคืนก้อนเสียเดิมจาก cache ทุกรอบ
+      // ห้ามใช้ cache: 'no-store' — static export จะ error ว่าหน้าเป็น dynamic เลยเติม query ให้ URL ต่างไปแทน
+      const res = await fetch(attempt === 0 ? url : `${url}&_retry=${attempt}`, { cache: 'force-cache' })
       if (res.ok) return parseApiJson(await res.text())?.data
       if (res.status !== 429 && res.status < 500) throw new Error(`HTTP ${res.status}`)
       throw new Error(`HTTP ${res.status} (retry)`)

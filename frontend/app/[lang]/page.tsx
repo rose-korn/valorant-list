@@ -40,8 +40,8 @@ export async function generateMetadata({ params }: PageProps<'/[lang]'>): Promis
   }, null)
   const description =
     lang === 'en'
-      ? `Valorant agents, abilities, maps & callouts, weapon damage, skins and ranks — updated ${SEO_UPDATED.en}${patch ? ` for patch ${patch}` : ''}${newest ? `, including new agent ${newest.name}` : ''}. Free, with 3D views and mini games.`
-      : `วาโลไทย: ข้อมูล Valorant ภาษาไทย อัปเดต ${SEO_UPDATED.th}${patch ? ` แพตช์ ${patch}` : ''}${newest ? ` มีเอเจนท์ใหม่ ${newest.name} แล้ว` : ''} รวมตัวละครและสกิลทุกตัว แมพพร้อม callout ดาเมจปืน สกินปืน แรงค์ โค้ดเป้า ฟรี ดูแบบ 3D ได้`
+      ? `Valorant agents, abilities, maps & callouts, weapon damage, skins and ranks, updated ${SEO_UPDATED.en}${patch ? ` for patch ${patch}` : ''}${newest ? `, including new agent ${newest.name}` : ''}. Free, with 3D views and mini games.`
+      : `วาโลไทย: ข้อมูล Valorant ภาษาไทย อัปเดต ${SEO_UPDATED.th}${patch ? ` แพตช์ ${patch}` : ''}${newest ? ` มีเอเจนท์ใหม่ ${newest.name} แล้ว` : ''} รวมตัวละครกับสกิลทุกตัว แมพพร้อม callout ดาเมจปืน สกินปืน แรงค์ และโค้ดเป้า เปิดดูฟรี หมุนดูแบบ 3D ได้`
   return pageMeta(lang, '', {
     title: seoTitles[lang].home,
     description,
