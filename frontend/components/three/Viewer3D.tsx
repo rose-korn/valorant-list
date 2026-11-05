@@ -5,6 +5,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import {
   createRenderer,
+  releaseRenderer,
   disposeObject,
   loadTexture,
   onResize,
@@ -241,8 +242,7 @@ export default function Viewer3D({ src, accent = '#ff4654', variant = 'weapon', 
       orbit.dispose()
       disposeObject(scene)
       floorTex.dispose()
-      renderer.dispose()
-      renderer.domElement.remove()
+      releaseRenderer(renderer)
     }
   }, [variant, accent, supported])
 

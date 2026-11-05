@@ -6,7 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import type { GameMap } from '@/lib/valorant'
 import { calloutToUV } from '@/lib/valorant'
-import { createRenderer, disposeObject, loadTexture, onResize, prefersReducedMotion, runLoop, useWebGLSupport } from './utils'
+import { createRenderer, releaseRenderer, disposeObject, loadTexture, onResize, prefersReducedMotion, runLoop, useWebGLSupport } from './utils'
 import { useI18n } from '../LangProvider'
 
 const PALETTE = ['#ff4654', '#2bb5a0', '#f2b84b', '#8ec5ff', '#ff9f5a', '#c58bff', '#f4efe6', '#7ee081']
@@ -236,8 +236,7 @@ export default function MapViewer3D({ map, className = '' }: { map: MapLike; cla
       stopResize()
       orbit.dispose()
       disposeObject(scene)
-      renderer.dispose()
-      renderer.domElement.remove()
+      releaseRenderer(renderer)
       labelRenderer.domElement.remove()
     }
   }, [map, regions, supported])

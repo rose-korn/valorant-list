@@ -90,7 +90,10 @@ export function hasWebGL() {
   if (webglSupport !== null) return webglSupport
   try {
     const canvas = document.createElement('canvas')
-    webglSupport = !!(window.WebGLRenderingContext && (canvas.getContext('webgl2') || canvas.getContext('webgl')))
+    const gl = window.WebGLRenderingContext ? canvas.getContext('webgl2') || canvas.getContext('webgl') : null
+    webglSupport = !!gl
+    // canvas นี้ใช้เช็คอย่างเดียว คืน context ทันที ไม่ให้นับรวมในโควต้า WebGL ของเบราว์เซอร์
+    gl?.getExtension('WEBGL_lose_context')?.loseContext()
   } catch {
     webglSupport = false
   }
@@ -118,6 +121,18 @@ export function createRenderer(container: HTMLElement, alpha = true) {
   renderer.domElement.style.height = '100%'
   container.appendChild(renderer.domElement)
   return renderer
+}
+
+/**
+ * ปิดฉาก 3D ให้หมดจริง ๆ ตอน unmount
+ * renderer.dispose() อย่างเดียวคืนแค่ buffer/texture แต่ WebGL context ยังค้างอยู่จนกว่า GC จะเก็บ
+ * สลับหน้าไปมาหลายรอบ context จะสะสมจนเบราว์เซอร์เตือน "Too many active WebGL contexts" แล้วเว็บหนืด
+ * เลยต้อง forceContextLoss() คืน context ให้เบราว์เซอร์ทันที
+ */
+export function releaseRenderer(renderer: THREE.WebGLRenderer) {
+  renderer.dispose()
+  renderer.forceContextLoss()
+  renderer.domElement.remove()
 }
 
 /**
