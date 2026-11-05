@@ -10,10 +10,12 @@ import { buildPassChapters, buildRewardIndex } from '@/lib/rewards'
 import { SEO_YEAR, agentSummary, pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
 import JsonLd from '@/components/JsonLd'
 import { getI18n, toLang } from '@/lib/i18n-server'
-import { KEYBIND, SLOT_ORDER, agentColor } from '@/lib/valorant'
+import { KEYBIND, SLOT_ORDER, activeRecruitments, agentColor } from '@/lib/valorant'
 import AbilityPanel from './AbilityPanel'
 import VoiceLine from './VoiceLine'
 import RichText, { stripTags } from '@/components/RichText'
+import RecruitCountdown from '@/components/RecruitCountdown'
+import { BUILT_AT } from '@/lib/first-seen'
 
 // build ทุกหน้าไว้ล่วงหน้า (static export) อันที่ไม่อยู่ในลิสต์ = 404
 export async function generateStaticParams({ params }: { params: { lang: string } }) {
@@ -121,6 +123,9 @@ export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[u
           </div>
         </Container>
       </section>
+
+      {/* อีเวนต์ปลดล็อกเอเจนท์ใหม่ (ถ้ามีและยังไม่จบ) */}
+      <RecruitCountdown items={activeRecruitments([agent], BUILT_AT)} builtAt={BUILT_AT} link={false} />
 
       {/* ================= ABILITIES ================= */}
       <section id="abilities" className="scroll-mt-20 py-14 md:py-20">

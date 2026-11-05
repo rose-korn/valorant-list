@@ -3,6 +3,7 @@ import Link from '@/components/Link'
 import Reveal from '@/components/Reveal'
 import { Container, PageHero } from '@/components/ui'
 import { pageMeta, seoTitles } from '@/lib/seo'
+import { getLevelBorders } from '@/lib/api'
 import { getI18n } from '@/lib/i18n-server'
 import { type CollectionKind, KINDS, getCollection } from './data'
 
@@ -16,7 +17,7 @@ const BG: Record<CollectionKind, string> = { cards: '!bg-card', sprays: '!bg-pin
 export default async function CollectionPage({ params }: PageProps<'/[lang]/collection'>) {
   const { lang, t } = await getI18n(params)
   const kinds = KINDS
-  const data = await Promise.all(kinds.map((k) => getCollection(lang, k)))
+  const [data, borders] = await Promise.all([Promise.all(kinds.map((k) => getCollection(lang, k))), getLevelBorders(lang)])
   const c = t.collection
 
   return (
@@ -57,6 +58,24 @@ export default async function CollectionPage({ params }: PageProps<'/[lang]/coll
             )
           })}
         </div>
+        {borders.length > 0 && (
+          <Reveal delay={kinds.length * 70}>
+            <Link href="/levels" className="card card-hover relative mt-6 flex min-h-40 flex-col overflow-hidden !bg-night p-6 text-paper">
+              <span className="font-poster text-4xl text-mustard">{String(kinds.length + 1).padStart(2, '0')}</span>
+              <h2 className="mt-3 text-3xl font-bold">{t.levels.tile[0]}</h2>
+              <p className="mt-1 max-w-sm text-paper/80">{t.levels.tile[1]}</p>
+              <p className="mt-auto pt-4 font-display font-bold">{t.levels.from(1)} → {t.levels.from(borders.at(-1)!.startingLevel)}</p>
+              <div className="pointer-events-none absolute right-4 bottom-4 flex items-end gap-1 max-sm:hidden">
+                {[0, 6, 12, 18, 24]
+                  .map((n) => borders[n])
+                  .filter(Boolean)
+                  .map((b) => (
+                    <img key={b.uuid} src={b.smallPlayerCardAppearance} alt="" loading="lazy" className="h-16 w-16 object-contain md:h-20 md:w-20" />
+                  ))}
+              </div>
+            </Link>
+          </Reveal>
+        )}
       </Container>
     </>
   )
