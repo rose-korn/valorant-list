@@ -4,15 +4,15 @@ import Reveal from '@/components/Reveal'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getContracts, getSeasons } from '@/lib/api'
 import { dateLocale } from '@/lib/i18n'
-import { pageMeta, seoTitles } from '@/lib/seo'
+import { pageMeta, seoDescriptions, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { buildRewardIndex } from '@/lib/rewards'
 import { type Contract, actLabel } from '@/lib/valorant'
 import { Crosshair } from '@/components/brand'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/battlepass'>): Promise<Metadata> {
-  const { lang, t } = await getI18n(params)
-  return pageMeta(lang, '/battlepass', { title: seoTitles[lang].battlepass, description: t.battlepass.desc })
+  const { lang } = await getI18n(params)
+  return pageMeta(lang, '/battlepass', { title: seoTitles[lang].battlepass, description: seoDescriptions[lang].battlepass })
 }
 
 const tilt = ['-rotate-1', 'rotate-1', 'rotate-[0.5deg]', '-rotate-[0.5deg]']

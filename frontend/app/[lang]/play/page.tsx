@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
 import { Container, PageHero } from '@/components/ui'
-import { pageMeta, seoTitles } from '@/lib/seo'
+import { pageMeta, seoDescriptions, seoTitles } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import AimRush from './AimRush'
 import { GameTabs, getRanks } from './shared'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/play'>): Promise<Metadata> {
-  const { lang, t } = await getI18n(params)
-  return pageMeta(lang, '/play', { title: seoTitles[lang].play, description: t.play.desc })
+  const { lang } = await getI18n(params)
+  return pageMeta(lang, '/play', { title: seoTitles[lang].play, description: seoDescriptions[lang].play })
 }
 
 export default async function PlayPage({ params }: PageProps<'/[lang]/play'>) {

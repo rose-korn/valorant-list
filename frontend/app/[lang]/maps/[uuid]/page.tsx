@@ -5,7 +5,7 @@ import HScroller from '@/components/HScroller'
 import { MapViewer3D } from '@/components/three/lazy'
 import { BackLink, Container, SectionHeading } from '@/components/ui'
 import { getMap, getMaps } from '@/lib/api'
-import { pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
+import { pageMeta, seoTitles, clip, breadcrumbLd, mapSummary } from '@/lib/seo'
 import JsonLd from '@/components/JsonLd'
 import { getI18n, toLang } from '@/lib/i18n-server'
 import { isCompetitiveMap, type GameMap } from '@/lib/valorant'
@@ -49,6 +49,7 @@ export default async function MapPage({ params }: PageProps<'/[lang]/maps/[uuid]
   const prev = idx >= 0 && ordered.length > 1 ? ordered[(idx - 1 + ordered.length) % ordered.length] : null
   const next = idx >= 0 && ordered.length > 1 ? ordered[(idx + 1) % ordered.length] : null
   const others = ordered.filter((m) => m.uuid !== map.uuid && isCompetitiveMap(m) === isCompetitiveMap(map))
+  const summary = mapSummary(lang, map.displayName, map.callouts?.length ?? 0, grouped.map(([zone]) => zone))
   const gallery = [map.splash, map.stylizedBackgroundImage, map.premierBackgroundImage].filter(Boolean) as string[]
 
   return (
@@ -82,6 +83,7 @@ export default async function MapPage({ params }: PageProps<'/[lang]/maps/[uuid]
               {map.coordinates && <span className="chip font-mono text-xs">{map.coordinates}</span>}
             </div>
             {map.narrativeDescription && <p className="mt-5 max-w-xl text-lg text-ink-soft">{map.narrativeDescription}</p>}
+            {summary && <p className="mt-3 max-w-xl text-sm text-ink-soft">{summary}</p>}
           </div>
           {map.splash && (
             <div className="card tape rotate-1 p-2.5">

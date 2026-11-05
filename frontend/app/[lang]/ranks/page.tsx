@@ -2,14 +2,14 @@ import type { Metadata } from 'next'
 import { Container, EmptyState, PageHero, SectionHeading } from '@/components/ui'
 import { getCompetitiveTiers, getSeasons } from '@/lib/api'
 import { dateLocale } from '@/lib/i18n'
-import { pageMeta, seoTitles } from '@/lib/seo'
+import { pageMeta, seoDescriptions, seoTitles, ranksSummary } from '@/lib/seo'
 import { getI18n } from '@/lib/i18n-server'
 import { latestTiers, nowMs, rgbaHex } from '@/lib/valorant'
 import RankShowcase from './RankShowcase'
 
 export async function generateMetadata({ params }: PageProps<'/[lang]/ranks'>): Promise<Metadata> {
-  const { lang, t } = await getI18n(params)
-  return pageMeta(lang, '/ranks', { title: seoTitles[lang].ranks, description: t.ranks.desc })
+  const { lang } = await getI18n(params)
+  return pageMeta(lang, '/ranks', { title: seoTitles[lang].ranks, description: seoDescriptions[lang].ranks })
 }
 
 export default async function RanksPage({ params }: PageProps<'/[lang]/ranks'>) {
@@ -23,6 +23,15 @@ export default async function RanksPage({ params }: PageProps<'/[lang]/ranks'>) 
     icon: t.largeIcon!,
     small: t.smallIcon,
   }))
+
+  // นับขั้นแรงค์ (Iron, Bronze, …) และจำนวนระดับในแต่ละขั้น สำหรับประโยคสรุปบนหน้า
+  const divisions = tiers.reduce<{ name: string; count: number }[]>((acc, t) => {
+    const last = acc[acc.length - 1]
+    if (last && last.name === t.division) last.count++
+    else acc.push({ name: t.division, count: 1 })
+    return acc
+  }, [])
+  const summary = ranksSummary(lang, divisions)
 
   // Episode (ไม่มี parent) → Acts (parentUuid = episode)
   const now = nowMs()
@@ -49,7 +58,10 @@ export default async function RanksPage({ params }: PageProps<'/[lang]/ranks'>) 
         note={t.ranks.note}
       />
 
-      <Container className="py-10 md:py-14">{tiers.length ? <RankShowcase tiers={tiers} /> : <EmptyState text={t.common.empty} />}</Container>
+      <Container className="py-10 md:py-14">
+        {summary && <p className="mb-6 max-w-3xl text-sm text-ink-soft">{summary}</p>}
+        {tiers.length ? <RankShowcase tiers={tiers} /> : <EmptyState text={t.common.empty} />}
+      </Container>
 
       {episodes.length > 0 && (
         <section className="border-t-2 border-ink bg-paper-2 py-12 md:py-16">

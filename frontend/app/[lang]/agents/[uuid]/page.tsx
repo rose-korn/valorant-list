@@ -7,10 +7,10 @@ import { BackLink, Container, SectionHeading } from '@/components/ui'
 import PassViewer from '@/components/PassViewer'
 import { getAgent, getAgents, getContracts } from '@/lib/api'
 import { buildPassChapters, buildRewardIndex } from '@/lib/rewards'
-import { pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
+import { SEO_YEAR, agentSummary, pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
 import JsonLd from '@/components/JsonLd'
 import { getI18n, toLang } from '@/lib/i18n-server'
-import { SLOT_ORDER, agentColor } from '@/lib/valorant'
+import { KEYBIND, SLOT_ORDER, agentColor } from '@/lib/valorant'
 import AbilityPanel from './AbilityPanel'
 import VoiceLine from './VoiceLine'
 import RichText, { stripTags } from '@/components/RichText'
@@ -26,7 +26,18 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/agents/[uu
   const { uuid } = await params
   const agent = await getAgent(lang, uuid)
   const name = agent?.displayName ?? 'Agent'
-  return pageMeta(lang, `/agents/${uuid}`, { title: seoTitles[lang].agent(name), description: clip(stripTags(agent?.description)) })
+  const role = agent?.role?.displayName
+  const lore = stripTags(agent?.description)
+  // ขึ้นต้นด้วยคำที่คนค้น (สกิล X ทุกท่า) แล้วค่อยต่อเนื้อเรื่องตัวละคร
+  const description =
+    lang === 'en'
+      ? `${name}${role ? ` (${role})` : ''} abilities and ultimate in Valorant ${SEO_YEAR}, with voice lines and a 3D model. ${lore}`
+      : `สกิล ${name}${role ? ` (${role})` : ''} Valorant ครบทุกท่า C Q E และอัลติ X อัปเดต ${SEO_YEAR} ฟังเสียงพากย์ หมุนดูแบบ 3D — ${lore}`
+  return pageMeta(lang, `/agents/${uuid}`, {
+    title: seoTitles[lang].agent(name),
+    description: clip(description),
+    keywords: lang === 'en' ? [name, `${name} abilities`, `${name} Valorant`] : [name, `สกิล ${name}`, `${name} Valorant`, `วิธีเล่น ${name}`],
+  })
 }
 
 export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[uuid]'>) {
@@ -115,6 +126,14 @@ export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[u
       <section id="abilities" className="scroll-mt-20 py-14 md:py-20">
         <Container>
           <SectionHeading title={t.agents.abilitiesTitle} note={t.agents.abilitiesNote} />
+          <p className="-mt-2 mb-6 max-w-3xl text-sm text-ink-soft">
+            {agentSummary(
+              lang,
+              agent.displayName,
+              agent.role?.displayName,
+              abilities.map((a) => ({ name: a.displayName, key: KEYBIND[a.slot] ?? a.slot, ultimate: a.slot === 'Ultimate', passive: a.slot === 'Passive' })),
+            )}
+          </p>
           <AbilityPanel abilities={abilities} color={color} />
         </Container>
       </section>

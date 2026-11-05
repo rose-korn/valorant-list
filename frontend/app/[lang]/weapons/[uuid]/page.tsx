@@ -25,7 +25,11 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/weapons/[u
     lang === 'en'
       ? `${name} in Valorant: damage by range, fire rate, magazine and price, plus all ${skins} skins with 3D view.`
       : `${name} ใน Valorant: ดาเมจตามระยะ อัตรายิง แม็ก ราคา และสกินทั้งหมด ${skins} ลาย หมุนดูแบบ 3D ได้`
-  return pageMeta(lang, `/weapons/${uuid}`, { title: seoTitles[lang].weapon(name), description })
+  return pageMeta(lang, `/weapons/${uuid}`, {
+    title: seoTitles[lang].weapon(name),
+    description,
+    keywords: lang === 'en' ? [name, `${name} skins`, `${name} damage`] : [name, `สกิน ${name}`, `ดาเมจ ${name}`],
+  })
 }
 
 const HP = 150
