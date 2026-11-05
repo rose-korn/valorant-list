@@ -13,6 +13,8 @@ export interface RecruitItem {
   uuid: string
   name: string
   icon: string
+  /** รูปเต็มตัว ใช้เป็นพื้นหลังการ์ดบนจอใหญ่ */
+  portrait?: string | null
   color: string
   /** XP ที่ต้องเก็บให้ครบ */
   xp: number
@@ -131,31 +133,60 @@ export function RecruitStrip({ items, builtAt, className = '' }: { items: Recrui
   )
 }
 
-/** การ์ดนับถอยหลังขนาดเท่าการ์ดในกล่อง "มีอะไรใหม่" วางต่อจากการ์ดเอเจนท์ตัวนั้น */
+/**
+ * การ์ดนับถอยหลังในแถว "มีอะไรใหม่" วางต่อจากการ์ดเอเจนท์ตัวนั้น
+ * มือถือ: การ์ดแคบพอให้อยู่จอเดียวกับการ์ดเอเจนท์ / จอใหญ่: ขยายเต็มที่ที่เหลือ มีรูปตัวละครกับรายละเอียดเพิ่ม
+ */
 export function RecruitTile({ item: a, builtAt }: { item: RecruitItem; builtAt: number }) {
-  const { t } = useI18n()
+  const { lang, t } = useI18n()
   const r = t.recruit
   const now = useTicking(builtAt)
   if (now >= a.end) return null
   const started = now >= a.start
   const parts = split((started ? a.end : a.start) - now)
   const done = started ? Math.min(1, (now - a.start) / (a.end - a.start)) : 0
+  const daysLeft = Math.max(1, (a.end - Math.max(now, a.start)) / DAY)
+  const fmt = (ms: number) => new Date(ms).toLocaleDateString(dateLocale(lang), { day: 'numeric', month: 'short' })
 
   return (
-    <Link href={`/agents/${a.uuid}`} className="card card-hover flex w-48 shrink-0 snap-start flex-col !bg-night p-3 text-paper sm:w-64 md:w-72">
-      <p className="font-display text-lg leading-snug font-bold">{r.title(a.name)}</p>
-      <p className="text-sm text-paper/75">{a.xp.toLocaleString()} XP</p>
-      <p className="mt-auto pt-3 text-xs text-paper/70">{started ? r.endsIn : r.startsIn}</p>
-      <div className="mt-1 grid grid-cols-4 gap-1 sm:gap-1.5" role="timer">
-        {parts.map((n, i) => (
-          <span key={i} className="flex flex-col items-center border-[1.5px] border-paper bg-ink py-1">
-            <b className="font-display text-xl tabular-nums">{String(n).padStart(2, '0')}</b>
-            <span className="text-[11px] leading-normal text-paper/70">{r.units[i]}</span>
-          </span>
-        ))}
-      </div>
-      <div className="mt-3 h-1.5 border border-paper/60" aria-hidden>
-        <div className="h-full bg-red" style={{ width: `${done * 100}%` }} />
+    <Link
+      href={`/agents/${a.uuid}`}
+      className="card card-hover group relative flex w-48 shrink-0 snap-start flex-col overflow-hidden !bg-night p-3 text-paper sm:w-64 lg:min-w-[40rem] lg:grow lg:p-5"
+      style={{ backgroundImage: `radial-gradient(ellipse at 85% 40%, ${a.color}aa, transparent 65%)` }}
+    >
+      {a.portrait && (
+        <img
+          src={a.portrait}
+          alt=""
+          loading="lazy"
+          className="pointer-events-none absolute top-[-15%] left-[38%] hidden h-[190%] w-auto max-w-none object-contain opacity-70 transition-transform duration-500 group-hover:scale-105 lg:block"
+        />
+      )}
+      {/* มือถือ: เรียงลงมา / จอใหญ่: ชื่อ+รายละเอียดซ้าย ตัวเลขขวา สูงเท่าการ์ดข้าง ๆ */}
+      <div className="relative flex h-full flex-col lg:flex-row lg:items-end lg:justify-between lg:gap-6">
+        <div className="flex flex-col lg:h-full">
+          <p className="font-mono text-[11px] tracking-widest text-paper/60 uppercase max-lg:hidden">Recruitment</p>
+          <p className="font-display text-lg leading-snug font-bold lg:text-3xl">{r.title(a.name)}</p>
+          <p className="text-sm text-paper/75">{a.xp.toLocaleString()} XP</p>
+          <p className="mt-1 text-xs text-paper/60 max-lg:hidden">
+            {r.range(fmt(a.start), fmt(a.end))} · {r.perDay(Math.ceil(a.xp / daysLeft).toLocaleString())}
+          </p>
+          <p className="mt-auto pt-3 font-display text-sm font-bold max-lg:hidden">{r.cta} →</p>
+        </div>
+        <div className="mt-auto pt-3 lg:w-80 lg:shrink-0 lg:pt-0">
+          <p className="text-xs text-paper/70">{started ? r.endsIn : r.startsIn}</p>
+          <div className="mt-1 grid grid-cols-4 gap-1 sm:gap-1.5 lg:gap-2" role="timer">
+            {parts.map((n, i) => (
+              <span key={i} className="flex flex-col items-center border-[1.5px] border-paper bg-ink/90 py-1 lg:py-2">
+                <b className="font-display text-xl tabular-nums lg:text-3xl">{String(n).padStart(2, '0')}</b>
+                <span className="text-[11px] leading-normal text-paper/70 lg:text-xs">{r.units[i]}</span>
+              </span>
+            ))}
+          </div>
+          <div className="mt-3 h-1.5 border border-paper/60" aria-hidden>
+            <div className="h-full bg-red" style={{ width: `${done * 100}%` }} />
+          </div>
+        </div>
       </div>
     </Link>
   )

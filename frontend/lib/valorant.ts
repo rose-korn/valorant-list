@@ -499,6 +499,6 @@ export function activeRecruitments(agents: Agent[], at: number) {
     const rd = a.recruitmentData
     const end = rd ? Date.parse(rd.endDate) : NaN
     if (!rd || !(end > at)) return []
-    return [{ uuid: a.uuid, name: a.displayName, icon: a.displayIcon, color: agentColor(a), xp: rd.milestoneThreshold, start: Date.parse(rd.startDate), end }]
+    return [{ uuid: a.uuid, name: a.displayName, icon: a.displayIcon, portrait: a.fullPortrait ?? a.bustPortrait, color: agentColor(a), xp: rd.milestoneThreshold, start: Date.parse(rd.startDate), end }]
   })
 }
