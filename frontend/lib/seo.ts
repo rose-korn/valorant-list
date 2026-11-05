@@ -162,3 +162,58 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
     itemListElement: items.map((it, i) => ({ '@type': 'ListItem', position: i + 1, name: it.name, item: SITE_URL + it.path })),
   }
 }
+
+
+/*
+ * ประโยคสรุปสั้น ๆ บนหน้า (ตัวหนังสือธรรมดา คนเห็นจริง) ตอบคำถามที่คนค้นบ่อยตรง ๆ
+ * ให้ Google / AI Overview ยกไปตอบได้ — ใช้แค่ข้อมูลจาก API ไม่แต่งอะไรเพิ่ม
+ */
+const joinList = (items: string[], lang: Lang) => {
+  if (items.length < 2) return items.join('')
+  const last = items[items.length - 1]
+  const head = items.slice(0, -1).join(', ')
+  return lang === 'en' ? `${head} and ${last}` : `${head} และ ${last}`
+}
+
+export function agentSummary(
+  lang: Lang,
+  name: string,
+  role: string | undefined,
+  abilities: { name: string; key: string; ultimate: boolean; passive: boolean }[],
+) {
+  const active = abilities.filter((a) => !a.passive)
+  const passive = abilities.find((a) => a.passive)
+  const parts = active.map((a) =>
+    a.ultimate ? (lang === 'en' ? `the ultimate ${a.name} (${a.key})` : `อัลติ ${a.name} (${a.key})`) : `${a.name} (${a.key})`,
+  )
+  if (lang === 'en') {
+    return `${name} is ${role ? `a ${role} agent` : 'an agent'} in Valorant with ${active.length} abilities: ${joinList(parts, lang)}.${passive ? ` ${name} also has the passive ${passive.name}.` : ''}`
+  }
+  return `${name} เป็นเอเจนท์${role ? `สาย ${role} ` : ''}ใน Valorant มีสกิล ${active.length} ท่า คือ ${joinList(parts, lang)}${passive ? ` ส่วนพาสซีฟคือ ${passive.name}` : ''}`
+}
+
+const ZONE_TH: Record<string, string> = { AttackerSide: 'ฝั่งบุก', 'Attacker Side': 'ฝั่งบุก', DefenderSide: 'ฝั่งรับ', 'Defender Side': 'ฝั่งรับ' }
+
+export function mapSummary(lang: Lang, name: string, calloutCount: number, rawZones: string[]) {
+  if (!calloutCount) return null
+  // ชื่อโซนจาก API บางอันติดกัน (AttackerSide) — แยกคำ / แปลเป็นไทย
+  const zones = rawZones.map((z) => (lang === 'th' ? ZONE_TH[z] : undefined) ?? z.replace(/([a-z])([A-Z])/g, '$1 $2'))
+  return lang === 'en'
+    ? `${name} has ${calloutCount} callouts across ${zones.length} areas: ${joinList(zones, lang)}.`
+    : `แมพ ${name} มีชื่อ callout ทั้งหมด ${calloutCount} จุด แบ่งเป็น ${zones.length} โซน คือ ${joinList(zones, lang)}`
+}
+
+export function ranksSummary(lang: Lang, divisions: { name: string; count: number }[]) {
+  if (!divisions.length) return null
+  // API ให้ชื่อเป็นตัวใหญ่หมด (IRON) — ทำเป็น Iron ให้อ่านง่าย
+  const nice = (n: string) => n.charAt(0) + n.slice(1).toLowerCase()
+  divisions = divisions.map((d) => ({ ...d, name: nice(d.name) }))
+  const names = joinList(divisions.map((d) => d.name), lang)
+  const top = divisions[divisions.length - 1]
+  const rest = divisions.slice(0, -1)
+  const split = rest.length && rest.every((d) => d.count === rest[0].count) ? rest[0].count : 0
+  if (lang === 'en') {
+    return `Valorant has ${divisions.length} ranks, from lowest to highest: ${names}.${split ? ` Each rank has ${split} tiers, except ${top.name}${top.count === 1 ? ', which has just one' : ''}.` : ''}`
+  }
+  return `แรงค์ Valorant มี ${divisions.length} ขั้น เรียงจากต่ำไปสูงคือ ${names}${split ? ` แต่ละขั้นแบ่งเป็น ${split} ระดับ ยกเว้น ${top.name}${top.count === 1 ? ' ที่มีระดับเดียว' : ''}` : ''}`
+}

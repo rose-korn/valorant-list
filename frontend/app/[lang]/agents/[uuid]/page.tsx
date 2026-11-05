@@ -7,10 +7,10 @@ import { BackLink, Container, SectionHeading } from '@/components/ui'
 import PassViewer from '@/components/PassViewer'
 import { getAgent, getAgents, getContracts } from '@/lib/api'
 import { buildPassChapters, buildRewardIndex } from '@/lib/rewards'
-import { SEO_YEAR, pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
+import { SEO_YEAR, agentSummary, pageMeta, seoTitles, clip, breadcrumbLd } from '@/lib/seo'
 import JsonLd from '@/components/JsonLd'
 import { getI18n, toLang } from '@/lib/i18n-server'
-import { SLOT_ORDER, agentColor } from '@/lib/valorant'
+import { KEYBIND, SLOT_ORDER, agentColor } from '@/lib/valorant'
 import AbilityPanel from './AbilityPanel'
 import VoiceLine from './VoiceLine'
 import RichText, { stripTags } from '@/components/RichText'
@@ -126,6 +126,14 @@ export default async function AgentPage({ params }: PageProps<'/[lang]/agents/[u
       <section id="abilities" className="scroll-mt-20 py-14 md:py-20">
         <Container>
           <SectionHeading title={t.agents.abilitiesTitle} note={t.agents.abilitiesNote} />
+          <p className="-mt-2 mb-6 max-w-3xl text-sm text-ink-soft">
+            {agentSummary(
+              lang,
+              agent.displayName,
+              agent.role?.displayName,
+              abilities.map((a) => ({ name: a.displayName, key: KEYBIND[a.slot] ?? a.slot, ultimate: a.slot === 'Ultimate', passive: a.slot === 'Passive' })),
+            )}
+          </p>
           <AbilityPanel abilities={abilities} color={color} />
         </Container>
       </section>
