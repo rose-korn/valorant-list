@@ -32,11 +32,26 @@ const IS_BUILD = process.env.NEXT_PHASE === 'phase-production-build'
 // ถ้าไม่ลบ build ใหม่จะได้ข้อมูลเก่า (เช่น agent ใหม่ไม่ขึ้น) เลยให้ `prebuild` ใน package.json ลบโฟลเดอร์นี้ทิ้งทุกครั้ง
 const memo = new Map<string, Promise<unknown>>()
 
+/**
+ * แปลง JSON จาก API — บางครั้ง valorant-api ส่งข้อความที่มีอักขระควบคุมดิบ (เช่น tab / ขึ้นบรรทัด) อยู่ในชื่อของ
+ * ทำให้ JSON.parse พังทั้งก้อน ถ้าเจอแบบนั้นให้แทนอักขระควบคุมด้วยช่องว่างแล้วลองใหม่
+ * (นอก string ช่องว่างไม่มีผล ใน string ก็แค่ได้ช่องว่างแทน tab/ขึ้นบรรทัด)
+ */
+function parseApiJson(text: string) {
+  try {
+    return JSON.parse(text)
+  } catch (err) {
+    if (!(err instanceof SyntaxError)) throw err
+    return JSON.parse(text.replace(/[\u0000-\u001f]/g, ' '))
+  }
+}
+
 async function fetchJson(url: string) {
   for (let attempt = 0; ; attempt++) {
     try {
-      const res = await fetch(url, { cache: 'force-cache' })
-      if (res.ok) return (await res.json())?.data
+      // รอบแรกใช้ cache ได้ แต่รอบลองใหม่ต้องยิงสดเสมอ ไม่งั้น Next จะคืนก้อนเสียเดิมจาก cache ทุกรอบ
+      const res = await fetch(url, { cache: attempt === 0 ? 'force-cache' : 'no-store' })
+      if (res.ok) return parseApiJson(await res.text())?.data
       if (res.status !== 429 && res.status < 500) throw new Error(`HTTP ${res.status}`)
       throw new Error(`HTTP ${res.status} (retry)`)
     } catch (err) {
