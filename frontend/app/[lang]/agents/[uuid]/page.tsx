@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/agents/[uu
   const description =
     lang === 'en'
       ? `${name}${role ? ` (${role})` : ''} abilities and ultimate in Valorant ${SEO_YEAR}, with voice lines and a 3D model. ${lore}`
-      : `สกิล ${name}${role ? ` (${role})` : ''} Valorant ครบทุกท่า C Q E และอัลติ X อัปเดต ${SEO_YEAR} ฟังเสียงพากย์ หมุนดูแบบ 3D — ${lore}`
+      : `สกิล ${name}${role ? ` (${role})` : ''} Valorant ครบทุกท่า C Q E และอัลติ X อัปเดต ${SEO_YEAR} มีเสียงพากย์ให้ฟังและหมุนดูแบบ 3D ได้ ${lore}`
   return pageMeta(lang, `/agents/${uuid}`, {
     title: seoTitles[lang].agent(name),
     description: clip(description),

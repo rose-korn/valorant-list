@@ -71,8 +71,8 @@ export async function generateMetadata({ params }: LayoutProps<'/[lang]'>): Prom
     },
     description:
       lang === 'en'
-        ? `A free fan site for Valorant agents, maps, guns, skins, ranks and collectibles, updated for ${SEO_YEAR} — with 3D views, share cards and a mini aim game.`
-        : `เว็บข้อมูล Valorant ภาษาไทย ฟรี อัปเดต ${SEO_YEAR} รวมตัวละคร สกิล แมพ ปืน สกิน แรงค์ และของสะสม มีมุมมอง 3D การ์ดแชร์ และมินิเกมฝึกเอม`,
+        ? `A free fan site for Valorant agents, maps, guns, skins, ranks and collectibles, updated for ${SEO_YEAR}, with 3D views, share cards and a mini aim game.`
+        : `เว็บข้อมูล Valorant ภาษาไทย ฟรี อัปเดต ${SEO_YEAR} รวมตัวละคร สกิล แมพ ปืน สกิน แรงค์ และของสะสม หมุนดูแบบ 3D ได้ มีการ์ดแชร์กับมินิเกมฝึกเอม`,
     keywords: seoKeywords[lang],
   }
 }

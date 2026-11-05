@@ -29,7 +29,7 @@ const Y = SEO_YEAR
  */
 export const seoTitles = {
   th: {
-    home: `Valorant List — ข้อมูล Valorant ภาษาไทย ${Y} ตัวละคร สกิล แมพ สกินปืน`,
+    home: `วาโลไทย: ข้อมูล Valorant ภาษาไทย ${Y} ตัวละคร สกิล แมพ สกินปืน · Valorant List`,
     agents: `ตัวละคร Valorant ทั้งหมด ${Y} รวมเอเจนท์และสกิลทุกตัว`,
     agent: (name: string) => `สกิล ${name} Valorant ครบทุกท่า อัปเดต ${Y}`,
     maps: `แมพ Valorant ทั้งหมด ${Y} พร้อม callout ทุกจุด`,
@@ -79,19 +79,19 @@ export const seoTitles = {
 export const seoDescriptions = {
   th: {
     agents: `รายชื่อตัวละคร Valorant ทุกตัว ${Y} รวมเอเจนท์ใหม่ล่าสุด แยกตามบทบาท Duelist, Initiator, Controller, Sentinel กดเข้าไปดูสกิลทุกท่าได้เลย`,
-    maps: `แมพ Valorant ทุกสนาม ${Y} ทั้งแมพแรงค์และแมพโหมดอื่น มีชื่อ callout ทุกจุด และแผนที่ 3D หมุนดูได้ ใช้คุยกับทีมได้เลย`,
-    weapons: `ปืน Valorant ทุกกระบอก ${Y}: ดาเมจตามระยะ ยิงหัวกี่นัดตาย อัตรายิง ราคา และสกินปืนทุกลาย ทั้ง Vandal, Phantom, Operator ดูแบบ 3D ได้`,
+    maps: `แมพ Valorant ทุกสนาม ${Y} ทั้งแมพแรงค์และแมพโหมดอื่น มีชื่อ callout ทุกจุดกับแผนที่ 3D ให้หมุนดู จำไว้ใช้คอลกับทีมได้`,
+    weapons: `ปืน Valorant ทุกกระบอก ${Y}: ดาเมจตามระยะ ยิงกี่นัดตาย อัตรายิง ราคา และสกินปืนทุกลาย ตั้งแต่ Vandal Phantom ไปจนถึง Operator หมุนดูแบบ 3D ได้`,
     ranks: `แรงค์ Valorant ${Y} เรียงจากต่ำไปสูง Iron, Bronze, Silver, Gold, Platinum, Diamond, Ascendant, Immortal จนถึง Radiant ดูตราแรงค์ทุกขั้นแบบ 3D`,
     bundles: `บันเดิลสกิน Valorant ทุกชุด อัปเดต ${Y} เรียงจากชุดใหม่ล่าสุดในร้านค้าไปชุดเก่า กดดูภาพโปรโมทเต็ม ๆ ได้`,
-    battlepass: `Battle Pass Valorant ${Y} และย้อนหลังทุก Act ดูของรางวัลแต่ละระดับ อันไหนฟรี อันไหนต้องซื้อ รวม Event Pass`,
+    battlepass: `Battle Pass Valorant ${Y} และย้อนหลังทุก Act ดูของรางวัลแต่ละระดับ อันไหนฟรี อันไหนต้องซื้อ มี Event Pass ด้วย`,
     crosshair: `โค้ดเป้า Valorant (crosshair code): วางโค้ดจากเกมแล้วดูหน้าตาจริงบนแมพ ปรับสี ขนาด เส้น จุดกลาง แล้ว copy โค้ดกลับไปใส่ในเกม`,
-    random: 'สุ่มตัวละคร Valorant ด้วยวงล้อ เลือกบทบาท ตัดตัวที่ไม่อยากเล่นออก แล้วหมุน ใช้ตัดสินใจตอนเลือกตัวหรือเล่นชาเลนจ์กับเพื่อน',
+    random: 'สุ่มตัวละคร Valorant ด้วยวงล้อ เลือกบทบาท ตัดตัวที่ไม่อยากเล่นออก แล้วหมุน เอาไว้ใช้ตอนคิดไม่ออกว่าจะเล่นตัวไหน หรือเล่นชาเลนจ์กับเพื่อน',
     play: 'เกมฝึกเอม Valorant เล่นบนเว็บได้ฟรี ไม่ต้องโหลด ยิงเป้า 30 วินาที ยิงกลางเป้านับเป็นเฮดช็อต วอร์มมือก่อนลงแรงค์',
   },
   en: {
     agents: `Every Valorant agent in ${Y}, including the newest, grouped by role: Duelist, Initiator, Controller and Sentinel. Open any agent for their abilities and ultimate.`,
     maps: `All Valorant maps in ${Y}, competitive pool and the rest, with every callout name and a 3D tactical map you can spin.`,
-    weapons: `Every Valorant gun in ${Y}: damage by range, shots to kill, fire rate, price and every skin — Vandal, Phantom, Operator and more, in 3D.`,
+    weapons: `Every Valorant gun in ${Y}: damage by range, shots to kill, fire rate, price and every skin, from the Vandal and Phantom to the Operator, in 3D.`,
     ranks: `Valorant ranks in order for ${Y}: Iron, Bronze, Silver, Gold, Platinum, Diamond, Ascendant, Immortal and Radiant, with every rank badge in 3D.`,
     bundles: `Every Valorant skin bundle, updated ${Y}, newest first, with the full promo art for each store bundle.`,
     battlepass: `Valorant Battle Pass rewards for ${Y} and every past act: what each tier gives, what's free and what's premium, plus event passes.`,
@@ -103,7 +103,7 @@ export const seoDescriptions = {
 
 /** meta keywords (Google ไม่ใช้แล้ว แต่ Bing / Naver / Yandex ยังอ่าน) */
 export const seoKeywords = {
-  th: ['Valorant', 'วาโลแรนท์', 'วาโล', 'ตัวละคร Valorant', 'เอเจนท์ Valorant', 'สกิล Valorant', 'แมพ Valorant', 'callout Valorant', 'ปืน Valorant', 'สกินปืน Valorant', 'แรงค์ Valorant', 'โค้ดเป้า Valorant', 'crosshair Valorant', 'ฝึกเอม', `Valorant ${Y}`],
+  th: ['Valorant', 'วาโลไทย', 'Valo Thai', 'วาโลแรนท์', 'วาโลแรนท์ไทย', 'วาโล', 'วาโร', 'วาโรไทย', 'ตัวละคร Valorant', 'เอเจนท์ Valorant', 'สกิล Valorant', 'แมพ Valorant', 'callout Valorant', 'ปืน Valorant', 'สกินปืน Valorant', 'แรงค์ Valorant', 'โค้ดเป้า Valorant', 'crosshair Valorant', 'ฝึกเอม', `Valorant ${Y}`],
   en: ['Valorant', 'Valorant agents', 'Valorant abilities', 'Valorant maps', 'Valorant callouts', 'Valorant weapons', 'Valorant skins', 'Valorant ranks', 'Valorant crosshair codes', 'Valorant aim trainer', `Valorant ${Y}`],
 } satisfies Record<Lang, string[]>
 
@@ -172,7 +172,7 @@ const joinList = (items: string[], lang: Lang) => {
   if (items.length < 2) return items.join('')
   const last = items[items.length - 1]
   const head = items.slice(0, -1).join(', ')
-  return lang === 'en' ? `${head} and ${last}` : `${head} และ ${last}`
+  return lang === 'en' ? `${head} and ${last}` : `${head} และ${/^[\u0E00-\u0E7F]/.test(last) ? '' : ' '}${last}`
 }
 
 export function agentSummary(
