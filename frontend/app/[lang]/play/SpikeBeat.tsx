@@ -482,17 +482,18 @@ export default function SpikeBeat({ ranks, agents }: { ranks: BeatRank[]; agents
 
         {phase === 'idle' && (
           <div className="absolute inset-0 flex overflow-y-auto p-3">
-            <div className="card m-auto w-full max-w-md p-5 text-center">
-              <Crosshair className="mx-auto h-14 w-14 text-ink" />
-              <h2 className="mt-2 text-3xl font-bold">{b.title}</h2>
-              <ul className="mt-3 space-y-1 text-left text-ink-soft">
+            <div className="card m-auto w-full max-w-md p-4 text-center sm:p-5">
+              {/* จอมือถือเตี้ย: ตัดไอคอน ย่อตัวหนังสือ ให้ปุ่มเริ่มอยู่ในกรอบโดยไม่ต้องเลื่อน */}
+              <Crosshair className="mx-auto h-14 w-14 text-ink max-sm:hidden" />
+              <h2 className="text-2xl font-bold sm:mt-2 sm:text-3xl">{b.title}</h2>
+              <ul className="mt-2 space-y-0.5 text-left text-sm leading-relaxed text-ink-soft sm:mt-3 sm:space-y-1 sm:text-base">
                 {b.howTo.map((line) => (
                   <li key={line}>• {line}</li>
                 ))}
               </ul>
-              <p className="mt-4 mb-2 font-display font-semibold">{b.stage}</p>
+              <p className="mt-3 mb-2 font-display font-semibold sm:mt-4">{b.stage}</p>
               <StagePicker value={stage} onChange={setStage} labels={b.stages} agents={agents} />
-              <button onClick={start} className="btn mt-5 w-full text-lg">
+              <button onClick={start} className="btn mt-4 w-full text-lg sm:mt-5">
                 {b.start}
               </button>
             </div>
