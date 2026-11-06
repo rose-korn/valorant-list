@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from '@/components/Link'
 import JsonLd from '@/components/JsonLd'
 import { SEO_UPDATED, SITE_NAME, SITE_URL, pageMeta, seoTitles } from '@/lib/seo'
-import { PaperScene, Viewer3D } from '@/components/three/lazy'
+import { PaperScene } from '@/components/three/lazy'
 import Reveal from '@/components/Reveal'
 import HScroller from '@/components/HScroller'
 import { Crosshair, RegMark } from '@/components/brand'
@@ -281,7 +281,15 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
             <SectionHeading title={h.arsenalTitle} note={h.arsenalNote} href="/weapons" linkLabel={h.arsenalLink} />
             <div className="grid items-stretch gap-6 lg:grid-cols-[1.5fr_1fr]">
               <Reveal className="screen h-[280px] sm:h-[380px]">
-                <Viewer3D src={vandal.displayIcon} alt={vandal.displayName} variant="weapon" className="h-full w-full" />
+                {/* รูปนิ่งแทนตัว 3D: หน้าแรกเหลือ WebGL แค่ฉากกระดาษบน hero กลับมาหน้าแรกแล้วไม่หน่วง (หมุนดู 3D ได้ที่หน้าปืน) */}
+                <Link href={`/weapons/${vandal.uuid}`} className="group flex h-full w-full items-center justify-center p-8" aria-label={vandal.displayName}>
+                  <img
+                    src={vandal.displayIcon}
+                    alt={vandal.displayName}
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain drop-shadow-[6px_8px_0_rgba(0,0,0,.35)] transition-transform duration-300 group-hover:-rotate-2 group-hover:scale-105"
+                  />
+                </Link>
               </Reveal>
               <Reveal delay={100} className="card flex flex-col p-6">
                 <p className="kicker">{vandal.shopData?.categoryText ?? 'Rifle'}</p>

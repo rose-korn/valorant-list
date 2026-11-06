@@ -1,5 +1,6 @@
 'use client'
 
+import LockerToggle from '@/components/LockerToggle'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { Viewer3D } from '@/components/three/lazy'
 import { Container } from '@/components/ui'
@@ -196,6 +197,8 @@ export default function SkinExplorer({
                 </button>
               )}
             </div>
+
+            {tierNow && <LockerToggle key={selected.uuid} uuid={selected.uuid} showLink className="mt-2" />}
 
             {/* สี + คลิปเลเวล อยู่แถวเดียวกันใต้จอ */}
             {(selected.chromas.length > 1 || levelVideos.length > 0) && (

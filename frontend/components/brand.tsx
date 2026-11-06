@@ -3,6 +3,7 @@
 import { markSvg } from '@/lib/mark'
 
 // label ดึงจาก dict.nav ตามภาษา
+// เมนูแบ่งเป็น 2 กลุ่ม: "ข้อมูล" (หน้าอ้างอิง) กับ "เล่น" (เกม เครื่องมือ ของส่วนตัว)
 export const NAV_LINKS = [
   { href: '/agents', key: 'agents' },
   { href: '/maps', key: 'maps' },
@@ -12,13 +13,16 @@ export const NAV_LINKS = [
   { href: '/bundles', key: 'bundles' },
   { href: '/collection', key: 'collection' },
   { href: '/modes', key: 'modes' },
+  { href: '/updates', key: 'updates' },
 ] as const
 
 export const FUN_LINKS = [
-  { href: '/share', key: 'share' },
+  { href: '/guess', key: 'guess' },
   // มินิเกมเปิดที่ Spike Beat ก่อน (Aim Rush อยู่แท็บที่สองที่ /play)
   { href: '/play/beat', key: 'play' },
   { href: '/random', key: 'random' },
+  { href: '/my', key: 'my' },
+  { href: '/share', key: 'share' },
   { href: '/crosshair', key: 'crosshair' },
 ] as const
 

@@ -6,7 +6,6 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import Link from '@/components/Link'
 import { useI18n } from '@/components/LangProvider'
-import { DUELIST_ROLE_UUID } from '@/lib/valorant'
 
 interface Agent {
   uuid: string
@@ -67,21 +66,13 @@ const memory: {
   single: Agent | null
   angle: number
   team: Agent[]
-  balanced: boolean
-} = { mode: 'single', roleOn: null, single: null, angle: 0, team: [], balanced: true }
+  /** จำนวนตัวที่อยากได้ในแต่ละตำแหน่ง (uuid ของ role → จำนวน) null = ทีมมาตรฐาน */
+  counts: Record<string, number> | null
+} = { mode: 'single', roleOn: null, single: null, angle: 0, team: [], counts: null }
 const remember = (patch: Partial<typeof memory>) => Object.assign(memory, patch)
 
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const randInt = (n: number) => Math.floor(Math.random() * n)
-
-function shuffle<T>(list: T[]) {
-  const out = list.slice()
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = randInt(i + 1)
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
-}
 
 export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles: Role[] }) {
   const { t } = useI18n()
@@ -422,20 +413,39 @@ function ResultSlot({ result, spinning }: { result: Agent | null; spinning: bool
 
 // ---------- สุ่มทั้งทีม ----------
 
+/** สูตรทีมสำเร็จรูป: จำนวนตัวต่อตำแหน่ง เรียง Duelist, Initiator, Controller, Sentinel */
+const PRESETS = [
+  { key: 'standard', mix: [2, 1, 1, 1] },
+  { key: 'doubleSmoke', mix: [1, 1, 2, 1] },
+  { key: 'doubleInit', mix: [1, 2, 1, 1] },
+  { key: 'free', mix: [0, 0, 0, 0] },
+] as const
+
+const mixToCounts = (roles: Role[], mix: readonly number[]) => Object.fromEntries(roles.map((x, i) => [x.uuid, mix[i] ?? 0]))
+
 function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleOn: string[] }) {
   const { t } = useI18n()
   const r = t.random
-  const [balanced, setBalancedState] = useState(() => memory.balanced)
-  const setBalanced = (v: boolean) => {
-    remember({ balanced: v })
-    setBalancedState(v)
+  const [counts, setCountsState] = useState<Record<string, number>>(() => memory.counts ?? mixToCounts(roles, PRESETS[0].mix))
+  const setCounts = (next: Record<string, number>) => {
+    remember({ counts: next })
+    setCountsState(next)
   }
+  const total = roles.reduce((n, x) => n + (counts[x.uuid] ?? 0), 0)
+  const step = (uuid: string, d: number) => {
+    const v = (counts[uuid] ?? 0) + d
+    if (v < 0 || (d > 0 && total >= TEAM)) return
+    setCounts({ ...counts, [uuid]: v })
+  }
+
   const [team, setTeam] = useState<Agent[]>(() => memory.team)
   // จำนวนช่องที่หยุดหมุนแล้ว (ช่องที่ยังไม่หยุดจะสลับรูปไปเรื่อย ๆ)
   const [stopped, setStopped] = useState(TEAM)
+  // ช่องที่กำลังสุ่มใหม่ทีละช่อง
+  const [rerolling, setRerolling] = useState<number | null>(null)
   const [tick, setTick] = useState(0)
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
-  const rolling = stopped < TEAM
+  const rolling = stopped < TEAM || rerolling !== null
 
   useEffect(() => {
     if (!rolling) return
@@ -444,28 +454,33 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
   }, [rolling])
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
+  // ตำแหน่งของแต่ละช่อง ตามจำนวนที่ตั้งไว้ ช่องที่เหลือเป็น "อะไรก็ได้"
+  const slotRoles: (Role | undefined)[] = roles.flatMap((x) => Array.from({ length: counts[x.uuid] ?? 0 }, () => x)).slice(0, TEAM)
+  while (slotRoles.length < TEAM) slotRoles.push(undefined)
+
+  /** สุ่มตัวให้ช่องหนึ่ง: ตรงตำแหน่งก่อน (ถ้าตำแหน่งนั้นเปิดอยู่และยังมีตัว) ไม่งั้นเอาตัวไหนก็ได้ที่ยังไม่อยู่ในทีม */
+  const pickFor = (role: Role | undefined, taken: Agent[]) => {
+    const free = pool.filter((a) => !taken.some((x) => x.uuid === a.uuid))
+    const fit = role && roleOn.includes(role.uuid) ? free.filter((a) => a.roleUuid === role.uuid) : []
+    const list = fit.length ? fit : free
+    return list.length ? list[randInt(list.length)] : null
+  }
+
   const roll = () => {
     if (rolling || pool.length < TEAM) return
-    let picked: Agent[]
-    if (balanced) {
-      // ทีมมาตรฐาน: Duelist 2 + Initiator 1 + Controller 1 + Sentinel 1 (เฉพาะตำแหน่งที่เปิดอยู่)
-      // ตำแหน่งไหนตัวไม่พอ หรือปิดไว้ ค่อยสุ่มเติมจากทุกตัวที่เหลือ
-      picked = []
-      for (const role of roles.filter((x) => roleOn.includes(x.uuid))) {
-        const want = role.uuid === DUELIST_ROLE_UUID ? 2 : 1
-        picked.push(...shuffle(pool.filter((a) => a.roleUuid === role.uuid)).slice(0, want))
-      }
-      picked = picked.slice(0, TEAM)
-      const rest = shuffle(pool.filter((a) => !picked.includes(a)))
-      picked = [...picked, ...rest].slice(0, TEAM)
-      const order = roles.map((x) => x.uuid)
-      picked.sort((a, b) => order.indexOf(a.roleUuid) - order.indexOf(b.roleUuid))
-    } else {
-      picked = shuffle(pool).slice(0, TEAM)
+    // ช่องที่ล็อกตำแหน่งไว้สุ่มก่อน ช่อง "อะไรก็ได้" ค่อยเติมทีหลัง จะได้ไม่แย่งตัวกัน
+    const order = slotRoles.map((role, i) => ({ role, i })).sort((a, b) => Number(!a.role) - Number(!b.role))
+    const picked: Agent[] = []
+    const out: Agent[] = Array(TEAM)
+    for (const { role, i } of order) {
+      const a = pickFor(role, picked)
+      if (!a) return
+      picked.push(a)
+      out[i] = a
     }
     timers.current.forEach(clearTimeout)
-    setTeam(picked)
-    remember({ team: picked })
+    setTeam(out)
+    remember({ team: out })
     if (reducedMotion()) {
       setStopped(TEAM)
       return
@@ -474,32 +489,74 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
     timers.current = Array.from({ length: TEAM }, (_, i) => setTimeout(() => setStopped(i + 1), 700 + i * 380))
   }
 
+  /** สุ่มใหม่เฉพาะช่องเดียว (เช่นเพื่อนไม่อยากเล่นตัวนี้) ตำแหน่งเดิม ตัวไม่ซ้ำกับคนอื่นในทีม */
+  const rerollSlot = (i: number) => {
+    if (rolling) return
+    const a = pickFor(slotRoles[i], team)
+    if (!a) return
+    const out = team.map((x, j) => (j === i ? a : x))
+    setTeam(out)
+    remember({ team: out })
+    if (reducedMotion()) return
+    setRerolling(i)
+    timers.current.push(setTimeout(() => setRerolling(null), 650))
+  }
+
   const roleOf = (uuid: string) => roles.find((x) => x.uuid === uuid)
   const enough = pool.length >= TEAM
-  // ตำแหน่งของการ์ดเปล่าแต่ละช่อง: ทีมมาตรฐาน = Duelist 2 แล้วตำแหน่งละ 1 ถ้าไม่จัดทีมก็ไม่บอกตำแหน่ง
-  const duelist = roles.find((x) => x.uuid === DUELIST_ROLE_UUID)
-  const slotRoles: (Role | undefined)[] = balanced
-    ? [duelist, duelist, ...roles.filter((x) => x.uuid !== DUELIST_ROLE_UUID)].slice(0, TEAM)
-    : Array.from({ length: TEAM }, () => undefined)
-  while (slotRoles.length < TEAM) slotRoles.push(undefined)
+  const presetOn = PRESETS.find((p) => roles.every((x, i) => (counts[x.uuid] ?? 0) === (p.mix[i] ?? 0)))?.key
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-center gap-4">
+      {/* สูตรทีม: เลือกสำเร็จรูป หรือกด +/- ทีละตำแหน่ง */}
+      <div className="card space-y-3 p-4">
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => setCounts(mixToCounts(roles, p.mix))}
+              aria-pressed={presetOn === p.key}
+              className={`chip ${presetOn === p.key ? '!bg-ink !text-paper' : 'hover:!bg-mustard/40'}`}
+            >
+              {r.presets[p.key]}
+            </button>
+          ))}
+        </div>
+        <ul className="grid grid-cols-2 gap-2">
+          {roles.map((role) => (
+            <li key={role.uuid} className="flex items-center justify-between gap-1 rounded-xl border-2 border-ink bg-card px-2 py-1.5">
+              <span className="flex min-w-0 items-center gap-1.5">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink">
+                  <img src={role.icon} alt="" className="h-3.5 w-3.5" />
+                </span>
+                <span className="truncate py-0.5 text-sm leading-normal font-semibold">{role.name}</span>
+              </span>
+              <span className="flex shrink-0 items-center">
+                <button onClick={() => step(role.uuid, -1)} aria-label={`${role.name} -1`} className="h-7 w-7 rounded-md font-bold hover:bg-mustard/40 disabled:opacity-30" disabled={!counts[role.uuid]}>
+                  −
+                </button>
+                <span className="w-5 text-center font-mono font-bold">{counts[role.uuid] ?? 0}</span>
+                <button onClick={() => step(role.uuid, 1)} aria-label={`${role.name} +1`} className="h-7 w-7 rounded-md font-bold hover:bg-mustard/40 disabled:opacity-30" disabled={total >= TEAM}>
+                  +
+                </button>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="text-sm text-ink-soft">{r.mixNote(TEAM - total)}</p>
+      </div>
+
+      <div className="flex justify-center">
         <button onClick={roll} disabled={rolling || !enough} className="btn text-lg disabled:cursor-not-allowed disabled:opacity-60">
           {team.length ? r.again : r.roll}
         </button>
-        <label className="flex cursor-pointer items-center gap-2 font-display font-semibold">
-          <input type="checkbox" checked={balanced} onChange={(e) => setBalanced(e.target.checked)} className="h-5 w-5 accent-[#ff4654]" />
-          {r.balanced}
-        </label>
       </div>
       {!enough && <p className="hand text-center text-xl">{r.tooFew(TEAM)}</p>}
 
       <div>
         <p className="hand mb-3 text-center text-xl">{r.teamResult}</p>
         <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-5">
-          {/* ยังไม่ได้สุ่ม: การ์ดเปล่า 5 ใบรอไว้ (ทีมมาตรฐานบอกตำแหน่งของแต่ละช่องด้วย) */}
+          {/* ยังไม่ได้สุ่ม: การ์ดเปล่า 5 ใบรอไว้ บอกตำแหน่งของแต่ละช่อง */}
           {team.length === 0 &&
             slotRoles.map((role, i) => (
               <li key={i} className={i === 4 ? 'col-span-2 mx-auto w-1/2 sm:col-span-1 sm:w-full' : ''}>
@@ -509,17 +566,17 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
                   </div>
                   <div className="flex items-center gap-1.5 px-1 pt-2">
                     {role && <img src={role.icon} alt={role.name} title={role.name} className="h-4 w-4 invert" />}
-                    <p className="truncate py-0.5 font-display text-lg leading-normal font-bold text-ink-soft">{role?.name ?? '???'}</p>
+                    <p className="truncate py-0.5 font-display text-lg leading-normal font-bold text-ink-soft">{role?.name ?? r.anyRole}</p>
                   </div>
                 </div>
               </li>
             ))}
           {team.map((a, i) => {
-            const done = i < stopped
-            const shown = done ? a : pool[(tick * 7 + i * 5) % pool.length] ?? a
+            const done = i < stopped && rerolling !== i
+            const shown = done ? a : (pool[(tick * 7 + i * 5) % pool.length] ?? a)
             const role = roleOf(shown.roleUuid)
             return (
-              <li key={i} className={i === 4 ? 'col-span-2 mx-auto w-1/2 sm:col-span-1 sm:w-full' : ''}>
+              <li key={i} className={`relative ${i === 4 ? 'col-span-2 mx-auto w-1/2 sm:col-span-1 sm:w-full' : ''}`}>
                 <Link
                   href={`/agents/${a.uuid}`}
                   aria-disabled={!done}
@@ -533,12 +590,23 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
                     <p className="truncate py-0.5 font-display text-lg leading-normal font-bold">{done ? a.name : '???'}</p>
                   </div>
                 </Link>
+                {!rolling && (
+                  <button
+                    onClick={() => rerollSlot(i)}
+                    title={r.rerollOne}
+                    aria-label={`${r.rerollOne}: ${a.name}`}
+                    className="absolute -top-2 -right-2 flex h-9 w-9 items-center justify-center rounded-full border-2 border-ink bg-mustard font-bold shadow-[2px_2px_0_var(--color-ink)] transition-transform hover:rotate-90"
+                  >
+                    ↻
+                  </button>
+                )}
               </li>
             )
           })}
         </ul>
         {team.length > 0 && !rolling && (
-          <div className="mt-5 flex justify-center">
+          <div className="mt-5 flex flex-col items-center gap-2">
+            <p className="text-sm text-ink-soft">{r.rerollHint}</p>
             <ShareButton text={r.shareTeam(team.map((a) => a.name))} />
           </div>
         )}
