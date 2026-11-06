@@ -74,15 +74,6 @@ const remember = (patch: Partial<typeof memory>) => Object.assign(memory, patch)
 const reducedMotion = () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const randInt = (n: number) => Math.floor(Math.random() * n)
 
-function shuffle<T>(list: T[]) {
-  const out = list.slice()
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = randInt(i + 1)
-    ;[out[i], out[j]] = [out[j], out[i]]
-  }
-  return out
-}
-
 export default function RandomAgent({ agents, roles }: { agents: Agent[]; roles: Role[] }) {
   const { t } = useI18n()
   const r = t.random

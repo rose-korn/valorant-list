@@ -29,8 +29,7 @@ export default function Navbar() {
     }
   }, [open])
 
-  // ปิดเมนู "เล่น" เมื่อเปลี่ยนหน้า / คลิกข้างนอก / กด Esc
-  useEffect(() => setPlayOpen(false), [pathname])
+  // ปิดเมนู "เล่น" เมื่อกดลิงก์ / คลิกข้างนอก / กด Esc
   useEffect(() => {
     if (!playOpen) return
     const onDown = (e: PointerEvent) => {
@@ -102,6 +101,7 @@ export default function Navbar() {
                     <Link
                       href={link.href}
                       tabIndex={playOpen ? undefined : -1}
+                      onClick={() => setPlayOpen(false)}
                       className={`block rounded-md px-3 py-2 font-display font-semibold ${isActive(link.href) ? 'bg-pink' : 'hover:bg-paper-2'}`}
                     >
                       {t.nav[link.key]}
