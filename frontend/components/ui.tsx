@@ -81,7 +81,16 @@ export function PageHero({
             {title}
           </h1>
         </div>
-        {description && <p className={`mt-5 max-w-2xl text-lg text-ink-soft ${fair ? 'mx-auto text-center' : ''}`}>{description}</p>}
+        {/* หน้าธีมงานวัด: คำอธิบายวางบนป้ายกระดาษ ไม่ให้ลายแฉกด้านหลังแย่งสายตา (บนมือถืออ่านยากมาก) */}
+        {description && (
+          <p
+            className={`mt-5 max-w-2xl text-lg ${
+              fair ? 'mx-auto w-fit rounded-xl bg-paper/90 px-4 py-2.5 text-center text-base leading-relaxed text-ink sm:text-lg' : 'text-ink-soft'
+            }`}
+          >
+            {description}
+          </p>
+        )}
         {(facts?.length || note) && (
           <div className={`mt-6 flex flex-wrap items-center gap-2 ${fair ? 'justify-center' : ''}`}>
             {facts?.map((f) => (
@@ -90,7 +99,7 @@ export function PageHero({
               </span>
             ))}
             {note && (
-              <span className="hand ml-2 flex items-center gap-1 text-lg">
+              <span className={`hand flex items-center gap-1 text-lg ${fair ? 'rounded-full bg-paper/90 px-3 py-0.5' : 'ml-2'}`}>
                 <Arrow className="h-6 w-8 -scale-x-100 rotate-12" /> {note}
               </span>
             )}

@@ -35,11 +35,11 @@ export function GameTabs({ active, t }: { active: 'aim' | 'beat'; t: Dict }) {
           href={tab.href}
           scroll={false}
           aria-current={active === tab.key ? 'page' : undefined}
-          className={`ticket px-6 py-1.5 font-display font-bold transition-transform ${
+          className={`ticket px-4 py-1.5 font-display font-bold whitespace-nowrap transition-transform sm:px-6 ${
             active === tab.key ? '!bg-red text-white' : 'hover:-translate-y-0.5'
           }`}
         >
-          <span className="mr-1.5 font-mono text-xs tracking-widest opacity-75">GAME {tab.no}</span>
+          <span className="mr-1.5 font-mono text-xs tracking-widest opacity-75 max-sm:hidden">GAME {tab.no}</span>
           {tab.label}
         </Link>
       ))}

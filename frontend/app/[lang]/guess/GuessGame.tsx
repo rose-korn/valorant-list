@@ -263,10 +263,10 @@ function AgentRound({ plan, slot, guesses, status, max, onGuess }: RoundProps) {
         <Tries used={guesses.length} max={max} />
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-3 rounded-xl bg-night p-5">
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 rounded-xl bg-night p-3 sm:gap-3 sm:p-5">
         {p.icons.map((src, i) => (
-          <div key={i} className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-paper/30 sm:h-20 sm:w-20">
-            {i < shown ? <img src={src} alt="" className="h-11 w-11 animate-fade-in sm:h-14 sm:w-14" /> : <span className="font-display text-3xl text-paper/30">?</span>}
+          <div key={i} className="flex h-14 w-14 items-center justify-center rounded-lg border-2 border-paper/30 sm:h-20 sm:w-20">
+            {i < shown ? <img src={src} alt="" className="h-10 w-10 animate-fade-in sm:h-14 sm:w-14" /> : <span className="font-display text-3xl text-paper/30">?</span>}
           </div>
         ))}
         {showRole && answer?.role && <p className="w-full text-center font-mono text-sm text-mustard">{g.role(answer.role)}</p>}
