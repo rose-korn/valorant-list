@@ -110,6 +110,11 @@ export default function WhatsNew({
               </Link>
             </li>
           ))}
+          <li>
+            <Link href="/updates" className="chip !bg-ink !text-paper hover:!bg-blue">
+              {t.updates.homeLink}
+            </Link>
+          </li>
         </ul>
 
         <HScroller className="soft-scroll -mx-4 mt-6 flex snap-x scroll-px-4 gap-4 overflow-x-auto scroll-smooth px-4 pt-2 pb-4 sm:-mx-6 sm:scroll-px-6 sm:px-6">
