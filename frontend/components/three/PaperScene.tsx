@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { createRenderer, disposeObject, onResize, prefersReducedMotion, runLoop, useWebGLSupport } from './utils'
+import { createRenderer, releaseRenderer, disposeObject, onResize, prefersReducedMotion, runLoop, useWebGLSupport } from './utils'
 
 const COLORS = ['#ff4654', '#ff4654', '#3255a4', '#ffb8b3', '#c6d1ef']
 
@@ -89,8 +89,7 @@ export default function PaperScene() {
       stopResize()
       window.removeEventListener('pointermove', onPointer)
       disposeObject(scene)
-      renderer.dispose()
-      renderer.domElement.remove()
+      releaseRenderer(renderer)
     }
   }, [supported])
 
