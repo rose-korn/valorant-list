@@ -66,7 +66,6 @@ export default async function UpdatesPage({ params }: PageProps<'/[lang]/updates
         title={u.title}
         description={u.desc}
         note={u.note}
-        facts={shown.length ? [{ label: u.kinds.skins, value: items.filter((i) => i.kind === 'skins').length }] : undefined}
       />
       <Container className="py-10 md:py-14">
         {tracked && <p className="mb-8 max-w-3xl text-sm text-ink-soft">{u.since(fmt(tracked.day))}</p>}

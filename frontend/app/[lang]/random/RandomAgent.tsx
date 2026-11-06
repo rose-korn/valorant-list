@@ -522,7 +522,7 @@ function TeamRoll({ pool, roles, roleOn }: { pool: Agent[]; roles: Role[]; roleO
             </button>
           ))}
         </div>
-        <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-2">
           {roles.map((role) => (
             <li key={role.uuid} className="flex items-center justify-between gap-1 rounded-xl border-2 border-ink bg-card px-2 py-1.5">
               <span className="flex min-w-0 items-center gap-1.5">

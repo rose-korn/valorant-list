@@ -293,6 +293,7 @@ function AgentRound({ plan, slot, guesses, status, max, onGuess }: RoundProps) {
                   <img src={a.icon} alt="" loading="lazy" className="h-full w-full object-cover" />
                   {tried && <span className="absolute inset-0 flex items-center justify-center text-2xl font-bold text-ink">✕</span>}
                 </button>
+                <p className="mt-0.5 truncate text-center text-[11px] leading-normal text-ink-soft">{a.name}</p>
               </li>
             )
           })}

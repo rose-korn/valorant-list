@@ -138,7 +138,7 @@ export default function Navbar() {
             ] as const
           ).map(([title, links, offset]) => (
             <section key={title} className="mb-6">
-              <h2 className="mb-2 font-mono text-xs font-bold tracking-[0.18em] text-blue uppercase">{title}</h2>
+              <h2 className="mb-2 font-display text-sm font-bold text-blue">{title}</h2>
               <ul className="grid grid-cols-2 gap-3">
                 {links.map((link, j) => {
                   const i = offset + j
