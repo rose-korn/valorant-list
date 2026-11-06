@@ -88,8 +88,12 @@ export function dailyPlan({
   }
 }
 
-/** ของที่ใหม่ ณ ตอน build (ฝั่ง client จะกรองตามเวลาจริงอีกรอบ) */
-export function newItems({
+/**
+ * ของที่ใหม่ ณ ตอน build (ฝั่ง client จะกรองตามเวลาจริงอีกรอบ)
+ * `windowDays` = ย้อนหลังกี่วัน (หน้า /updates ส่ง Infinity เอาทุกอย่างตั้งแต่เริ่มจด)
+ */
+export function newItems(
+  {
   agents,
   weapons,
   maps,
@@ -105,9 +109,11 @@ export function newItems({
   cards: PlayerCard[]
   sprays: Spray[]
   buddies: Buddy[]
-}): NewItem[] {
+},
+  windowDays = NEW_ITEM_DAYS,
+): NewItem[] {
   const today = Math.floor(BUILT_AT / 86_400_000)
-  const fresh = (day: number) => day > 0 && day <= today && today - day < NEW_ITEM_DAYS
+  const fresh = (day: number) => day > 0 && day <= today && today - day < windowDays
   const items: NewItem[] = []
 
   for (const a of agents) {

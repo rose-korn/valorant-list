@@ -36,3 +36,13 @@ export function currentPatch() {
   if (!data) return null
   return data.patches.find((p) => p.version === data.version) ?? { version: data.version, day: 0 }
 }
+
+/** ประวัติ patch ที่เว็บเคยเห็น (เก่า → ใหม่) */
+export function seenPatches(): { version: string; day: number }[] {
+  return data ? [...data.patches].sort((a, b) => a.day - b.day) : []
+}
+
+/** "13.09.00.5804228" → "13.09" */
+export function shortPatch(version: string) {
+  return version.split('.').slice(0, 2).join('.')
+}

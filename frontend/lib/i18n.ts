@@ -1,5 +1,7 @@
 // ข้อความทั้งเว็บ 2 ภาษา — ภาษาอังกฤษต้องมี key ครบเหมือนภาษาไทย (TypeScript เช็คให้)
 
+import { extraEn, extraTh } from './i18n-extra'
+
 export const LANGS = ['th', 'en'] as const
 export type Lang = (typeof LANGS)[number]
 /** localStorage key จำภาษาที่เลือกไว้ (ใช้ตอนเข้าหน้าแรก / ลิงก์เก่าที่ไม่มี /th /en) */
@@ -19,6 +21,7 @@ export const apiLang = (lang: Lang) => (lang === 'en' ? 'en-US' : 'th-TH')
 export const dateLocale = (lang: Lang) => (lang === 'en' ? 'en-GB' : 'th-TH')
 
 const th = {
+  ...extraTh,
   nav: {
     agents: 'เอเจนท์',
     maps: 'แผนที่',
@@ -528,7 +531,11 @@ const th = {
     spinning: 'กำลังหมุน…',
     again: 'สุ่มอีกรอบ',
     roll: 'สุ่มทีม!',
-    balanced: 'จัดทีมมาตรฐาน (Duelist 2 + ตำแหน่งละ 1)',
+    presets: { standard: 'มาตรฐาน 2-1-1-1', doubleSmoke: 'สโมคคู่', doubleInit: 'Initiator คู่', free: 'สุ่มอิสระ' },
+    mixNote: (left: number) => (left > 0 ? `อีก ${left} ช่องสุ่มจากตำแหน่งไหนก็ได้` : 'ครบ 5 ช่องแล้ว'),
+    anyRole: 'ตัวไหนก็ได้',
+    rerollOne: 'สุ่มช่องนี้ใหม่',
+    rerollHint: 'เพื่อนไม่อยากเล่นตัวไหน กดลูกศรวนที่มุมการ์ดเพื่อสุ่มเฉพาะช่องนั้น',
     youGot: 'รอบนี้ได้…',
     teamResult: 'ทีมของคุณ',
     view: 'ดูสกิลตัวนี้ →',
@@ -578,6 +585,7 @@ const th = {
 export type Dict = typeof th
 
 const en: Dict = {
+  ...extraEn,
   nav: {
     agents: 'Agents',
     maps: 'Maps',
@@ -1087,7 +1095,11 @@ const en: Dict = {
     spinning: 'Spinning…',
     again: 'Spin again',
     roll: 'Roll team!',
-    balanced: 'Standard comp (2 Duelists + 1 of each role)',
+    presets: { standard: 'Standard 2-1-1-1', doubleSmoke: 'Double smokes', doubleInit: 'Double initiator', free: 'Anything goes' },
+    mixNote: (left) => (left > 0 ? `${left} slot${left === 1 ? '' : 's'} can be any role` : 'All 5 slots set'),
+    anyRole: 'Any role',
+    rerollOne: 'Re-roll this slot',
+    rerollHint: "Someone doesn't want their pick? Hit the arrow on that card to re-roll just that slot.",
     youGot: 'You got…',
     teamResult: 'Your team',
     view: 'See abilities →',
