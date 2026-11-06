@@ -1,7 +1,7 @@
 'use client'
 
 import Link from '@/components/Link'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FUN_LINKS, Logo, NAV_LINKS, isLinkActive } from './brand'
 import { LangSwitch, useBarePath, useI18n } from './LangProvider'
 
@@ -10,6 +10,9 @@ export default function Navbar() {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  // เมนูกลุ่ม "เล่น" บนจอใหญ่
+  const [playOpen, setPlayOpen] = useState(false)
+  const playRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -26,7 +29,24 @@ export default function Navbar() {
     }
   }, [open])
 
+  // ปิดเมนู "เล่น" เมื่อเปลี่ยนหน้า / คลิกข้างนอก / กด Esc
+  useEffect(() => setPlayOpen(false), [pathname])
+  useEffect(() => {
+    if (!playOpen) return
+    const onDown = (e: PointerEvent) => {
+      if (!playRef.current?.contains(e.target as Node)) setPlayOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setPlayOpen(false)
+    document.addEventListener('pointerdown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('pointerdown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [playOpen])
+
   const isActive = (href: string) => isLinkActive(pathname, href)
+  const playActive = FUN_LINKS.some((l) => isActive(l.href))
 
   return (
     <>
@@ -57,17 +77,40 @@ export default function Navbar() {
           </ul>
 
           <div className="flex items-center gap-2">
-            {FUN_LINKS.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`hidden border-[1.5px] border-ink px-3 py-1 font-display text-sm font-semibold whitespace-nowrap transition-[transform,box-shadow] hover:-translate-y-px hover:shadow-[2px_2px_0_var(--color-blue)] xl:block ${
-                  isActive(link.href) ? 'bg-ink text-paper' : link.key === 'share' ? 'bg-card' : 'bg-pink'
+            {/* กลุ่ม "เล่น": ปุ่มเดียว กดแล้วกางรายการ */}
+            <div ref={playRef} className="relative hidden xl:block">
+              <button
+                onClick={() => setPlayOpen((v) => !v)}
+                aria-expanded={playOpen}
+                aria-haspopup="true"
+                className={`flex items-center gap-1.5 border-[1.5px] border-ink px-3 py-1 font-display text-sm font-semibold whitespace-nowrap transition-[transform,box-shadow] hover:-translate-y-px hover:shadow-[2px_2px_0_var(--color-blue)] ${
+                  playActive ? 'bg-ink text-paper' : 'bg-pink'
                 }`}
               >
-                {t.nav[link.key]}
-              </Link>
-            ))}
+                {t.nav.groupPlay}
+                <svg viewBox="0 0 12 8" className={`h-2 w-3 transition-transform ${playOpen ? 'rotate-180' : ''}`} aria-hidden>
+                  <path d="M1 1l5 5 5-5" fill="none" stroke="currentColor" strokeWidth="2" />
+                </svg>
+              </button>
+              <ul
+                className={`card absolute top-full right-0 mt-2 w-60 p-1.5 transition-[opacity,transform] ${
+                  playOpen ? 'opacity-100' : 'pointer-events-none -translate-y-1 opacity-0'
+                }`}
+              >
+                {FUN_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      tabIndex={playOpen ? undefined : -1}
+                      className={`block rounded-md px-3 py-2 font-display font-semibold ${isActive(link.href) ? 'bg-pink' : 'hover:bg-paper-2'}`}
+                    >
+                      {t.nav[link.key]}
+                      <span className="block text-xs font-normal text-ink-soft">{t.nav.notes[link.key]}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
             <LangSwitch />
             <button
               onClick={() => setOpen((v) => !v)}
@@ -88,28 +131,41 @@ export default function Navbar() {
         <div className="dotted-bg flex h-full flex-col overflow-y-auto px-6 pt-24 pb-10">
           <p className="kicker mb-1">Contents</p>
           <p className="mb-5 text-ink-soft">{t.nav.menuNote}</p>
-          <ul className="grid grid-cols-2 gap-3">
-            {[...FUN_LINKS, ...NAV_LINKS].map((link, i) => (
-              <li
-                key={link.href}
-                style={{
-                  transition: 'opacity .35s, transform .35s',
-                  transitionDelay: open ? `${40 + i * 35}ms` : '0ms',
-                  opacity: open ? 1 : 0,
-                  transform: open ? 'none' : 'translateY(12px)',
-                }}
-              >
-                <Link
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className={`card flex h-full items-baseline gap-2.5 p-4 ${isActive(link.href) ? '!bg-pink' : ''}`}
-                >
-                  <span className="font-mono text-sm font-bold text-blue">{String(i + 1).padStart(2, '0')}</span>
-                  <span className="font-display text-xl font-bold">{t.nav[link.key]}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {(
+            [
+              [t.nav.groupPlay, FUN_LINKS, 0],
+              [t.nav.groupData, NAV_LINKS, FUN_LINKS.length],
+            ] as const
+          ).map(([title, links, offset]) => (
+            <section key={title} className="mb-6">
+              <h2 className="mb-2 font-mono text-xs font-bold tracking-[0.18em] text-blue uppercase">{title}</h2>
+              <ul className="grid grid-cols-2 gap-3">
+                {links.map((link, j) => {
+                  const i = offset + j
+                  return (
+                    <li
+                      key={link.href}
+                      style={{
+                        transition: 'opacity .35s, transform .35s',
+                        transitionDelay: open ? `${40 + i * 30}ms` : '0ms',
+                        opacity: open ? 1 : 0,
+                        transform: open ? 'none' : 'translateY(12px)',
+                      }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className={`card flex h-full items-baseline gap-2.5 p-4 ${isActive(link.href) ? '!bg-pink' : ''}`}
+                      >
+                        <span className="font-mono text-sm font-bold text-blue">{String(i + 1).padStart(2, '0')}</span>
+                        <span className="font-display text-xl font-bold">{t.nav[link.key]}</span>
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </section>
+          ))}
         </div>
       </div>
     </>
