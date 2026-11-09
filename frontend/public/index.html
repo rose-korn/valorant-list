@@ -1,19 +1,19 @@
 <!doctype html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Valorant List</title>
-<!-- หน้าแรกจริงอยู่ที่ /th กับ /en: เด้งไปภาษาที่เคยเลือกไว้ (ไม่เคยเลือก = ไทย) — สคริปต์ชุดเดียวกับ lib/lang-redirect.ts -->
-<script>(function(){var p=location.pathname;if(/^\/(th|en)(\/|$)/.test(p))return;var l;try{l=localStorage.getItem('valolist:lang')}catch(e){}if(l!=='en')l='th';location.replace('/'+l+(p==='/'?'':p.replace(/\/index\.html$/,''))+location.search+location.hash)})()</script>
-<noscript><meta http-equiv="refresh" content="0; url=/th"></noscript>
+<!-- หน้าแรกจริงอยู่ที่ /th กับ /en: เด้งไปภาษาที่เคยเลือกไว้ (ไม่เคยเลือก = ดูภาษาเบราว์เซอร์ ไทย → /th นอกนั้น → /en) — สคริปต์ชุดเดียวกับ lib/lang-redirect.ts -->
+<script>(function(){var p=location.pathname;if(/^\/(th|en)(\/|$)/.test(p))return;var l;try{l=localStorage.getItem('valolist:lang')}catch(e){}if(l!=='th'&&l!=='en'){var b=navigator.languages||[navigator.language||''];l='en';for(var i=0;i<b.length;i++)if(/^th\b/i.test(b[i]))l='th';try{if(Intl.DateTimeFormat().resolvedOptions().timeZone==='Asia/Bangkok')l='th'}catch(e){}}location.replace('/'+l+(p==='/'?'':p.replace(/\/index\.html$/,''))+location.search+location.hash)})()</script>
+<noscript><meta http-equiv="refresh" content="0; url=/en"></noscript>
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <link rel="alternate" hreflang="th" href="https://valo-thai.rosekorn.com/th">
 <link rel="alternate" hreflang="en" href="https://valo-thai.rosekorn.com/en">
-<link rel="alternate" hreflang="x-default" href="https://valo-thai.rosekorn.com/th">
-<link rel="canonical" href="https://valo-thai.rosekorn.com/th">
+<link rel="alternate" hreflang="x-default" href="https://valo-thai.rosekorn.com/en">
+<link rel="canonical" href="https://valo-thai.rosekorn.com/en">
 </head>
 <body style="font-family:sans-serif;background:#f4efe6;color:#1d1f24;text-align:center;padding:4rem 1rem">
-<p><a href="/th">ภาษาไทย</a> · <a href="/en">English</a></p>
+<p><a href="/en">English</a> · <a href="/th">ภาษาไทย</a></p>
 </body>
 </html>

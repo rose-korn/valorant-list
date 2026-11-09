@@ -22,7 +22,14 @@ export async function generateMetadata({ params }: PageProps<'/[lang]/battlepass
   const { lang } = await getI18n(params)
   const { uuid } = await params
   const c = await getContract(lang, uuid)
-  return pageMeta(lang, `/battlepass/${uuid}`, { title: seoTitles[lang].pass(c?.displayName ?? 'Battle Pass') })
+  const name = c?.displayName ?? 'Battle Pass'
+  return pageMeta(lang, `/battlepass/${uuid}`, {
+    title: seoTitles[lang].pass(name),
+    description:
+      lang === 'en'
+        ? `Every reward in the Valorant ${name} pass, tier by tier: skins, player cards, sprays, gun buddies and titles, and which ones are free.`
+        : `ของรางวัล ${name} ใน Valorant ครบทุกระดับ ทั้งสกิน การ์ด สเปรย์ พวงกุญแจ และฉายา ดูได้ว่าอันไหนได้ฟรี`,
+  })
 }
 
 export default async function PassPage({ params }: PageProps<'/[lang]/battlepass/[uuid]'>) {

@@ -70,7 +70,7 @@ export const seoTitles = {
     battlepass: `Valorant Battle Pass ${Y}: rewards for every act`,
     pass: (name: string) => `${name}: all rewards`,
     random: 'Valorant random agent picker wheel',
-    updates: `What's new in Valorant by patch ${Y}: new skins, bundles, agents`,
+    updates: `Valorant patch updates ${Y}: new skins, bundles & agents`,
     guess: 'Valorant daily guess: agent, skin and callout',
     my: 'My Valorant skin locker and wishlist',
     crosshair: `Valorant crosshair codes ${Y}: preview, tweak & copy`,
@@ -101,7 +101,7 @@ export const seoDescriptions = {
     play: 'เกมฝึกเอม Valorant เล่นบนเว็บได้ฟรี ไม่ต้องโหลด ยิงเป้า 30 วินาที ยิงกลางเป้านับเป็นเฮดช็อต วอร์มมือก่อนลงแรงค์',
   },
   en: {
-    agents: `Every Valorant agent in ${Y}, including the newest, grouped by role: Duelist, Initiator, Controller and Sentinel. Open any agent for their abilities and ultimate.`,
+    agents: `Every Valorant agent in ${Y}, including the newest, grouped by role: Duelist, Initiator, Controller and Sentinel. Open one for abilities and ultimate.`,
     maps: `All Valorant maps in ${Y}, competitive pool and the rest, with every callout name and a 3D tactical map you can spin.`,
     weapons: `Every Valorant gun in ${Y}: damage by range, shots to kill, fire rate, price and every skin, from the Vandal and Phantom to the Operator, in 3D.`,
     levels: 'Every Valorant level border from level 1 to 480. Enter your account level to see your card frame and level plate, and how many levels until the next one.',
@@ -137,7 +137,8 @@ type PageSeo = {
 /**
  * metadata ของหน้า: path คือ path แบบไม่มีภาษา ('' = หน้าแรก, '/agents/xxx')
  * - canonical ชี้ตัวเอง
- * - hreflang ชี้หน้าเดียวกันอีกภาษา (ไม่ใช่หน้าแรก) + x-default = ภาษาไทย
+ * - hreflang ชี้หน้าเดียวกันอีกภาษา (ไม่ใช่หน้าแรก) + x-default = อังกฤษ
+ *   (x-default คือหน้าที่ Google ส่งให้คนที่ไม่ใช่ไทยหรืออังกฤษ เช่นคนญี่ปุ่น บราซิล — อังกฤษอ่านได้กว้างกว่า)
  */
 export function pageMeta(lang: Lang, path: string, { title, description, image, keywords, absoluteTitle }: PageSeo): Metadata {
   const url = `/${lang}${path}`
@@ -148,7 +149,7 @@ export function pageMeta(lang: Lang, path: string, { title, description, image, 
     keywords: [...(keywords ?? []), ...seoKeywords[lang]],
     alternates: {
       canonical: url,
-      languages: { th: `/th${path}`, en: `/en${path}`, 'x-default': `/th${path}` },
+      languages: { th: `/th${path}`, en: `/en${path}`, 'x-default': `/en${path}` },
     },
     openGraph: {
       type: 'website',
