@@ -3,7 +3,7 @@ import { Anton, Bai_Jamjuree, Chonburi, Courier_Prime, Itim, Kanit, Rye } from '
 import '../globals.css'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { LangProvider } from '@/components/LangProvider'
+import { EnglishHint, LangProvider } from '@/components/LangProvider'
 import FunLayer from '@/components/FunLayer'
 import { SEO_YEAR, SITE_URL, seoKeywords } from '@/lib/seo'
 import { getI18n, langParams } from '@/lib/i18n-server'
@@ -93,6 +93,7 @@ export default async function RootLayout({ children, params }: LayoutProps<'/[la
           <main className="min-h-dvh pt-16">{children}</main>
           <Footer lang={lang} />
           <FunLayer />
+          <EnglishHint />
         </LangProvider>
       </body>
     </html>

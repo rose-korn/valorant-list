@@ -50,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${SITE_URL}/${lang}${p}`,
       lastModified: now,
       priority: p === '' ? 1 : p.split('/').length === 2 ? 0.8 : 0.6,
-      alternates: { languages: { th: `${SITE_URL}/th${p}`, en: `${SITE_URL}/en${p}` } },
+      alternates: { languages: { th: `${SITE_URL}/th${p}`, en: `${SITE_URL}/en${p}`, 'x-default': `${SITE_URL}/en${p}` } },
     })),
   )
 }
