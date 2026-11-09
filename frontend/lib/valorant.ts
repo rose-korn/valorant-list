@@ -70,7 +70,6 @@ export interface GameMap {
   splash: string | null
   stylizedBackgroundImage: string | null
   premierBackgroundImage: string | null
-  mapUrl: string
   xMultiplier: number
   yMultiplier: number
   xScalarToAdd: number

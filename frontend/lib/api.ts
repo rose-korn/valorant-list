@@ -92,7 +92,16 @@ export const getAgents = async (lang: Lang): Promise<Agent[]> => {
   return applyThAbilityOverrides(th, en)
 }
 export const getAgent = async (lang: Lang, uuid: string) => byUuid(await getAgents(lang), uuid)
-export const getMaps = (lang: Lang) => request<GameMap[]>(lang, '/maps', [])
+// API ส่ง mapUrl มาแบบ "/Game/Maps/Ascent/Ascent" ซึ่งดูเหมือนลิงก์ในเว็บ ถ้าหลุดไปอยู่ใน HTML
+// Google จะเอาไปลองเปิดแล้วเจอ 404 (ขึ้นใน Search Console) เลยตัดทิ้งตั้งแต่ตรงนี้ เว็บไม่ได้ใช้
+const fetchMaps = (lang: Lang) => request<(GameMap & { mapUrl?: string; assetPath?: string })[]>(lang, '/maps', [])
+export const getMaps = async (lang: Lang): Promise<GameMap[]> =>
+  (await fetchMaps(lang)).map((raw) => {
+    const m = { ...raw }
+    delete m.mapUrl
+    delete m.assetPath
+    return m
+  })
 export const getMap = async (lang: Lang, uuid: string) => byUuid(await getMaps(lang), uuid)
 export const getWeapons = (lang: Lang) => request<Weapon[]>(lang, '/weapons', [])
 export const getWeapon = async (lang: Lang, uuid: string) => byUuid(await getWeapons(lang), uuid)
