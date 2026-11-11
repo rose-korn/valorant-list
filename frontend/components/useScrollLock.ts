@@ -3,8 +3,8 @@
 import { useEffect } from 'react'
 
 /*
- * ล็อกการเลื่อนหน้าเว็บตอนเปิด modal/เมนู โดย "ไม่ซ่อน" scrollbar ด้านขวา
- * (ไม่ใช้ overflow:hidden ซึ่งทำให้ thumb สีเทาหายและหน้าเลื่อนข้าง)
+ * ล็อกการเลื่อนหน้าเว็บตอนเปิด modal/เมนู โดยรางของ scrollbar ด้านขวายังอยู่ (ซ่อนแค่ thumb)
+ * (ไม่ใช้ overflow:hidden ซึ่งทำให้ scrollbar หายทั้งแถบและหน้าเลื่อนข้าง)
  * วิธีนี้: กัน wheel/touch/ปุ่มคีย์บอร์ดที่จะเลื่อนหน้า และถ้าหน้ายังเลื่อนได้
  * (เช่นลาก thumb) ก็ดึงกลับตำแหน่งเดิมทันที ส่วนกล่องที่เลื่อนได้ข้างใน modal ยังเลื่อนได้ปกติ
  */
@@ -37,11 +37,25 @@ function isTyping(target: EventTarget | null) {
   return target instanceof HTMLElement && (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
 }
 
+/** Chrome ไม่วาด ::-webkit-scrollbar ใหม่เมื่อเปลี่ยน class บน html เลยต้องกระตุ้นให้วาดใหม่ */
+function repaintScrollbar(root: HTMLElement) {
+  const x = window.scrollX
+  const y = window.scrollY
+  const prev = root.style.overflowY
+  root.style.overflowY = 'hidden'
+  void root.offsetHeight
+  root.style.overflowY = prev
+  void root.offsetHeight
+  if (window.scrollY !== y || window.scrollX !== x) window.scrollTo(x, y)
+}
+
 function lock() {
   savedY = window.scrollY
   const root = document.documentElement
   const prevBehavior = root.style.scrollBehavior
   root.style.scrollBehavior = 'auto'
+  root.classList.add('scroll-locked') // ซ่อน thumb เหลือแค่ราง (globals.css)
+  repaintScrollbar(root)
 
   const onWheel = (e: WheelEvent) => {
     if (!canScrollInside(e.target, e.deltaX, e.deltaY)) e.preventDefault()
@@ -80,6 +94,8 @@ function lock() {
     window.removeEventListener('touchmove', onTouchMove, opts)
     window.removeEventListener('keydown', onKey)
     window.removeEventListener('scroll', onScroll)
+    root.classList.remove('scroll-locked')
+    repaintScrollbar(root)
     root.style.scrollBehavior = prevBehavior
   }
 }

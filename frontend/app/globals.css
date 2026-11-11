@@ -105,8 +105,7 @@
     color: var(--color-ink);
     -webkit-tap-highlight-color: transparent;
   }
-  /* scrollbar ของหน้า: วาดเองให้ thumb สีเทาโชว์ค้างตลอด (overlay scrollbar ของ macOS
-     จะซ่อน thumb จนกว่าจะเลื่อน ซึ่งตอนเปิด modal เราล็อกการเลื่อนไว้ เลยไม่เห็นเลย) */
+  /* scrollbar ของหน้า: วาดเองให้รางโชว์ค้างตลอด หน้าจะได้ไม่ขยับข้างตอนเปิด/ปิด modal */
   html::-webkit-scrollbar { width: 12px; }
   html::-webkit-scrollbar-track { background: var(--color-paper-2); }
   html::-webkit-scrollbar-thumb {
@@ -115,8 +114,12 @@
     border-radius: 99px;
   }
   html::-webkit-scrollbar-thumb:hover { background: var(--color-ink-soft); }
+  /* ตอนเปิด modal (useScrollLock): เหลือแค่ราง ซ่อน thumb */
+  html.scroll-locked::-webkit-scrollbar-thumb,
+  html.scroll-locked::-webkit-scrollbar-thumb:hover { background: transparent; border-color: transparent; }
   @supports not selector(::-webkit-scrollbar) {
     html { scrollbar-color: #9a958b var(--color-paper-2); }
+    html.scroll-locked { scrollbar-color: transparent var(--color-paper-2); }
   }
   body {
     min-height: 100dvh;
