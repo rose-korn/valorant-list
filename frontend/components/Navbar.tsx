@@ -4,6 +4,7 @@ import Link from '@/components/Link'
 import { useEffect, useRef, useState } from 'react'
 import { FUN_LINKS, Logo, NAV_LINKS, isLinkActive } from './brand'
 import { LangSwitch, useBarePath, useI18n } from './LangProvider'
+import { useScrollLock } from './useScrollLock'
 
 export default function Navbar() {
   const pathname = useBarePath()
@@ -22,12 +23,7 @@ export default function Navbar() {
   }, [])
 
   // ล็อก scroll ตอนเปิดเมนูมือถือ
-  useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : ''
-    return () => {
-      document.body.style.overflow = ''
-    }
-  }, [open])
+  useScrollLock(open)
 
   // ปิดเมนู "เล่น" เมื่อกดลิงก์ / คลิกข้างนอก / กด Esc
   useEffect(() => {

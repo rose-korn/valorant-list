@@ -6,6 +6,7 @@ import { Viewer3D } from '@/components/three/lazy'
 import { Container } from '@/components/ui'
 import { useI18n } from '@/components/LangProvider'
 import Modal from '@/components/Modal'
+import { useScrollLock } from '@/components/useScrollLock'
 import { NewBadge } from '@/components/ui'
 import { useNow } from '@/components/useNow'
 import { isNewDay, levelItemKey } from '@/lib/valorant'
@@ -79,6 +80,7 @@ export default function SkinExplorer({
   const [sort, setSort] = useState<Sort>('tier')
   const [limit, setLimit] = useState(PAGE)
   const [video, setVideo] = useState<{ src: string; title: string } | null>(null)
+  useScrollLock(!!video)
   const [details, setDetails] = useState(false)
   const closeDetails = useCallback(() => setDetails(false), [])
   const now = useNow(builtAt)
