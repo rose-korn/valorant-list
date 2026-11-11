@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react'
 import { useI18n } from './LangProvider'
+import { useScrollLock } from './useScrollLock'
 
 export default function Modal({
   open,
@@ -17,14 +18,13 @@ export default function Modal({
   wide?: boolean
 }) {
   const { t } = useI18n()
+  useScrollLock(open)
   useEffect(() => {
     if (!open) return
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
-    document.body.style.overflow = 'hidden'
     return () => {
       window.removeEventListener('keydown', onKey)
-      document.body.style.overflow = ''
     }
   }, [open, onClose])
 
