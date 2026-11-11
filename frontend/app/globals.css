@@ -460,17 +460,25 @@
   animation: stamp 2.2s cubic-bezier(.2, .7, .2, 1) forwards;
 }
 
-/* เคอร์เซอร์เป้าเล็งแบบในเกม — เฉพาะอุปกรณ์ที่มีเมาส์ */
+/* เคอร์เซอร์ปืนจิ๋ว + สายคล้องห้อยลูกปัดกับหัวใจ (gun buddy charm) ธีม "น่ารักแต่ยิงหัว" — เฉพาะอุปกรณ์ที่มีเมาส์
+   ปืนเอียง 45° ชี้ขึ้นซ้ายแบบลูกศรเมาส์ ขอบทุกเส้นเป็น 0°/45° จะได้ไม่แตกตอนย่อเหลือ 32px
+   รูปอยู่ใน public/cursors: PNG 1x เรนเดอร์แบบ crispEdges (คม) + @2x เส้นเนียนสำหรับจอความละเอียดสูง, ต้นฉบับ .svg อยู่ข้างกัน
+   จุดคลิก (hotspot) = กลางปากกระบอก (6 5)
+   ชี้ปุ่ม/ลิงก์: ตัวใหญ่ขึ้นราว 14% ปืนเป็นสีแดง หัวใจเป็นเขียวมะนาว มีประกายที่ปากกระบอก
+   ช่องพิมพ์ยังเป็นเคอร์เซอร์ตัวพิมพ์ (text) ตามปกติ
+   บรรทัด url() แรกเป็นตัวสำรองให้เบราว์เซอร์ที่ไม่รู้จัก image-set */
 @media (pointer: fine) {
-  /* ลูกศรปกติแต่ทรงสติกเกอร์ (ขาว + เงาหมึก) ชี้ปุ่ม/ลิงก์แล้วเป็นสีแดง เข้าใจง่ายเหมือนเมาส์ทั่วไป */
   html.fx-cursor,
-  html.fx-cursor body {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M3 2v20l5.5-5 3.5 8 3.5-1.5-3.5-7.5h7z' transform='translate(2 2)' fill='%231d1f24'/%3E%3Cpath d='M3 2v20l5.5-5 3.5 8 3.5-1.5-3.5-7.5h7z' fill='%23fffaf0' stroke='%231d1f24' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, auto;
+  html.fx-cursor body,
+  html.fx-cursor button:disabled {
+    cursor: url('/cursors/charm.png') 6 5, auto;
+    cursor: image-set(url('/cursors/charm.png') 1x, url('/cursors/charm@2x.png') 2x) 6 5, auto;
   }
-  html.fx-cursor :is(a, button, label, select, summary, [role='button'], input:is([type='range'], [type='checkbox'], [type='radio'], [type='color'])) {
-    cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Cpath d='M3 2v20l5.5-5 3.5 8 3.5-1.5-3.5-7.5h7z' transform='translate(2 2)' fill='%231d1f24'/%3E%3Cpath d='M3 2v20l5.5-5 3.5 8 3.5-1.5-3.5-7.5h7z' fill='%23ff4654' stroke='%231d1f24' stroke-width='1.6' stroke-linejoin='round'/%3E%3C/svg%3E") 3 2, pointer;
+  html.fx-cursor :is(a, button:not(:disabled), label, select, summary, [role='button'], [role='link'], [role='tab'], [role='menuitem'], .cursor-pointer, input:is([type='range'], [type='checkbox'], [type='radio'], [type='color'], [type='button'], [type='submit'])) {
+    cursor: url('/cursors/charm-hover.png') 6 5, pointer;
+    cursor: image-set(url('/cursors/charm-hover.png') 1x, url('/cursors/charm-hover@2x.png') 2x) 6 5, pointer;
   }
-  html.fx-cursor :is(input:not([type='range'], [type='checkbox'], [type='radio'], [type='color']), textarea) {
+  html.fx-cursor :is(input:not([type='range'], [type='checkbox'], [type='radio'], [type='color'], [type='button'], [type='submit']), textarea, [contenteditable='true']) {
     cursor: text;
   }
 }

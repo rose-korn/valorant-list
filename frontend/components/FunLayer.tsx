@@ -61,7 +61,7 @@ export default function FunLayer() {
     () => false,
   )
 
-  // เคอร์เซอร์เป้าเล็ง (เฉพาะเมาส์) — เปิดด้วย class บน <html>
+  // เคอร์เซอร์พวงกุญแจปืน (เฉพาะเมาส์) — เปิดด้วย class บน <html> ดู globals.css
   useEffect(() => {
     const root = document.documentElement
     root.classList.toggle('fx-cursor', on)
