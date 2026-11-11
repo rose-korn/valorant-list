@@ -461,21 +461,21 @@
 }
 
 /* เคอร์เซอร์พวงกุญแจปืนจิ๋ว (gun buddy) ธีม "น่ารักแต่ยิงหัว" — เฉพาะอุปกรณ์ที่มีเมาส์
-   รูปอยู่ใน public/cursors (PNG 32px วาดให้ลงพิกเซลพอดีจะได้ไม่เบลอ + @2x สำหรับจอความละเอียดสูง, ต้นฉบับ .svg อยู่ข้างกัน)
-   จุดคลิก (hotspot) = ปลายกระบอกปืน (4 7)
-   ชี้ปุ่ม/ลิงก์: ปืนเป็นสีแดง หัวใจเป็นเขียวมะนาว มีประกายที่ปากกระบอก
+   รูปอยู่ใน public/cursors (PNG 32px เรนเดอร์แบบไม่ลบรอยหยัก (crispEdges) จะได้คมไม่เบลอ + @2x แบบเส้นเนียนสำหรับจอความละเอียดสูง, ต้นฉบับ .svg อยู่ข้างกัน)
+   เป็นจี้ห้อย: ห่วงพวงกุญแจอยู่มุมซ้ายบน ปืนเอียงห้อยลงมาตามโซ่, จุดคลิก (hotspot) = กลางห่วง (4 4)
+   ชี้ปุ่ม/ลิงก์: ปืนเป็นสีแดง ห่วงเป็นเขียวมะนาว มีประกายที่ปากกระบอก
    ช่องพิมพ์ยังเป็นเคอร์เซอร์ตัวพิมพ์ (text) ตามปกติ
    บรรทัด url() แรกเป็นตัวสำรองให้เบราว์เซอร์ที่ไม่รู้จัก image-set */
 @media (pointer: fine) {
   html.fx-cursor,
   html.fx-cursor body,
   html.fx-cursor button:disabled {
-    cursor: url('/cursors/charm.png') 4 7, auto;
-    cursor: image-set(url('/cursors/charm.png') 1x, url('/cursors/charm@2x.png') 2x) 4 7, auto;
+    cursor: url('/cursors/charm.png') 4 4, auto;
+    cursor: image-set(url('/cursors/charm.png') 1x, url('/cursors/charm@2x.png') 2x) 4 4, auto;
   }
   html.fx-cursor :is(a, button:not(:disabled), label, select, summary, [role='button'], [role='link'], [role='tab'], [role='menuitem'], .cursor-pointer, input:is([type='range'], [type='checkbox'], [type='radio'], [type='color'], [type='button'], [type='submit'])) {
-    cursor: url('/cursors/charm-hover.png') 4 7, pointer;
-    cursor: image-set(url('/cursors/charm-hover.png') 1x, url('/cursors/charm-hover@2x.png') 2x) 4 7, pointer;
+    cursor: url('/cursors/charm-hover.png') 4 4, pointer;
+    cursor: image-set(url('/cursors/charm-hover.png') 1x, url('/cursors/charm-hover@2x.png') 2x) 4 4, pointer;
   }
   html.fx-cursor :is(input:not([type='range'], [type='checkbox'], [type='radio'], [type='color'], [type='button'], [type='submit']), textarea, [contenteditable='true']) {
     cursor: text;
