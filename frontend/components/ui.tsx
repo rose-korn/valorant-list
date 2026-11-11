@@ -64,7 +64,11 @@ export function PageHero({
       {fair ? (
         <div aria-hidden className="sunburst pointer-events-none absolute inset-x-0 bottom-0 h-[160%]" />
       ) : (
-        <div aria-hidden className="halftone pointer-events-none absolute top-6 -right-28 h-[24rem] w-[24rem] md:right-6" />
+        // จอแคบ: วงเม็ดสกรีนจะทับชื่อหน้า (แดงบนแดง) กับคำอธิบายจนอ่านไม่ออก เลยย้ายลงเป็นแถบบาง ๆ ในช่องว่างใต้เนื้อหาแทน
+        <div
+          aria-hidden
+          className="halftone pointer-events-none absolute inset-x-0 bottom-1 h-7 sm:inset-x-auto sm:top-6 sm:-right-28 sm:bottom-auto sm:h-[24rem] sm:w-[24rem] md:right-6"
+        />
       )}
       <Container className="relative pt-8 pb-10 md:pt-10 md:pb-12">
         <div className={`flex items-center justify-between gap-3 border-b-[1.5px] pb-1.5 font-mono text-xs font-bold tracking-[0.18em] uppercase ${fair ? 'border-ink text-ink' : 'border-blue text-blue'}`}>
