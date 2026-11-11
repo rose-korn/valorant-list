@@ -101,12 +101,19 @@ export function DailyShareCard({ plan }: { plan: DailyPlan }) {
   const a = plan.agents[useSlot(plan, plan.agents.length)]
   return (
     <Link href={a ? `/share?a=${a.uuid}` : '/share'} className="card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-sky p-6">
-      <span className="kicker">Make your own · DIY</span>
-      <h3 className="mt-2 max-w-[60%] text-3xl font-bold">{h.shareTitle}</h3>
-      <p className="mt-2 max-w-[60%] text-ink/75">{h.shareDesc}</p>
-      <span className="btn mt-auto self-start">{h.shareCta}</span>
+      <span className="kicker relative z-10">Make your own · DIY</span>
+      <h3 className="relative z-10 mt-2 max-w-[55%] text-3xl font-bold">{h.shareTitle}</h3>
+      <p className="relative z-10 mt-2 max-w-[55%] text-ink/75">{h.shareDesc}</p>
+      <span className="btn relative z-10 mt-auto self-start">{h.shareCta}</span>
+      {/* รูปเต็มตัวเป็นสี่เหลี่ยมจัตุรัส ตัวละครอยู่กลางภาพ: กำหนดขนาดตามความกว้างการ์ด
+          แล้ววางให้ตัวละครอยู่ฝั่งขวา ไม่ไปบังหัวเรื่อง/คำอธิบาย (เดิมสูง 115% ของการ์ด ตัวละครเลยล้นมาทับข้อความ) */}
       {a?.portrait && (
-        <img key={a.uuid} src={a.portrait} alt="" className="pointer-events-none absolute -right-10 -bottom-6 h-[115%] w-auto rotate-6 object-contain sticker" />
+        <img
+          key={a.uuid}
+          src={a.portrait}
+          alt=""
+          className="pointer-events-none absolute -bottom-6 left-[38%] aspect-square w-[80%] max-w-none rotate-6 object-contain sticker"
+        />
       )}
     </Link>
   )
