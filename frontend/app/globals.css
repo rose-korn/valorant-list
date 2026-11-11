@@ -461,27 +461,24 @@
 }
 
 /* เคอร์เซอร์พวงกุญแจปืนจิ๋ว (gun buddy) ธีม "น่ารักแต่ยิงหัว" — เฉพาะอุปกรณ์ที่มีเมาส์
-   จุดคลิก (hotspot) = ปลายกระบอกปืนมุมซ้ายบน (5 3) ขนาด 32px เพื่อให้ทุกเบราว์เซอร์ยอมใช้
+   รูปอยู่ใน public/cursors (PNG 32px วาดให้ลงพิกเซลพอดีจะได้ไม่เบลอ + @2x สำหรับจอความละเอียดสูง, ต้นฉบับ .svg อยู่ข้างกัน)
+   จุดคลิก (hotspot) = ปลายกระบอกปืน (4 7)
    ชี้ปุ่ม/ลิงก์: ปืนเป็นสีแดง หัวใจเป็นเขียวมะนาว มีประกายที่ปากกระบอก
-   ช่องพิมพ์ยังเป็นเคอร์เซอร์ตัวพิมพ์ (text) ตามปกติ */
+   ช่องพิมพ์ยังเป็นเคอร์เซอร์ตัวพิมพ์ (text) ตามปกติ
+   บรรทัด url() แรกเป็นตัวสำรองให้เบราว์เซอร์ที่ไม่รู้จัก image-set */
 @media (pointer: fine) {
-  html.fx-cursor {
-    --cur-charm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23fff5ef' stroke-width='3.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath transform='translate(5 2.5) rotate(33) translate(-2.5 -4)' d='M2.5 4h13.5a3 3 0 0 1 3 3v2.4a2 2 0 0 1-2 2h-1l1.5 5.8a1.5 1.5 0 0 1-1.5 1.9h-2.4a1.5 1.5 0 0 1-1.4-1.1l-1.2-4.3H9.4a1.4 1.4 0 0 1-1.4-1.2l-.1-.8H4.4a1.9 1.9 0 0 1-1.9-1.9z'/%3E%3Cpath d='M13.4 21.4l2.8 1.9'/%3E%3Cpath d='M20.6 30.2c-3.2-2.1-5.1-3.8-5.1-5.7a2.15 2.15 0 0 1 5.1-1.4 2.15 2.15 0 0 1 5.1 1.4c0 1.9-1.9 3.6-5.1 5.7z'/%3E%3C/g%3E%3Cg transform='translate(5 2.5) rotate(33) translate(-2.5 -4)'%3E%3Cpath d='M2.5 4h13.5a3 3 0 0 1 3 3v2.4a2 2 0 0 1-2 2h-1l1.5 5.8a1.5 1.5 0 0 1-1.5 1.9h-2.4a1.5 1.5 0 0 1-1.4-1.1l-1.2-4.3H9.4a1.4 1.4 0 0 1-1.4-1.2l-.1-.8H4.4a1.9 1.9 0 0 1-1.9-1.9z' fill='%23ff7ab8' stroke='%231d1f24' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M2.5 4h13.5a3 3 0 0 1 3 3v.5H2.5z' fill='%23fff5ef' stroke='%231d1f24' stroke-width='1.4' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='9.4' r='.9' fill='%231d1f24'/%3E%3Ccircle cx='15.6' cy='9.4' r='.9' fill='%231d1f24'/%3E%3Cpath d='M13.2 10.6q.6.6 1.2 0' fill='none' stroke='%231d1f24' stroke-width='.7' stroke-linecap='round'/%3E%3C/g%3E%3Cpath d='M13.4 21.4l2.8 1.9' stroke='%231d1f24' stroke-width='1.2' stroke-linecap='round' stroke-dasharray='1 1.3'/%3E%3Cpath d='M20.6 30.2c-3.2-2.1-5.1-3.8-5.1-5.7a2.15 2.15 0 0 1 5.1-1.4 2.15 2.15 0 0 1 5.1 1.4c0 1.9-1.9 3.6-5.1 5.7z' fill='%23ff4654' stroke='%231d1f24' stroke-width='1.3' stroke-linejoin='round'/%3E%3C/svg%3E") 5 3, auto;
-    --cur-charm-hover: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cg fill='none' stroke='%23fff5ef' stroke-width='3.6' stroke-linejoin='round' stroke-linecap='round'%3E%3Cpath transform='translate(5 2.5) rotate(33) translate(-2.5 -4)' d='M2.5 4h13.5a3 3 0 0 1 3 3v2.4a2 2 0 0 1-2 2h-1l1.5 5.8a1.5 1.5 0 0 1-1.5 1.9h-2.4a1.5 1.5 0 0 1-1.4-1.1l-1.2-4.3H9.4a1.4 1.4 0 0 1-1.4-1.2l-.1-.8H4.4a1.9 1.9 0 0 1-1.9-1.9z'/%3E%3Cpath d='M13.4 21.4l2.8 1.9'/%3E%3Cpath d='M20.6 30.2c-3.2-2.1-5.1-3.8-5.1-5.7a2.15 2.15 0 0 1 5.1-1.4 2.15 2.15 0 0 1 5.1 1.4c0 1.9-1.9 3.6-5.1 5.7z'/%3E%3C/g%3E%3Cg transform='translate(5 2.5) rotate(33) translate(-2.5 -4)'%3E%3Cpath d='M2.5 4h13.5a3 3 0 0 1 3 3v2.4a2 2 0 0 1-2 2h-1l1.5 5.8a1.5 1.5 0 0 1-1.5 1.9h-2.4a1.5 1.5 0 0 1-1.4-1.1l-1.2-4.3H9.4a1.4 1.4 0 0 1-1.4-1.2l-.1-.8H4.4a1.9 1.9 0 0 1-1.9-1.9z' fill='%23ff4654' stroke='%231d1f24' stroke-width='1.4' stroke-linejoin='round'/%3E%3Cpath d='M2.5 4h13.5a3 3 0 0 1 3 3v.5H2.5z' fill='%23fff5ef' stroke='%231d1f24' stroke-width='1.4' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='9.4' r='.9' fill='%231d1f24'/%3E%3Ccircle cx='15.6' cy='9.4' r='.9' fill='%231d1f24'/%3E%3Cpath d='M13.2 10.6q.6.6 1.2 0' fill='none' stroke='%231d1f24' stroke-width='.7' stroke-linecap='round'/%3E%3C/g%3E%3Cpath d='M13.4 21.4l2.8 1.9' stroke='%231d1f24' stroke-width='1.2' stroke-linecap='round' stroke-dasharray='1 1.3'/%3E%3Cpath d='M20.6 30.2c-3.2-2.1-5.1-3.8-5.1-5.7a2.15 2.15 0 0 1 5.1-1.4 2.15 2.15 0 0 1 5.1 1.4c0 1.9-1.9 3.6-5.1 5.7z' fill='%23c8f03c' stroke='%231d1f24' stroke-width='1.3' stroke-linejoin='round'/%3E%3Cpath d='M1.6 7.2l.5 1.3 1.3.5-1.3.5-.5 1.3-.5-1.3L-.2 9l1.3-.5z' transform='translate(1 1)' fill='%23c8f03c' stroke='%231d1f24' stroke-width='.6' stroke-linejoin='round'/%3E%3C/svg%3E") 5 3, pointer;
-  }
   html.fx-cursor,
-  html.fx-cursor body {
-    cursor: var(--cur-charm);
+  html.fx-cursor body,
+  html.fx-cursor button:disabled {
+    cursor: url('/cursors/charm.png') 4 7, auto;
+    cursor: image-set(url('/cursors/charm.png') 1x, url('/cursors/charm@2x.png') 2x) 4 7, auto;
   }
-  html.fx-cursor :is(a, button, label, select, summary, [role='button'], [role='link'], [role='tab'], [role='menuitem'], .cursor-pointer, input:is([type='range'], [type='checkbox'], [type='radio'], [type='color'], [type='button'], [type='submit'])) {
-    cursor: var(--cur-charm-hover);
+  html.fx-cursor :is(a, button:not(:disabled), label, select, summary, [role='button'], [role='link'], [role='tab'], [role='menuitem'], .cursor-pointer, input:is([type='range'], [type='checkbox'], [type='radio'], [type='color'], [type='button'], [type='submit'])) {
+    cursor: url('/cursors/charm-hover.png') 4 7, pointer;
+    cursor: image-set(url('/cursors/charm-hover.png') 1x, url('/cursors/charm-hover@2x.png') 2x) 4 7, pointer;
   }
   html.fx-cursor :is(input:not([type='range'], [type='checkbox'], [type='radio'], [type='color'], [type='button'], [type='submit']), textarea, [contenteditable='true']) {
     cursor: text;
-  }
-  /* ปุ่มที่กดไม่ได้ ใช้ตัวปกติ ไม่เปลี่ยนเป็นสีแดง */
-  html.fx-cursor button:disabled {
-    cursor: var(--cur-charm);
   }
 }
 
