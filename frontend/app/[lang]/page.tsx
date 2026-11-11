@@ -211,13 +211,13 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
           <SectionHeading title={h.funTitle} note={h.funNote} />
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             <DailyShareCard plan={daily} />
-            <Link href="/play/beat" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-night p-6 text-paper">
+            <Link href="/play/beat" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-night p-6 !text-paper">
               <span className="font-mono text-xs font-bold tracking-[0.2em] text-mustard uppercase">Admit one · Game A</span>
-              <h3 className="mt-2 text-3xl font-bold">{h.playTitle}</h3>
-              <p className="mt-2 max-w-md text-paper/75">{h.playDesc}</p>
-              <span className="btn mt-auto self-start">{h.playCta}</span>
-              {/* ปุ่ม W A S D แบบคีย์แคป */}
-              <svg viewBox="0 0 100 70" className="pointer-events-none absolute -right-3 -bottom-3 h-32 w-44 animate-bob opacity-90" aria-hidden>
+              <h3 className="relative z-10 mt-2 text-3xl font-bold">{h.playTitle}</h3>
+              <p className="relative z-10 mt-2 max-w-md text-paper/75">{h.playDesc}</p>
+              <span className="btn relative z-10 mt-auto self-start">{h.playCta}</span>
+              {/* ปุ่ม W A S D แบบคีย์แคป: บนมือถือย่อให้อยู่แค่แถวปุ่ม ไม่ขึ้นไปทับคำอธิบาย */}
+              <svg viewBox="0 0 100 70" className="pointer-events-none absolute -right-2 -bottom-2 h-20 w-28 animate-bob opacity-90 sm:-right-3 sm:-bottom-3 sm:h-32 sm:w-44" aria-hidden>
                 {[
                   ['W', 35, 4],
                   ['A', 4, 36],
@@ -235,10 +235,11 @@ export default async function HomePage({ params }: PageProps<'/[lang]'>) {
             </Link>
             <Link href="/random" className="fair card card-hover relative flex min-h-56 flex-col overflow-hidden !bg-mustard p-6 md:col-span-2 lg:col-span-1">
               <span className="font-mono text-xs font-bold tracking-[0.2em] uppercase">Admit one · Wheel</span>
-              <h3 className="mt-2 text-3xl font-bold">{h.randomTitle}</h3>
-              <p className="mt-2 max-w-[70%] text-ink/75">{h.randomDesc}</p>
-              <span className="btn mt-auto self-start">{h.randomCta}</span>
-              <div className="pointer-events-none absolute -right-8 -bottom-8 h-40 w-40 animate-[spin_14s_linear_infinite]" aria-hidden>
+              <h3 className="relative z-10 mt-2 text-3xl font-bold">{h.randomTitle}</h3>
+              <p className="relative z-10 mt-2 max-w-[70%] text-ink/75">{h.randomDesc}</p>
+              <span className="btn relative z-10 mt-auto self-start">{h.randomCta}</span>
+              {/* วงล้อ: มือถือเล็กลงให้อยู่ข้างปุ่ม ไม่กินบรรทัดท้ายของคำอธิบาย */}
+              <div className="pointer-events-none absolute -right-6 -bottom-6 h-28 w-28 animate-[spin_14s_linear_infinite] sm:-right-8 sm:-bottom-8 sm:h-40 sm:w-40" aria-hidden>
                 <div className="grid h-full w-full grid-cols-2 overflow-hidden rounded-full border-4 border-[var(--color-ink)]">
                   {agents.slice(0, 4).map((a) => (
                     <div key={a.uuid} style={{ background: agentColor(a) }}>
